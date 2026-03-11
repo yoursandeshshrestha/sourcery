@@ -21,7 +21,7 @@ export default function HeroSection() {
             New
           </span>
           <span className="text-[#1A2208] text-sm font-medium tracking-wide">
-            Launching Property Deal Marketplace
+            Off-Market Property Deals
           </span>
           <svg
             className="w-4 h-4 text-[#1A2208]"
@@ -36,11 +36,11 @@ export default function HeroSection() {
         {/* Main Heading */}
         <h1 className="text-5xl sm:text-6xl lg:text-7xl font-normal mb-6 text-[#1F2223] leading-[1.15]"
             style={{ fontFamily: "'Recoleta Regular', serif" }}>
-          Turn off-market deals into{' '}
+          Find verified off-market deals in{' '}
           <span className="relative inline-block">
-            <span className="relative z-10">secure revenue</span>
+            <span className="relative z-10">one place</span>
             <span
-              className="absolute bottom-2 left-0 right-0 h-3 bg-[#D0EE89] -z-0"
+              className="absolute bottom-2 left-0 right-0 h-3 bg-[#D0EE89] z-0"
               style={{ transform: 'translateY(0.5em)' }}
             />
           </span>
@@ -48,8 +48,8 @@ export default function HeroSection() {
 
         {/* Description */}
         <p className="text-lg sm:text-xl text-[#5C5C49] max-w-3xl mx-auto mb-10 leading-relaxed">
-          Sourcery is the trusted marketplace where property sourcers and investors connect.
-          List deals, secure payments through escrow, and track transactions to legal completion.
+          Stop scrolling through 50 WhatsApp groups. Access curated off-market property deals
+          with verified data, secure payments, and end-to-end tracking.
         </p>
 
         {/* CTA Buttons */}
@@ -59,7 +59,7 @@ export default function HeroSection() {
               size="lg"
               className="w-full sm:w-auto bg-[#E0FF82] hover:bg-[#D0EE89] text-[#1A2208] font-medium text-base px-8 py-6 rounded-xl border-0 cursor-pointer"
             >
-              Start for free
+              Browse Deals Now
             </Button>
           </Link>
           <Link to="/auth">
@@ -68,7 +68,7 @@ export default function HeroSection() {
               variant="outline"
               className="w-full sm:w-auto bg-[#1A2208] hover:bg-[#2A3218] text-white font-medium text-base px-8 py-6 rounded-xl border border-white/10 cursor-pointer"
             >
-              Book a demo
+              See How It Works
             </Button>
           </Link>
         </div>
@@ -79,19 +79,19 @@ export default function HeroSection() {
             <svg className="w-5 h-5 text-[#D0EE89]" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
             </svg>
-            <span>Escrow Protected</span>
+            <span>Verified Financials</span>
           </div>
           <div className="flex items-center gap-2">
             <svg className="w-5 h-5 text-[#D0EE89]" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
             </svg>
-            <span>KYC Verified Sourcers</span>
+            <span>Secure Payments</span>
           </div>
           <div className="flex items-center gap-2">
             <svg className="w-5 h-5 text-[#D0EE89]" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
             </svg>
-            <span>End-to-End Tracking</span>
+            <span>No Signup Required to Browse</span>
           </div>
         </div>
       </div>

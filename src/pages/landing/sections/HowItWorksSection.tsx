@@ -2,45 +2,39 @@ export default function HowItWorksSection() {
   const steps = [
     {
       number: '01',
-      title: 'Supply Generation',
-      description: 'Verified Sourcer uploads deal. Backend auto-calculates financials (Yield/ROI).',
+      title: 'Browse Deals',
+      description: 'No signup required. See verified off-market opportunities with accurate ROI, Yield, and location info.',
       color: 'bg-[#E0FF82]'
     },
     {
       number: '02',
-      title: 'Redacted Discovery',
-      description: 'Investors browse feed. Critical data (address, vendor, docs) hidden by RLS.',
+      title: 'Find Your Match',
+      description: 'Filter by strategy (HMO, Flip, BTL), location, ROI range. All financial data calculated by our system.',
       color: 'bg-[#D0EE89]'
     },
     {
       number: '03',
-      title: 'The Lock',
-      description: 'Investor clicks "Reserve", signs digital NDA, pays reservation fee via Stripe.',
+      title: 'Reserve Securely',
+      description: 'Sign a digital NDA and pay your reservation fee. Funds held in escrow for your protection.',
       color: 'bg-[#E0FF82]'
     },
     {
       number: '04',
-      title: 'Escrow Hold',
-      description: 'Stripe captures funds in platform balance.',
+      title: 'Get Full Access',
+      description: 'Instantly unlock exact address, vendor details, and legal pack. Download everything you need.',
       color: 'bg-[#D0EE89]'
     },
     {
       number: '05',
-      title: 'The Unlock',
-      description: 'Stripe webhook triggers DB update. RLS policy grants access to redacted data.',
+      title: 'Track Progress',
+      description: 'Built-in dashboard tracks your deal through legals, valuation, mortgage offer, and exchange.',
       color: 'bg-[#E0FF82]'
     },
     {
       number: '06',
-      title: 'Progression',
-      description: 'Both parties use Kanban to track deal through legals, valuation, and exchange.',
+      title: 'Complete the Deal',
+      description: 'When you reach completion, authorize the sourcing fee payout. Or let it auto-release after 72 hours.',
       color: 'bg-[#D0EE89]'
-    },
-    {
-      number: '07',
-      title: 'Completion',
-      description: 'Deal completes. System triggers Stripe transfer. Sourcing fee paid (minus commission).',
-      color: 'bg-[#E0FF82]'
     }
   ];
 
@@ -50,15 +44,15 @@ export default function HowItWorksSection() {
         {/* Section Header */}
         <div className="text-center mb-16">
           <p className="text-sm font-medium text-[#5C5C49] uppercase tracking-wide mb-4">
-            The Core Loop
+            Your Journey
           </p>
           <h2
             className="text-4xl sm:text-5xl font-normal text-[#1F2223] mb-6 leading-tight"
             style={{ fontFamily: "'Recoleta Regular', serif" }}
           >
-            How Sourcery{' '}
+            From browsing to{' '}
             <span className="relative inline-block">
-              <span className="relative z-10">works</span>
+              <span className="relative z-10">completion</span>
               <span
                 className="absolute bottom-0 left-0 right-0 h-2 bg-[#D0EE89]"
                 style={{ transform: 'translateY(-0.25em)' }}
@@ -66,7 +60,7 @@ export default function HowItWorksSection() {
             </span>
           </h2>
           <p className="text-lg text-[#5C5C49] max-w-2xl mx-auto">
-            From deal upload to completion, every step is designed for security and transparency.
+            Simple, secure, and transparent. Here's exactly what happens when you invest through Sourcery.
           </p>
         </div>
 

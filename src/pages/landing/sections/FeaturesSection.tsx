@@ -1,8 +1,8 @@
 export default function FeaturesSection() {
   const features = [
     {
-      title: 'Trust Engine',
-      description: 'KYC/AML verified sourcers and escrow-protected payments via Stripe Connect ensure every transaction is secure.',
+      title: 'Verified Deals Only',
+      description: 'Every sourcer is KYC/AML verified. No more scams, ghost deals, or time-wasters. Only legitimate opportunities from trusted professionals.',
       icon: (
         <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
@@ -10,8 +10,8 @@ export default function FeaturesSection() {
       )
     },
     {
-      title: 'The Maths Guard',
-      description: 'Auto-calculated ROI, Yield, and ROCE from raw inputs. No more manipulated financial data or impossible figures.',
+      title: 'Accurate Financials',
+      description: 'ROI, Yield, and ROCE calculated by our system from raw data. No more inflated numbers or manipulated figures. See the real deal metrics.',
       icon: (
         <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
@@ -19,11 +19,11 @@ export default function FeaturesSection() {
       )
     },
     {
-      title: 'The Sticky CRM',
-      description: 'Built-in Kanban board tracks deals from reservation through legal completion. Keep everything on the platform.',
+      title: 'Protected Payments',
+      description: 'Your reservation fee is held in escrow until you confirm deal details. Track progress from reservation to legal completion in one place.',
       icon: (
         <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
         </svg>
       )
     }
@@ -35,15 +35,15 @@ export default function FeaturesSection() {
         {/* Section Header */}
         <div className="text-center mb-16">
           <p className="text-sm font-medium text-[#5C5C49] uppercase tracking-wide mb-4">
-            Discover Sourcery
+            Why Investors Choose Sourcery
           </p>
           <h2
             className="text-4xl sm:text-5xl font-normal text-[#1F2223] mb-6 leading-tight"
             style={{ fontFamily: "'Recoleta Regular', serif" }}
           >
-            A secure, modular platform built for modern{' '}
+            Stop wasting time on{' '}
             <span className="relative inline-block">
-              <span className="relative z-10">operations</span>
+              <span className="relative z-10">bad deals</span>
               <span
                 className="absolute bottom-0 left-0 right-0 h-2 bg-[#D0EE89]"
                 style={{ transform: 'translateY(-0.25em)' }}
@@ -51,7 +51,7 @@ export default function FeaturesSection() {
             </span>
           </h2>
           <p className="text-lg text-[#5C5C49] max-w-2xl mx-auto">
-            Sourcery gives you the structure to build and run a marketplace that scales.
+            Every deal on Sourcery is verified, every number is accurate, and every payment is protected.
           </p>
         </div>
 

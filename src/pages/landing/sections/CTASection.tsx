@@ -19,20 +19,19 @@ export default function CTASection() {
           className="text-4xl sm:text-5xl lg:text-6xl font-normal text-white mb-6 leading-tight"
           style={{ fontFamily: "'Recoleta Regular', serif" }}
         >
-          Ready to modernize your{' '}
+          Stop scrolling WhatsApp. Start{' '}
           <span className="relative inline-block">
-            <span className="relative z-10">property sourcing</span>
+            <span className="relative z-10">investing smarter</span>
             <span
               className="absolute bottom-2 left-0 right-0 h-3 bg-[#D0EE89]"
               style={{ transform: 'translateY(0.5em)' }}
             />
           </span>
-          ?
         </h2>
 
         <p className="text-lg text-[#E9E6DF] max-w-2xl mx-auto mb-10">
-          Join hundreds of property sourcers and investors who have eliminated fraud,
-          standardized financial data, and secured their transactions.
+          Join investors who have ditched fragmented WhatsApp groups for verified deals,
+          accurate data, and secure payments.
         </p>
 
         {/* CTA Buttons */}
@@ -42,7 +41,7 @@ export default function CTASection() {
               size="lg"
               className="w-full sm:w-auto bg-[#E0FF82] hover:bg-[#D0EE89] text-[#1A2208] font-medium text-base px-8 py-6 rounded-xl border-0 cursor-pointer"
             >
-              Start for free
+              Browse Deals Now
             </Button>
           </Link>
           <Link to="/auth">
@@ -51,7 +50,7 @@ export default function CTASection() {
               variant="outline"
               className="w-full sm:w-auto bg-transparent hover:bg-white/10 text-white font-medium text-base px-8 py-6 rounded-xl border border-white/20 cursor-pointer"
             >
-              Book a demo
+              Learn More
             </Button>
           </Link>
         </div>
