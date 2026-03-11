@@ -4,12 +4,31 @@ import type { User, Session } from '@supabase/supabase-js';
 
 interface UserProfile {
   id: string;
+  role: 'INVESTOR' | 'SOURCER' | 'ADMIN';
+  verification_status: 'PENDING' | 'VERIFIED' | 'REJECTED';
+
+  // Basic info
+  first_name: string;
+  last_name: string;
   email: string;
-  full_name: string;
-  role: 'employee' | 'approver' | 'procurement_manager' | 'finance' | 'admin';
-  department_id: string | null;
-  approval_limit: number;
-  is_active: boolean;
+  phone: string | null;
+  company_name: string | null;
+  bio: string | null;
+  avatar_url: string | null;
+
+  // Sourcer-specific fields
+  id_document_url: string | null;
+  aml_document_url: string | null;
+  insurance_document_url: string | null;
+  stripe_connected_account_id: string | null;
+  stripe_onboarding_completed: boolean;
+
+  // Investor-specific fields
+  stripe_customer_id: string | null;
+
+  // Timestamps
+  created_at: string;
+  updated_at: string;
 }
 
 interface AuthContextType {
@@ -18,7 +37,6 @@ interface AuthContextType {
   session: Session | null;
   loading: boolean;
   signInWithGoogle: () => Promise<{ error: Error | null }>;
-  signInWithEmail: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -33,73 +51,55 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchUserProfile = async (userId: string) => {
     try {
+      console.log('🔍 [AuthContext] Fetching profile for user:', userId);
       const { data, error } = await supabase
-        .from('users')
+        .from('profiles')
         .select('*')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
+
+      console.log('📦 [AuthContext] Profile fetch result:', { data, error });
 
       if (error) {
-        // If profile doesn't exist, create it (first-time Google OAuth user)
-        if (error.code === 'PGRST116') {
-          console.log('Profile not found, creating new profile...');
-          const { data: authUser } = await supabase.auth.getUser();
-          if (authUser.user) {
-            console.log('Auth user:', authUser.user.email);
-            const { data: newProfile, error: insertError } = await supabase
-              .from('users')
-              .insert({
-                id: userId,
-                email: authUser.user.email || '',
-                full_name: authUser.user.user_metadata.full_name || authUser.user.email || 'User',
-                role: 'employee',
-                is_active: true,
-              })
-              .select()
-              .single();
-
-            if (insertError) {
-              console.error('Failed to create profile:', insertError);
-            } else {
-              console.log('Profile created successfully:', newProfile);
-            }
-
-            if (!insertError && newProfile) {
-              setProfile(newProfile as UserProfile);
-              return;
-            }
-          }
-        }
         throw error;
       }
-      setProfile(data as UserProfile);
+
+      // data will be null if profile doesn't exist (user needs to complete onboarding)
+      setProfile(data as UserProfile | null);
+      console.log('✅ [AuthContext] Profile set:', data ? 'Profile exists' : 'No profile');
     } catch (error) {
-      console.error('Error fetching user profile:', error);
+      console.error('❌ [AuthContext] Error fetching user profile:', error);
       setProfile(null);
     }
   };
 
   useEffect(() => {
+    console.log('🚀 [AuthContext] Initializing auth state');
+
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('📡 [AuthContext] Initial session:', session ? `User: ${session.user.email}` : 'No session');
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
         fetchUserProfile(session.user.id);
       }
       setLoading(false);
+      console.log('⏱️ [AuthContext] Initial loading complete');
     });
 
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('🔔 [AuthContext] Auth state changed:', event, session ? `User: ${session.user.email}` : 'No session');
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
         fetchUserProfile(session.user.id);
       } else {
         setProfile(null);
+        console.log('🚫 [AuthContext] No session, profile cleared');
       }
       setLoading(false);
     });
@@ -108,20 +108,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signInWithGoogle = async () => {
+    console.log('🔑 [AuthContext] Initiating Google OAuth sign-in');
+    console.log('🔗 [AuthContext] Redirect URL:', `${window.location.origin}/auth/callback`);
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
       },
     });
-    return { error };
-  };
-
-  const signInWithEmail = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    if (error) {
+      console.error('❌ [AuthContext] OAuth error:', error);
+    }
     return { error };
   };
 
@@ -144,7 +141,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     session,
     loading,
     signInWithGoogle,
-    signInWithEmail,
     signOut,
     refreshProfile,
   };

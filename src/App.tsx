@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Layout from '@/components/Layout';
-import LoginPage from '@/pages/login';
+import AuthPage from '@/pages/auth';
 import AuthCallback from '@/pages/auth-callback';
 import DashboardPage from '@/pages/dashboard';
 import SettingsPage from '@/pages/settings';
@@ -15,7 +15,7 @@ function App() {
       <AuthProvider>
         <Routes>
           {/* Public routes */}
-          <Route path="/login" element={<LoginPage />} />
+          <Route path="/auth" element={<AuthPage />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
 
           {/* Protected routes */}
