@@ -51,19 +51,21 @@ All 19 migrations deployed and production-ready:
 
 #### User Management
 - [ ] **Profile Management UI:**
-  - Investor view (basic profile + verification)
-  - Sourcer view (documents upload)
-  - Admin view (KYC approval)
-- [ ] **Document Upload System:**
-  - Supabase Storage buckets setup
+  - **Investor view:** Basic profile editing (name, phone, company, bio) - NO verification required
+  - **Sourcer view:** Profile editing + Document upload section (ID, AML, Insurance)
+  - **Admin view:** Enhanced profile view with verification controls
+- [ ] **Document Upload System (Sourcers Only):**
+  - Supabase Storage buckets setup (`documents`, `avatars`)
   - File upload component with drag-and-drop
-  - ID, AML, Insurance documents
+  - ID, AML, Insurance document types
   - Signed URLs for secure access
   - Storage RLS policies
-- [ ] **Admin KYC Dashboard:**
-  - Document viewer
+- [ ] **Admin KYC Dashboard (Sourcer Verification):**
+  - List pending Sourcer verifications
+  - Document viewer modal
   - Approve/Reject workflow
-  - Verification status updates
+  - Update `verification_status` in profiles table
+  - Note: Investors require NO verification for MVP
 
 **Deliverables:**
 - ✅ Functional database with RLS
