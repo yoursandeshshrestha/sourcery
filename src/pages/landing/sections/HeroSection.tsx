@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 
 export default function HeroSection() {
   return (
-    <section className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 overflow-hidden">
+    <section className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 overflow-hidden pt-20">
       {/* Dots Pattern Background */}
       <div
         className="absolute inset-0 opacity-30"
