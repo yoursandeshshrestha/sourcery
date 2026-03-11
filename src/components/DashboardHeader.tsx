@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -26,7 +26,14 @@ export function DashboardHeader() {
   const { toggleSidebar, isCollapsed } = useSidebar();
   const { profile, user, signOut } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+
+  // Helper to get full name
+  const getFullName = () => {
+    if (!profile) return 'User';
+    return `${profile.first_name} ${profile.last_name}`.trim() || 'User';
+  };
 
   const handleLogout = async () => {
     if (signOut) {
@@ -133,7 +140,7 @@ export function DashboardHeader() {
             <button className="flex items-center gap-2 cursor-pointer outline-none focus:outline-none">
               <div className="hidden md:flex flex-col items-end">
                 <span className="text-xs font-medium text-foreground">
-                  {profile?.full_name || 'User'}
+                  {getFullName()}
                 </span>
                 <span className="text-xs text-muted-foreground">
                   {profile?.role || 'Admin'}
@@ -141,8 +148,8 @@ export function DashboardHeader() {
               </div>
               <Avatar className="size-8 border border-border">
                 <AvatarImage
-                  src={user?.user_metadata?.avatar_url}
-                  alt={profile?.full_name || 'User'}
+                  src={profile?.avatar_url || user?.user_metadata?.avatar_url}
+                  alt={getFullName()}
                 />
                 <AvatarFallback className="bg-accent">
                   <img src="/icons/user.svg" alt="" className="size-4 dark:invert" />
@@ -153,11 +160,7 @@ export function DashboardHeader() {
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="cursor-pointer">
-              <img src="/icons/user.svg" alt="" className="mr-2 h-4 w-4 dark:invert" />
-              <span>Profile</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer">
+            <DropdownMenuItem className="cursor-pointer" onClick={() => navigate('/dashboard/settings')}>
               <img src="/icons/setting.svg" alt="" className="mr-2 h-4 w-4 dark:invert" />
               <span>Settings</span>
             </DropdownMenuItem>
