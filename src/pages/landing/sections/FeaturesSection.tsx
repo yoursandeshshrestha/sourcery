@@ -30,46 +30,36 @@ export default function FeaturesSection() {
   ];
 
   return (
-    <section className="py-24 px-4 sm:px-6 lg:px-8 bg-[#F9F7F4]">
+    <section className="py-24 px-4 sm:px-6 lg:px-8 bg-white">
       <div className="max-w-6xl mx-auto">
         {/* Section Header */}
         <div className="text-center mb-16">
-          <p className="text-sm font-medium text-[#5C5C49] uppercase tracking-wide mb-4">
-            Why Investors Choose Sourcery
-          </p>
           <h2
-            className="text-4xl sm:text-5xl font-normal text-[#1F2223] mb-6 leading-tight"
+            className="text-4xl sm:text-5xl font-normal text-[#1A2208] mb-6 leading-tight"
             style={{ fontFamily: "'Recoleta Regular', serif" }}
           >
-            Stop wasting time on{' '}
-            <span className="relative inline-block">
-              <span className="relative z-10">bad deals</span>
-              <span
-                className="absolute bottom-0 left-0 right-0 h-2 bg-[#D0EE89]"
-                style={{ transform: 'translateY(-0.25em)' }}
-              />
-            </span>
+            Why investors choose Sourcery
           </h2>
           <p className="text-lg text-[#5C5C49] max-w-2xl mx-auto">
-            Every deal on Sourcery is verified, every number is accurate, and every payment is protected.
+            Every deal is verified, every number is accurate, and every payment is protected.
           </p>
         </div>
 
         {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {features.map((feature, index) => (
             <div
               key={index}
-              className="group bg-white border border-[#E9E6DF] rounded-3xl p-8 hover:shadow-lg transition-all duration-300 cursor-pointer"
+              className="bg-[#F9F7F4] rounded-3xl p-8"
             >
               {/* Icon */}
-              <div className="w-14 h-14 bg-white border border-[#E9E6DF] rounded-xl flex items-center justify-center text-[#1F2223] mb-6 group-hover:bg-[#D0EE89] group-hover:border-[#D0EE89] transition-all duration-300">
+              <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center text-[#1A2208] mb-6">
                 {feature.icon}
               </div>
 
               {/* Content */}
               <h3
-                className="text-2xl font-normal text-[#1F2223] mb-4"
+                className="text-xl font-normal text-[#1A2208] mb-3"
                 style={{ fontFamily: "'Recoleta Regular', serif" }}
               >
                 {feature.title}
