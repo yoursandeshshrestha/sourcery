@@ -1,110 +1,134 @@
+import { Link } from 'react-router-dom';
+
 export default function HowItWorksSection() {
   const steps = [
     {
-      number: '01',
       title: 'Browse Deals',
       description: 'No signup required. See verified off-market opportunities with accurate ROI, Yield, and location info.',
-      color: 'bg-[#E0FF82]'
+      icon: (
+        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+      )
     },
     {
-      number: '02',
-      title: 'Find Your Match',
-      description: 'Filter by strategy (HMO, Flip, BTL), location, ROI range. All financial data calculated by our system.',
-      color: 'bg-[#D0EE89]'
-    },
-    {
-      number: '03',
       title: 'Reserve Securely',
       description: 'Sign a digital NDA and pay your reservation fee. Funds held in escrow for your protection.',
-      color: 'bg-[#E0FF82]'
+      icon: (
+        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        </svg>
+      )
     },
     {
-      number: '04',
       title: 'Get Full Access',
       description: 'Instantly unlock exact address, vendor details, and legal pack. Download everything you need.',
-      color: 'bg-[#D0EE89]'
+      icon: (
+        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
+        </svg>
+      )
     },
     {
-      number: '05',
       title: 'Track Progress',
       description: 'Built-in dashboard tracks your deal through legals, valuation, mortgage offer, and exchange.',
-      color: 'bg-[#E0FF82]'
+      icon: (
+        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        </svg>
+      )
     },
     {
-      number: '06',
+      title: 'Verify Completion',
+      description: 'Review all documentation and confirm the deal meets your requirements before final authorization.',
+      icon: (
+        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      )
+    },
+    {
       title: 'Complete the Deal',
-      description: 'When you reach completion, authorize the sourcing fee payout. Or let it auto-release after 72 hours.',
-      color: 'bg-[#D0EE89]'
+      description: 'Authorize the sourcing fee payout after completion, or let it auto-release after 72 hours.',
+      icon: (
+        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 13l4 4L19 7" />
+        </svg>
+      )
     }
   ];
 
   return (
     <section className="py-24 px-4 sm:px-6 lg:px-8 bg-white">
       <div className="max-w-6xl mx-auto">
-        {/* Section Header */}
-        <div className="text-center mb-16">
-          <p className="text-sm font-medium text-[#5C5C49] uppercase tracking-wide mb-4">
-            Your Journey
-          </p>
-          <h2
-            className="text-4xl sm:text-5xl font-normal text-[#1F2223] mb-6 leading-tight"
-            style={{ fontFamily: "'Recoleta Regular', serif" }}
-          >
-            From browsing to{' '}
-            <span className="relative inline-block">
-              <span className="relative z-10">completion</span>
-              <span
-                className="absolute bottom-0 left-0 right-0 h-2 bg-[#D0EE89]"
-                style={{ transform: 'translateY(-0.25em)' }}
-              />
-            </span>
-          </h2>
-          <p className="text-lg text-[#5C5C49] max-w-2xl mx-auto">
-            Simple, secure, and transparent. Here's exactly what happens when you invest through Sourcery.
-          </p>
-        </div>
-
-        {/* Steps Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {steps.map((step, index) => (
-            <div
-              key={index}
-              className="relative bg-[#F9F7F4] border border-[#E9E6DF] rounded-3xl p-8 hover:shadow-md transition-all duration-300"
+        <div className="bg-[#F9F7F4] rounded-3xl p-12 sm:p-16">
+          {/* Section Header */}
+          <div className="mb-12">
+            <p className="text-sm text-[#5C5C49] mb-4">Your Investment Journey</p>
+            <h2
+              className="text-4xl sm:text-5xl font-normal text-[#1A2208] mb-2 leading-tight inline-flex items-center gap-3"
+              style={{ fontFamily: "'Recoleta Regular', serif" }}
             >
-              {/* Step Number */}
-              <div className={`inline-flex items-center justify-center w-12 h-12 ${step.color} text-[#1A2208] rounded-xl font-bold text-lg mb-4`}>
-                {step.number}
-              </div>
+              Your Journey — From browsing to completion
+              <svg className="w-12 h-8" viewBox="0 0 48 32" fill="none">
+                <path
+                  d="M2 15C8 8 12 2 20 8C28 14 32 20 42 12C45 9 46 6 47 4"
+                  stroke="#000000"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  fill="none"
+                />
+              </svg>
+            </h2>
+          </div>
 
-              {/* Content */}
-              <h3
-                className="text-xl font-normal text-[#1F2223] mb-3"
-                style={{ fontFamily: "'Recoleta Regular', serif" }}
-              >
-                {step.title}
-              </h3>
-              <p className="text-sm text-[#5C5C49] leading-relaxed">
-                {step.description}
-              </p>
+          {/* Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            {steps.map((step, index) => {
+              const isLastRow = index >= 3;
+              const isRightColumnMd = index % 2 === 1; // Right column in 2-col layout
+              const isRightColumnLg = index % 3 === 2; // Right column in 3-col layout
 
-              {/* Connector Arrow (for non-last items on desktop) */}
-              {index < steps.length - 1 && (
-                <div className="hidden lg:block absolute top-1/2 -right-3 transform -translate-y-1/2 z-10">
-                  <svg
-                    className="w-6 h-6 text-[#D0EE89]"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
+              return (
+                <div
+                  key={index}
+                  className={`p-8
+                    ${index < 5 ? 'border-b border-[#E9E6DF]' : ''}
+                    ${!isRightColumnMd ? 'md:border-r border-[#E9E6DF]' : ''}
+                    ${!isRightColumnLg ? 'lg:border-r' : 'lg:border-r-0'}
+                    ${isLastRow ? 'lg:border-b-0' : ''}
+                  `}
+                >
+                {/* Icon */}
+                <div className="w-12 h-12 bg-white border border-[#E9E6DF] rounded-xl flex items-center justify-center text-[#1A2208] mb-6">
+                  {step.icon}
                 </div>
-              )}
-            </div>
-          ))}
+
+                {/* Content */}
+                <h3
+                  className="text-xl font-normal text-[#1A2208] mb-3"
+                  style={{ fontFamily: "'Recoleta Regular', serif" }}
+                >
+                  {step.title}
+                </h3>
+                <p className="text-sm text-[#5C5C49] leading-relaxed mb-6">
+                  {step.description}
+                </p>
+
+                {/* Link */}
+                <Link
+                  to="/auth"
+                  className="inline-flex items-center gap-2 text-sm text-[#1A2208] font-medium hover:gap-3 transition-all cursor-pointer"
+                >
+                  Get Started
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
+              </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </section>
