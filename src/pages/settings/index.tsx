@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import {
   AlertDialog,
@@ -10,28 +13,40 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { formatDate } from '@/lib/date';
 
 export default function SettingsPage() {
-  const [showSignOutDialog, setShowSignOutDialog] = useState(false);
+  const { user, profile, signOut } = useAuth();
+  const navigate = useNavigate();
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-  // Hard-coded data (will be replaced with real data later)
-  const profileData = {
-    name: 'Sandesh Shrestha',
-    email: 'yoursandeshgeneral@gmail.com',
-    memberSince: '24/02/2026',
-    connectedAccount: {
-      provider: 'Google',
-      connectedDate: '24/02/2026',
-      username: '@yoursandeshgeneral',
-    },
+  const handleDeleteAccount = async () => {
+    try {
+      if (!user) return;
+
+      // Call the database function to delete the account
+      const { error } = await supabase.rpc('delete_user_account');
+
+      if (error) {
+        console.error('Error deleting account:', error);
+        throw error;
+      }
+
+      // Sign out and redirect
+      await signOut();
+      setShowDeleteDialog(false);
+      navigate('/auth');
+    } catch (error) {
+      console.error('Failed to delete account:', error);
+      alert('Failed to delete account. Please try again or contact support.');
+      setShowDeleteDialog(false);
+    }
   };
 
-  const handleSignOut = () => {
-    // TODO: Implement actual sign out
-    console.log('Sign out requested');
-    setShowSignOutDialog(false);
-    alert('Sign out is not implemented yet');
-  };
+  const fullName = profile ? `${profile.first_name} ${profile.last_name}`.trim() : 'User';
+  const email = user?.email || '';
+  const memberSince = profile?.created_at ? formatDate(profile.created_at) : '';
+  const connectedDate = user?.created_at ? formatDate(user.created_at) : '';
 
   return (
     <div className="px-6 py-8 mx-auto w-full max-w-6xl">
@@ -67,7 +82,7 @@ export default function SettingsPage() {
                     </span>
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
-                    <span className="text-[13px] text-foreground">{profileData.name}</span>
+                    <span className="text-[13px] text-foreground">{fullName}</span>
                   </div>
                   <div aria-hidden="true" className="absolute bottom-0 left-4 right-4 h-px bg-border/50" />
                 </li>
@@ -85,7 +100,7 @@ export default function SettingsPage() {
                     </span>
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
-                    <span className="text-[13px] text-muted-foreground">{profileData.email}</span>
+                    <span className="text-[13px] text-muted-foreground">{email}</span>
                   </div>
                   <div aria-hidden="true" className="absolute bottom-0 left-4 right-4 h-px bg-border/50" />
                 </li>
@@ -103,7 +118,7 @@ export default function SettingsPage() {
                     </span>
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
-                    <span className="text-[13px] text-muted-foreground">{profileData.memberSince}</span>
+                    <span className="text-[13px] text-muted-foreground">{memberSince}</span>
                   </div>
                 </li>
               </ul>
@@ -122,16 +137,16 @@ export default function SettingsPage() {
                   <div className="flex flex-col gap-1 flex-1 min-w-0">
                     <div className="flex items-center gap-1">
                       <label className="text-[13px] font-medium leading-normal text-foreground cursor-default">
-                        {profileData.connectedAccount.provider}
+                        Google
                       </label>
                     </div>
                     <span className="text-[12px] font-[450] leading-normal text-muted-foreground break-words">
-                      Connected {profileData.connectedAccount.connectedDate}
+                      Connected {connectedDate}
                     </span>
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
                     <span className="text-[13px] text-muted-foreground">
-                      {profileData.connectedAccount.username}
+                      {email}
                     </span>
                   </div>
                 </li>
@@ -139,11 +154,11 @@ export default function SettingsPage() {
             </section>
           </div>
 
-          {/* Session Section */}
+          {/* Danger Zone Section */}
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-0.5">
-              <h3 className="text-[15px] font-[450] leading-[23px] text-foreground">Session</h3>
-              <p className="text-xs text-muted-foreground">Manage your current session</p>
+              <h3 className="text-[15px] font-[450] leading-[23px] text-destructive">Danger Zone</h3>
+              <p className="text-xs text-muted-foreground">Irreversible actions</p>
             </div>
             <section className="rounded-[7px] bg-card border border-border">
               <ul className="min-w-0 min-h-0">
@@ -151,22 +166,21 @@ export default function SettingsPage() {
                   <div className="flex flex-col gap-1 flex-1 min-w-0">
                     <div className="flex items-center gap-1">
                       <label className="text-[13px] font-medium leading-normal text-foreground cursor-default">
-                        Sign Out
+                        Delete Account
                       </label>
                     </div>
                     <span className="text-[12px] font-[450] leading-normal text-muted-foreground break-words">
-                      End your current session on this device
+                      Permanently delete your account and all associated data
                     </span>
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
                     <Button
                       variant="destructive"
                       size="sm"
-                      onClick={() => setShowSignOutDialog(true)}
-                      className="cursor-pointer text-white h-6 gap-1 px-2 py-1 text-xs"
+                      onClick={() => setShowDeleteDialog(true)}
+                      className="cursor-pointer text-white h-7 gap-1.5 px-3 py-1 text-xs"
                     >
-                      <img src="/icons/logout.svg" alt="" className="size-3.5 brightness-0 invert" />
-                      Sign Out
+                      Delete Account
                     </Button>
                   </div>
                 </li>
@@ -176,22 +190,29 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      {/* Sign Out Confirmation Dialog */}
-      <AlertDialog open={showSignOutDialog} onOpenChange={setShowSignOutDialog}>
+      {/* Delete Account Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Sign Out</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to sign out? You will need to sign in again to access your account.
+            <AlertDialogTitle>Delete Account</AlertDialogTitle>
+            <AlertDialogDescription className="space-y-2">
+              <p>Are you sure you want to delete your account? This action cannot be undone.</p>
+              <p className="font-medium text-destructive">All of your data will be permanently deleted, including:</p>
+              <ul className="list-disc list-inside text-sm space-y-1 ml-2">
+                <li>Your profile information</li>
+                <li>All investment history and deals</li>
+                <li>Messages and communications</li>
+                <li>Account settings and preferences</li>
+              </ul>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel className="cursor-pointer">Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={handleSignOut}
+              onClick={handleDeleteAccount}
               className="bg-destructive text-white hover:bg-destructive/90 cursor-pointer"
             >
-              Sign Out
+              Delete My Account
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
