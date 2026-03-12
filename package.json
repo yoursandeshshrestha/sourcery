@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview --port 7001",
-    "seed:users": "tsx scripts/create-auth-users.ts"
+    "nuke": "supabase db reset --linked --yes"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
