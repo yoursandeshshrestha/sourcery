@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 
 export default function HeroSection() {
   return (
-    <section className="relative px-4 sm:px-6 lg:px-8 pt-32 sm:pt-40 pb-20 sm:pb-32 overflow-hidden">
+    <section className="relative px-4 sm:px-6 lg:px-8 pt-32 sm:pt-49 pb-20 sm:pb-32 overflow-hidden">
       {/* Dots Pattern Background */}
       <div
         className="absolute inset-0 opacity-20"
