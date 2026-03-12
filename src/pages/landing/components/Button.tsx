@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 interface ButtonProps {
   children: ReactNode;

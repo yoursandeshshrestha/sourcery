@@ -1,4 +1,5 @@
-import { ReactNode } from 'react';
+import { createElement } from 'react';
+import type { ReactNode } from 'react';
 
 interface HeadingProps {
   children: ReactNode;
@@ -16,8 +17,8 @@ export default function Heading({ children, level = 1, className = '' }: Heading
     3: 'text-xl leading-normal'
   };
 
-  const Tag = `h${level}` as keyof JSX.IntrinsicElements;
+  const tag = `h${level}`;
   const classes = `${baseClasses} ${levelClasses[level]} ${className}`;
 
-  return <Tag className={classes} style={fontFamily}>{children}</Tag>;
+  return createElement(tag, { className: classes, style: fontFamily }, children);
 }
