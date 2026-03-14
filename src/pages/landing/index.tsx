@@ -4,7 +4,7 @@ import FeaturesSection from './sections/FeaturesSection';
 import HowItWorksSection from './sections/HowItWorksSection';
 import FAQSection from './sections/FAQSection';
 import AIAssistSection from './sections/AIAssistSection';
-import CTASection from './sections/CTASection';
+import Footer from './sections/Footer';
 
 export default function LandingPage() {
   return (
@@ -19,7 +19,7 @@ export default function LandingPage() {
       </div>
       <FAQSection />
       <AIAssistSection />
-      <CTASection />
+      <Footer />
     </div>
   );
 }
