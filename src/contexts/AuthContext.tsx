@@ -5,7 +5,7 @@ import type { User, Session } from '@supabase/supabase-js';
 interface UserProfile {
   id: string;
   role: 'INVESTOR' | 'SOURCER' | 'ADMIN';
-  verification_status: 'PENDING' | 'VERIFIED' | 'REJECTED';
+  verification_status: 'PENDING' | 'VERIFIED' | 'REJECTED' | 'CANCELLED' | null;
 
   // Basic info
   first_name: string;
@@ -62,6 +62,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (error) {
         throw error;
+      }
+
+      if (!data) {
+        // Profile doesn't exist - could be:
+        // 1. New user (profile trigger still running)
+        // 2. Database was reset but user session persists
+        console.log('⚠️ [AuthContext] No profile found, waiting 2s for trigger...');
+
+        // Wait briefly for the profile creation trigger
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        // Try one more time
+        const { data: retryData } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', userId)
+          .maybeSingle();
+
+        if (!retryData) {
+          // Still no profile - database was likely reset
+          console.log('🚫 [AuthContext] Profile still missing after retry, signing out...');
+          await supabase.auth.signOut();
+          setUser(null);
+          setProfile(null);
+          setSession(null);
+          return;
+        }
+
+        setProfile(retryData as UserProfile);
+        console.log('✅ [AuthContext] Profile set after retry');
+        return;
       }
 
       // data will be null if profile doesn't exist (user needs to complete onboarding)

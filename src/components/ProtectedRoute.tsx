@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -11,43 +11,35 @@ export default function ProtectedRoute({ children, requiredRole }: ProtectedRout
   const { user, profile, loading } = useAuth();
   const location = useLocation();
 
-  useEffect(() => {
-    if (!loading && !user) {
-      console.log('ProtectedRoute: No user found, redirecting to login');
-    }
-  }, [user, loading]);
-
   // Show loading state while checking authentication
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-center">
-          <div className="animate-spin h-12 w-12 border-2 border-transparent border-t-primary mx-auto"></div>
-          <p className="mt-4 text-sm text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner fullScreen message="Loading..." />;
   }
 
-  // Redirect to auth if not authenticated
+  // Redirect to landing page if not authenticated (modal will open via useEffect)
   if (!user) {
-    return <Navigate to="/auth" state={{ from: location }} replace />;
+    return <Navigate to="/" state={{ from: location }} replace />;
+  }
+
+  // Wait for profile to load
+  if (!profile) {
+    return <LoadingSpinner fullScreen message="Loading profile..." />;
   }
 
   // Check role-based access if required
-  if (requiredRole && profile) {
+  if (requiredRole) {
     const hasRequiredRole = requiredRole.includes(profile.role);
     if (!hasRequiredRole) {
       return (
-        <div className="min-h-screen flex items-center justify-center bg-background p-4">
-          <div className="text-center max-w-md">
-            <h1 className="text-2xl font-bold text-foreground mb-2">Access Denied</h1>
-            <p className="text-muted-foreground">
+        <div className="min-h-screen flex items-center justify-center bg-[#F5F3ED] p-4">
+          <div className="text-center max-w-md bg-white border border-[#E9E6DF] rounded-2xl p-8">
+            <h1 className="text-2xl font-bold text-[#1A2208] mb-2">Access Denied</h1>
+            <p className="text-[#5C5C49]">
               You don't have permission to access this page. Your role is: <strong>{profile.role}</strong>
             </p>
             <button
               onClick={() => window.history.back()}
-              className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-md cursor-pointer hover:bg-primary/90"
+              className="mt-6 px-6 py-2.5 bg-[#1A2208] text-white rounded-full cursor-pointer hover:bg-[#2A3218] transition-colors"
             >
               Go Back
             </button>

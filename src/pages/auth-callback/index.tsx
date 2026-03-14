@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 export default function AuthCallback() {
   const navigate = useNavigate();
@@ -91,12 +92,5 @@ export default function AuthCallback() {
     );
   }
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-2 border-muted border-t-primary mx-auto"></div>
-        <p className="mt-3 text-sm text-muted-foreground">Completing sign in...</p>
-      </div>
-    </div>
-  );
+  return <LoadingSpinner fullScreen message="Completing sign in..." />;
 }
