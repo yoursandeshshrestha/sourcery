@@ -55,6 +55,19 @@ export function SourcerApplicationModal({ isOpen, onClose }: SourcerApplicationM
     phone: profile?.phone || '',
   });
 
+  // Check if in development mode
+  const isDevelopment = import.meta.env.VITE_ENVIRONMENT === 'development';
+
+  // Fill dummy data for testing (development only)
+  const fillDummyData = () => {
+    setFormData({
+      company_name: 'Acme Property Solutions Ltd',
+      bio: 'Experienced property sourcer with over 10 years in the UK property market. Specializing in off-market deals, HMOs, and BRRR strategies. Extensive network of estate agents and property professionals across London and the South East.',
+      phone: '+44 7700 900123',
+    });
+    setFormErrors({});
+  };
+
   const [documents, setDocuments] = useState<{
     id: DocumentUpload;
     aml: DocumentUpload;
@@ -254,21 +267,36 @@ export function SourcerApplicationModal({ isOpen, onClose }: SourcerApplicationM
       <DialogContent className="sm:max-w-2xl p-0 gap-0 border-border flex flex-col max-h-[90vh]">
         {/* Fixed Header */}
         <div className="px-6 py-4 border-b border-border">
-          <h2 className="text-xl font-semibold text-foreground">
-            {submitState === 'submitting' && 'Submitting Application...'}
-            {submitState === 'success' && 'Application Submitted!'}
-            {submitState === 'error' && 'Submission Failed'}
-            {submitState === 'idle' && `Become a Deal Sourcer - Step ${step} of 2`}
-          </h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            {submitState === 'idle' &&
-              (step === 1
-                ? 'Fill in your business information'
-                : 'Upload required verification documents')}
-            {submitState === 'submitting' && 'Please wait while we process your application...'}
-            {submitState === 'success' && 'Your application is under review'}
-            {submitState === 'error' && 'There was an error submitting your application'}
-          </p>
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1">
+              <h2 className="text-xl font-semibold text-foreground">
+                {submitState === 'submitting' && 'Submitting Application...'}
+                {submitState === 'success' && 'Application Submitted!'}
+                {submitState === 'error' && 'Submission Failed'}
+                {submitState === 'idle' && `Become a Deal Sourcer - Step ${step} of 2`}
+              </h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                {submitState === 'idle' &&
+                  (step === 1
+                    ? 'Fill in your business information'
+                    : 'Upload required verification documents')}
+                {submitState === 'submitting' && 'Please wait while we process your application...'}
+                {submitState === 'success' && 'Your application is under review'}
+                {submitState === 'error' && 'There was an error submitting your application'}
+              </p>
+            </div>
+            {/* Development only: Fill dummy data button */}
+            {isDevelopment && submitState === 'idle' && step === 1 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={fillDummyData}
+                className="cursor-pointer shrink-0"
+              >
+                Fill Dummy Data
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Scrollable Content */}
