@@ -10,7 +10,7 @@ CREATE EXTENSION IF NOT EXISTS "pg_trgm"; -- For full-text search
 -- Create custom enum types
 CREATE TYPE user_role AS ENUM ('INVESTOR', 'SOURCER', 'ADMIN');
 
-CREATE TYPE verification_status AS ENUM ('PENDING', 'VERIFIED', 'REJECTED');
+CREATE TYPE verification_status AS ENUM ('PENDING', 'VERIFIED', 'REJECTED', 'CANCELLED');
 
 CREATE TYPE deal_status AS ENUM ('DRAFT', 'ACTIVE', 'RESERVED', 'COMPLETED', 'CANCELLED');
 

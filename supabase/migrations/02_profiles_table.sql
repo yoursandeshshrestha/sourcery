@@ -7,7 +7,7 @@
 CREATE TABLE profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   role user_role NOT NULL DEFAULT 'INVESTOR',
-  verification_status verification_status DEFAULT 'PENDING',
+  verification_status verification_status DEFAULT NULL,
 
   -- Basic info
   first_name TEXT NOT NULL,
