@@ -141,7 +141,9 @@ export function SourcerApplicationModal({ isOpen, onClose }: SourcerApplicationM
         [type]: { file, preview, url: result.url, uploading: false, error: null },
       }));
     } catch (error) {
-      console.error(`Failed to upload ${type} document:`, error);
+      if (import.meta.env.DEV) {
+        console.error(`Failed to upload ${type} document:`, error);
+      }
       setDocuments((prev) => ({
         ...prev,
         [type]: {
@@ -218,11 +220,10 @@ export function SourcerApplicationModal({ isOpen, onClose }: SourcerApplicationM
     setSubmitError(null);
 
     try {
-      // Update profile with all sourcer data (documents already uploaded)
+      // Update profile with application data (role stays INVESTOR until admin approves)
       const { error: updateError } = await supabase
         .from('profiles')
         .update({
-          role: 'SOURCER',
           verification_status: 'PENDING',
           company_name: formData.company_name.trim(),
           bio: formData.bio.trim(),
@@ -239,7 +240,9 @@ export function SourcerApplicationModal({ isOpen, onClose }: SourcerApplicationM
       await refreshProfile();
       setSubmitState('success');
     } catch (error) {
-      console.error('Application submission error:', error);
+      if (import.meta.env.DEV) {
+        console.error('Application submission error:', error);
+      }
       setSubmitError(
         error instanceof Error ? error.message : 'Failed to submit application'
       );
@@ -265,39 +268,37 @@ export function SourcerApplicationModal({ isOpen, onClose }: SourcerApplicationM
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-2xl p-0 gap-0 border-border flex flex-col max-h-[90vh]">
-        {/* Fixed Header */}
-        <div className="px-6 py-4 border-b border-border">
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex-1">
-              <h2 className="text-xl font-semibold text-foreground">
-                {submitState === 'submitting' && 'Submitting Application...'}
-                {submitState === 'success' && 'Application Submitted!'}
-                {submitState === 'error' && 'Submission Failed'}
-                {submitState === 'idle' && `Become a Deal Sourcer - Step ${step} of 2`}
-              </h2>
-              <p className="text-sm text-muted-foreground mt-1">
-                {submitState === 'idle' &&
-                  (step === 1
-                    ? 'Fill in your business information'
-                    : 'Upload required verification documents')}
-                {submitState === 'submitting' && 'Please wait while we process your application...'}
-                {submitState === 'success' && 'Your application is under review'}
-                {submitState === 'error' && 'There was an error submitting your application'}
-              </p>
+        {/* Fixed Header - Hidden on success/error */}
+        {submitState !== 'success' && submitState !== 'error' && (
+          <div className="px-6 py-4 border-b border-border">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1">
+                <h2 className="text-xl font-semibold text-foreground">
+                  {submitState === 'submitting' && 'Submitting Application...'}
+                  {submitState === 'idle' && `Become a Deal Sourcer - Step ${step} of 2`}
+                </h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {submitState === 'idle' &&
+                    (step === 1
+                      ? 'Fill in your business information'
+                      : 'Upload required verification documents')}
+                  {submitState === 'submitting' && 'Please wait while we process your application...'}
+                </p>
+              </div>
+              {/* Development only: Fill dummy data button */}
+              {isDevelopment && submitState === 'idle' && step === 1 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={fillDummyData}
+                  className="cursor-pointer shrink-0"
+                >
+                  Fill Dummy Data
+                </Button>
+              )}
             </div>
-            {/* Development only: Fill dummy data button */}
-            {isDevelopment && submitState === 'idle' && step === 1 && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={fillDummyData}
-                className="cursor-pointer shrink-0"
-              >
-                Fill Dummy Data
-              </Button>
-            )}
           </div>
-        </div>
+        )}
 
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto px-6 py-6">
@@ -317,7 +318,7 @@ export function SourcerApplicationModal({ isOpen, onClose }: SourcerApplicationM
                 src="/lottie/success.json"
                 autoplay={true}
                 loop={false}
-                className="w-32 h-32 mb-4"
+                className="w-45 h-45 mb-4"
               />
               <h3 className="text-lg font-semibold text-foreground mb-2">Application Submitted Successfully!</h3>
               <p className="text-sm text-muted-foreground text-center max-w-md">
@@ -333,7 +334,7 @@ export function SourcerApplicationModal({ isOpen, onClose }: SourcerApplicationM
                 src="/lottie/error.json"
                 autoplay={true}
                 loop={false}
-                className="w-32 h-32 mb-4"
+                className="w-45 h-45 mb-4"
               />
               <h3 className="text-lg font-semibold text-foreground mb-2">Submission Failed</h3>
               <p className="text-sm text-destructive text-center max-w-md mb-4">
@@ -492,16 +493,17 @@ export function SourcerApplicationModal({ isOpen, onClose }: SourcerApplicationM
           )}
         </div>
 
-        {/* Fixed Footer */}
-        <div className="px-6 py-4 border-t border-border bg-muted/30">
-          <div className="flex items-center justify-between">
-            {submitState === 'idle' ? (
+        {/* Fixed Footer - Hidden on success/error */}
+        {submitState !== 'success' && submitState !== 'error' && (
+          <div className="px-6 py-4 border-t border-border bg-muted/30">
+            <div className="flex items-center justify-between">
               <>
                 <div>
                   {step === 2 && (
                     <Button
                       variant="ghost"
                       onClick={handleBack}
+                      disabled={submitState === 'submitting'}
                       className="cursor-pointer"
                     >
                       <ChevronLeft className="h-4 w-4 mr-1" />
@@ -513,22 +515,32 @@ export function SourcerApplicationModal({ isOpen, onClose }: SourcerApplicationM
                   <Button
                     variant="outline"
                     onClick={handleClose}
+                    disabled={submitState === 'submitting'}
                     className="cursor-pointer"
                   >
                     Cancel
                   </Button>
                   {step === 1 ? (
-                    <Button onClick={handleNext} className="cursor-pointer">
+                    <Button
+                      onClick={handleNext}
+                      disabled={submitState === 'submitting'}
+                      className="cursor-pointer"
+                    >
                       Next
                       <ChevronRight className="h-4 w-4 ml-1" />
                     </Button>
                   ) : (
                     <Button
                       onClick={handleSubmit}
-                      disabled={!allDocumentsUploaded || isUploading}
+                      disabled={!allDocumentsUploaded || isUploading || submitState === 'submitting'}
                       className="cursor-pointer"
                     >
-                      {isUploading ? (
+                      {submitState === 'submitting' ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Submitting...
+                        </>
+                      ) : isUploading ? (
                         <>
                           <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                           Uploading...
@@ -540,15 +552,9 @@ export function SourcerApplicationModal({ isOpen, onClose }: SourcerApplicationM
                   )}
                 </div>
               </>
-            ) : (
-              <div className="flex items-center justify-end w-full">
-                <Button onClick={handleClose} className="cursor-pointer">
-                  Close
-                </Button>
-              </div>
-            )}
+            </div>
           </div>
-        </div>
+        )}
       </DialogContent>
     </Dialog>
   );
@@ -559,7 +565,7 @@ interface DocumentUploadFieldProps {
   label: string;
   description: string;
   file: DocumentUpload;
-  inputRef: React.RefObject<HTMLInputElement>;
+  inputRef: React.RefObject<HTMLInputElement | null>;
   onSelect: (file: File) => void;
   onRemove: () => void;
 }

@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAuthModal } from '@/contexts/AuthModalContext';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -20,8 +21,10 @@ export function AuthModal() {
   const handleGoogleSignIn = async () => {
     const { error } = await signInWithGoogle();
     if (error) {
-      console.error('Error signing in with Google:', error);
-      alert('Failed to continue with Google. Please try again.');
+      if (import.meta.env.DEV) {
+        console.error('Error signing in with Google:', error);
+      }
+      toast.error('Failed to continue with Google. Please try again.');
     }
   };
 

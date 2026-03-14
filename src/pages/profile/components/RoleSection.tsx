@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { ArrowRight, Loader2, Shield, CheckCircle2, AlertCircle, XCircle, Ban } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -67,20 +68,31 @@ export function RoleSection() {
 
   if (!profile) return null;
 
-  const canConvert = profile.role === 'INVESTOR';
+  // Role and status checks
+  const isInvestor = profile.role === 'INVESTOR';
   const isSourcer = profile.role === 'SOURCER';
   const verificationStatus = profile.verification_status;
-  const isPending = verificationStatus === 'PENDING';
+
+  // Application state logic
+  const hasPendingApplication = isInvestor && verificationStatus === 'PENDING';
+  const hasRejectedApplication = isInvestor && verificationStatus === 'REJECTED';
+  const hasCancelledApplication = isInvestor && verificationStatus === 'CANCELLED';
+  const canApply = isInvestor && (!verificationStatus || hasRejectedApplication || hasCancelledApplication);
+
+  // Sourcer verification status
+  const isVerifiedSourcer = isSourcer && verificationStatus === 'VERIFIED';
+  const isPendingSourcer = isSourcer && verificationStatus === 'PENDING';
 
   const handleCancelApplication = async () => {
     if (!user) return;
 
     setIsCancelling(true);
     try {
+      // Clear application data and set status to CANCELLED
+      // Role stays INVESTOR (already is)
       const { error } = await supabase
         .from('profiles')
         .update({
-          role: 'INVESTOR',
           verification_status: 'CANCELLED',
           company_name: null,
           bio: null,
@@ -95,9 +107,12 @@ export function RoleSection() {
 
       await refreshProfile();
       setShowCancelDialog(false);
+      toast.success('Application cancelled successfully');
     } catch (error) {
-      console.error('Failed to cancel application:', error);
-      alert('Failed to cancel application. Please try again.');
+      if (import.meta.env.DEV) {
+        console.error('Failed to cancel application:', error);
+      }
+      toast.error('Failed to cancel application. Please try again.');
     } finally {
       setIsCancelling(false);
     }
@@ -190,16 +205,18 @@ export function RoleSection() {
               </li>
             )}
 
-            {/* Role Conversion (Investors only) */}
-            {canConvert && (
+            {/* Apply to become a Sourcer (Investors without pending application) */}
+            {canApply && (
               <li className="relative flex items-center justify-between gap-3 min-h-[60px] px-4 py-3 first:rounded-t-[6px] last:rounded-b-[6px]">
                 <div className="flex flex-col gap-1 flex-1 min-w-0">
                   <label className="text-[13px] font-medium leading-normal text-foreground cursor-default">
                     Become a Sourcer
                   </label>
                   <span className="text-[12px] font-[450] leading-normal text-muted-foreground break-words">
-                    {verificationStatus === 'CANCELLED'
+                    {hasCancelledApplication
                       ? 'Your previous application was cancelled. You can apply again.'
+                      : hasRejectedApplication
+                      ? 'Your application was rejected. Please update your documents and resubmit.'
                       : 'Start listing deals and earning sourcing fees'}
                   </span>
                 </div>
@@ -210,15 +227,15 @@ export function RoleSection() {
                     onClick={() => setShowApplicationModal(true)}
                     className="cursor-pointer"
                   >
-                    {verificationStatus === 'CANCELLED' ? 'Apply Again' : 'Apply Now'}
+                    {hasCancelledApplication || hasRejectedApplication ? 'Apply Again' : 'Apply Now'}
                     <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
                   </Button>
                 </div>
               </li>
             )}
 
-            {/* Cancel Application (Pending Sourcers) */}
-            {isSourcer && isPending && (
+            {/* Cancel Pending Application (Investors with pending application) */}
+            {hasPendingApplication && (
               <li className="relative flex items-center justify-between gap-3 min-h-[60px] px-4 py-3 first:rounded-t-[6px] last:rounded-b-[6px]">
                 <div className="flex flex-col gap-1 flex-1 min-w-0">
                   <label className="text-[13px] font-medium leading-normal text-foreground cursor-default">
@@ -236,8 +253,17 @@ export function RoleSection() {
                     disabled={isCancelling}
                     className="cursor-pointer text-destructive hover:text-destructive"
                   >
-                    <Ban className="h-3.5 w-3.5 mr-1.5" />
-                    Cancel Application
+                    {isCancelling ? (
+                      <>
+                        <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+                        Cancelling...
+                      </>
+                    ) : (
+                      <>
+                        <Ban className="h-3.5 w-3.5 mr-1.5" />
+                        Cancel Application
+                      </>
+                    )}
                   </Button>
                 </div>
               </li>
@@ -259,14 +285,14 @@ export function RoleSection() {
             <AlertDialogTitle>Cancel Sourcer Application</AlertDialogTitle>
             <AlertDialogDescription className="space-y-3">
               <p>
-                Are you sure you want to cancel your sourcer application? This will:
+                Are you sure you want to cancel your sourcer application? This action will:
               </p>
 
               <ul className="list-disc list-inside text-sm space-y-1.5 ml-2">
-                <li>Revert your account to Investor role</li>
+                <li>Cancel your pending verification</li>
                 <li>Remove all uploaded KYC documents</li>
                 <li>Clear your company and bio information</li>
-                <li>Cancel the pending verification</li>
+                <li>Mark your application as cancelled</li>
               </ul>
 
               <p className="text-xs text-muted-foreground font-medium">

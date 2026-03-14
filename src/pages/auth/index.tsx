@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { Button } from '@/components/ui/button';
@@ -11,29 +12,39 @@ export default function AuthPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log('🔐 [AuthPage] State:', {
-      loading,
-      hasUser: !!user,
-      userEmail: user?.email,
-      hasProfile: !!profile,
-      profileRole: profile?.role
-    });
+    if (import.meta.env.DEV) {
+      console.log('🔐 [AuthPage] State:', {
+        loading,
+        hasUser: !!user,
+        userEmail: user?.email,
+        hasProfile: !!profile,
+        profileRole: profile?.role
+      });
+    }
 
     if (!loading && user && profile) {
-      console.log('✈️ [AuthPage] Redirecting to dashboard');
+      if (import.meta.env.DEV) {
+        console.log('✈️ [AuthPage] Redirecting to dashboard');
+      }
       navigate('/dashboard/overview');
     } else if (!loading && user && !profile) {
-      console.log('⚠️ [AuthPage] User exists but no profile!');
+      if (import.meta.env.DEV) {
+        console.log('⚠️ [AuthPage] User exists but no profile!');
+      }
     } else if (!loading && !user) {
-      console.log('👤 [AuthPage] No user, staying on auth page');
+      if (import.meta.env.DEV) {
+        console.log('👤 [AuthPage] No user, staying on auth page');
+      }
     }
   }, [user, profile, loading, navigate]);
 
   const handleGoogleSignIn = async () => {
     const { error } = await signInWithGoogle();
     if (error) {
-      console.error('Error signing in with Google:', error);
-      alert('Failed to continue with Google. Please try again.');
+      if (import.meta.env.DEV) {
+        console.error('Error signing in with Google:', error);
+      }
+      toast.error('Failed to continue with Google. Please try again.');
     }
   };
 

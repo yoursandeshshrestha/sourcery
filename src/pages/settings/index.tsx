@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
@@ -28,17 +29,22 @@ export default function SettingsPage() {
       const { error } = await supabase.rpc('delete_user_account');
 
       if (error) {
-        console.error('Error deleting account:', error);
+        if (import.meta.env.DEV) {
+          console.error('Error deleting account:', error);
+        }
         throw error;
       }
 
       // Sign out and redirect
       await signOut();
       setShowDeleteDialog(false);
+      toast.success('Account deleted successfully');
       navigate('/', { replace: true });
     } catch (error) {
-      console.error('Failed to delete account:', error);
-      alert('Failed to delete account. Please try again or contact support.');
+      if (import.meta.env.DEV) {
+        console.error('Failed to delete account:', error);
+      }
+      toast.error('Failed to delete account. Please try again or contact support.');
       setShowDeleteDialog(false);
     }
   };

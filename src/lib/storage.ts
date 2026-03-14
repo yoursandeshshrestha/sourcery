@@ -45,7 +45,9 @@ export async function uploadFile({
       });
 
     if (error) {
-      console.error('Storage upload error:', error);
+      if (import.meta.env.DEV) {
+        console.error('Storage upload error:', error);
+      }
       return { url: '', path: '', error };
     }
 
@@ -60,7 +62,9 @@ export async function uploadFile({
       error: null,
     };
   } catch (error) {
-    console.error('Unexpected upload error:', error);
+    if (import.meta.env.DEV) {
+      console.error('Unexpected upload error:', error);
+    }
     return {
       url: '',
       path: '',
@@ -82,13 +86,17 @@ export async function deleteFile(
       .remove([filePath]);
 
     if (error) {
-      console.error('Storage delete error:', error);
+      if (import.meta.env.DEV) {
+        console.error('Storage delete error:', error);
+      }
       return { error };
     }
 
     return { error: null };
   } catch (error) {
-    console.error('Unexpected delete error:', error);
+    if (import.meta.env.DEV) {
+      console.error('Unexpected delete error:', error);
+    }
     return { error: error as Error };
   }
 }
@@ -116,7 +124,7 @@ export function extractPathFromUrl(url: string): string | null {
 /**
  * Validate file type
  */
-export function validateFileType(file: File, allowedTypes: string[]): boolean {
+export function validateFileType(file: File, allowedTypes: readonly string[]): boolean {
   return allowedTypes.includes(file.type);
 }
 

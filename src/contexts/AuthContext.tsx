@@ -51,14 +51,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchUserProfile = async (userId: string) => {
     try {
-      console.log('🔍 [AuthContext] Fetching profile for user:', userId);
+      if (import.meta.env.DEV) {
+        console.log('🔍 [AuthContext] Fetching profile for user:', userId);
+      }
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .maybeSingle();
 
-      console.log('📦 [AuthContext] Profile fetch result:', { data, error });
+      if (import.meta.env.DEV) {
+        console.log('📦 [AuthContext] Profile fetch result:', { data, error });
+      }
 
       if (error) {
         throw error;
@@ -68,7 +72,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Profile doesn't exist - could be:
         // 1. New user (profile trigger still running)
         // 2. Database was reset but user session persists
-        console.log('⚠️ [AuthContext] No profile found, waiting 2s for trigger...');
+        if (import.meta.env.DEV) {
+          console.log('⚠️ [AuthContext] No profile found, waiting 2s for trigger...');
+        }
 
         // Wait briefly for the profile creation trigger
         await new Promise(resolve => setTimeout(resolve, 2000));
@@ -82,7 +88,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (!retryData) {
           // Still no profile - database was likely reset
-          console.log('🚫 [AuthContext] Profile still missing after retry, signing out...');
+          if (import.meta.env.DEV) {
+            console.log('🚫 [AuthContext] Profile still missing after retry, signing out...');
+          }
           await supabase.auth.signOut();
           setUser(null);
           setProfile(null);
@@ -91,46 +99,62 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         setProfile(retryData as UserProfile);
-        console.log('✅ [AuthContext] Profile set after retry');
+        if (import.meta.env.DEV) {
+          console.log('✅ [AuthContext] Profile set after retry');
+        }
         return;
       }
 
       // data will be null if profile doesn't exist (user needs to complete onboarding)
       setProfile(data as UserProfile | null);
-      console.log('✅ [AuthContext] Profile set:', data ? 'Profile exists' : 'No profile');
+      if (import.meta.env.DEV) {
+        console.log('✅ [AuthContext] Profile set:', data ? 'Profile exists' : 'No profile');
+      }
     } catch (error) {
-      console.error('❌ [AuthContext] Error fetching user profile:', error);
+      if (import.meta.env.DEV) {
+        console.error('❌ [AuthContext] Error fetching user profile:', error);
+      }
       setProfile(null);
     }
   };
 
   useEffect(() => {
-    console.log('🚀 [AuthContext] Initializing auth state');
+    if (import.meta.env.DEV) {
+      console.log('🚀 [AuthContext] Initializing auth state');
+    }
 
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('📡 [AuthContext] Initial session:', session ? `User: ${session.user.email}` : 'No session');
+      if (import.meta.env.DEV) {
+        console.log('📡 [AuthContext] Initial session:', session ? `User: ${session.user.email}` : 'No session');
+      }
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
         fetchUserProfile(session.user.id);
       }
       setLoading(false);
-      console.log('⏱️ [AuthContext] Initial loading complete');
+      if (import.meta.env.DEV) {
+        console.log('⏱️ [AuthContext] Initial loading complete');
+      }
     });
 
     // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('🔔 [AuthContext] Auth state changed:', event, session ? `User: ${session.user.email}` : 'No session');
+      if (import.meta.env.DEV) {
+        console.log('🔔 [AuthContext] Auth state changed:', event, session ? `User: ${session.user.email}` : 'No session');
+      }
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
         fetchUserProfile(session.user.id);
       } else {
         setProfile(null);
-        console.log('🚫 [AuthContext] No session, profile cleared');
+        if (import.meta.env.DEV) {
+          console.log('🚫 [AuthContext] No session, profile cleared');
+        }
       }
       setLoading(false);
     });
@@ -139,15 +163,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signInWithGoogle = async () => {
-    console.log('🔑 [AuthContext] Initiating Google OAuth sign-in');
-    console.log('🔗 [AuthContext] Redirect URL:', `${window.location.origin}/auth/callback`);
+    if (import.meta.env.DEV) {
+      console.log('🔑 [AuthContext] Initiating Google OAuth sign-in');
+      console.log('🔗 [AuthContext] Redirect URL:', `${window.location.origin}/auth/callback`);
+    }
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
       },
     });
-    if (error) {
+    if (error && import.meta.env.DEV) {
       console.error('❌ [AuthContext] OAuth error:', error);
     }
     return { error };

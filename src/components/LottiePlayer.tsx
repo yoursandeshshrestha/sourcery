@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import type { AnimationItem } from 'lottie-web';
 
 interface LottiePlayerProps {
   src: string;
@@ -9,17 +10,25 @@ interface LottiePlayerProps {
 
 export function LottiePlayer({ src, autoplay = true, loop = false, className = '' }: LottiePlayerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const animationRef = useRef<AnimationItem | null>(null);
 
   useEffect(() => {
-    let animation: any;
-
     const loadAnimation = async () => {
       try {
         // Dynamically import lottie-web
         const lottie = await import('lottie-web');
 
         if (containerRef.current) {
-          animation = lottie.default.loadAnimation({
+          // Destroy existing animation if any
+          if (animationRef.current) {
+            animationRef.current.destroy();
+            animationRef.current = null;
+          }
+
+          // Clear any existing content in the container
+          containerRef.current.innerHTML = '';
+
+          animationRef.current = lottie.default.loadAnimation({
             container: containerRef.current,
             renderer: 'svg',
             loop,
@@ -28,15 +37,18 @@ export function LottiePlayer({ src, autoplay = true, loop = false, className = '
           });
         }
       } catch (error) {
-        console.error('Failed to load Lottie animation:', error);
+        if (import.meta.env.DEV) {
+          console.error('Failed to load Lottie animation:', error);
+        }
       }
     };
 
     loadAnimation();
 
     return () => {
-      if (animation) {
-        animation.destroy();
+      if (animationRef.current) {
+        animationRef.current.destroy();
+        animationRef.current = null;
       }
     };
   }, [src, autoplay, loop]);
