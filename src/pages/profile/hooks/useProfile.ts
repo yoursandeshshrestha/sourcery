@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
-import type { BasicInfoFormData, UserRole } from '../types';
+import type { BasicInfoFormData } from '../types';
 import { uploadFile, deleteFile, extractPathFromUrl } from '@/lib/storage';
 
 export function useProfile() {
@@ -93,6 +93,46 @@ export function useProfile() {
 
 
   /**
+   * Delete avatar (revert to Google avatar)
+   */
+  const deleteAvatar = async () => {
+    if (!user) throw new Error('Not authenticated');
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Delete avatar from storage if exists
+      if (profile?.avatar_url) {
+        const path = extractPathFromUrl(profile.avatar_url);
+        if (path) {
+          await deleteFile('avatars', path);
+        }
+      }
+
+      // Update profile to remove avatar URL
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({
+          avatar_url: null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', user.id);
+
+      if (updateError) throw updateError;
+
+      await refreshProfile();
+      return { success: true };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to delete avatar';
+      setError(message);
+      return { success: false, error: message };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /**
    * Upload KYC document
    */
   const uploadKYCDocument = async (
@@ -113,11 +153,11 @@ export function useProfile() {
         id: 'id_document_url',
         aml: 'aml_document_url',
         insurance: 'insurance_document_url',
-      };
-      const dbField = dbFieldMap[documentType];
+      } as const;
+      const dbField = dbFieldMap[documentType] as 'id_document_url' | 'aml_document_url' | 'insurance_document_url';
 
       // Delete old document if exists
-      const oldUrl = profile[dbField];
+      const oldUrl = profile[dbField] as string | null;
       if (oldUrl) {
         const oldPath = extractPathFromUrl(oldUrl);
         if (oldPath) {
@@ -175,9 +215,9 @@ export function useProfile() {
         id: 'id_document_url',
         aml: 'aml_document_url',
         insurance: 'insurance_document_url',
-      };
-      const dbField = dbFieldMap[documentType];
-      const documentUrl = profile[dbField];
+      } as const;
+      const dbField = dbFieldMap[documentType] as 'id_document_url' | 'aml_document_url' | 'insurance_document_url';
+      const documentUrl = profile[dbField] as string | null;
 
       if (!documentUrl) return { success: true };
 
@@ -215,6 +255,7 @@ export function useProfile() {
     error,
     updateBasicInfo,
     uploadAvatar,
+    deleteAvatar,
     uploadKYCDocument,
     deleteKYCDocument,
   };

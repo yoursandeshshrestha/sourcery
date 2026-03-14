@@ -2,7 +2,6 @@ import { useState, useRef } from 'react';
 import { Pencil, Loader2, Upload, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useAuth } from '@/contexts/AuthContext';
@@ -18,7 +17,7 @@ import {
 
 export function BasicInfoSection() {
   const { profile, user } = useAuth();
-  const { updateBasicInfo, uploadAvatar, loading } = useProfile();
+  const { updateBasicInfo, uploadAvatar, deleteAvatar, loading } = useProfile();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<BasicInfoFormData>({
     first_name: profile?.first_name || '',
@@ -35,8 +34,6 @@ export function BasicInfoSection() {
       first_name: profile?.first_name || '',
       last_name: profile?.last_name || '',
       phone: profile?.phone || '',
-      company_name: profile?.company_name || '',
-      bio: profile?.bio || '',
     });
     setIsEditing(true);
     setSaveError(null);
@@ -183,7 +180,11 @@ export function BasicInfoSection() {
                   variant="ghost"
                   size="sm"
                   onClick={async () => {
-                    // Delete custom avatar logic here if needed
+                    setAvatarError(null);
+                    const result = await deleteAvatar();
+                    if (!result.success) {
+                      setAvatarError(result.error || 'Failed to remove avatar');
+                    }
                   }}
                   disabled={loading || isUploadingAvatar}
                   className="cursor-pointer text-destructive hover:text-destructive"
