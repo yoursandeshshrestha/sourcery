@@ -27,6 +27,11 @@ export const sidebarConfig: NavGroup[] = [
     label: 'Account',
     items: [
       {
+        label: 'Profile',
+        href: '/dashboard/profile',
+        icon: <img src="/icons/profile.svg" alt="" className="size-4 dark:invert" />,
+      },
+      {
         label: 'Settings',
         href: '/dashboard/settings',
         icon: <img src="/icons/setting.svg" alt="" className="size-4 dark:invert" />,
