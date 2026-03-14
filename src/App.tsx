@@ -1,7 +1,10 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'sonner';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { AuthModalProvider } from '@/contexts/AuthModalContext';
 import { AuthModal } from '@/components/AuthModal';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { PageErrorBoundary } from '@/components/PageErrorBoundary';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Layout from '@/components/Layout';
 import LandingPage from '@/pages/landing';
@@ -12,14 +15,30 @@ import ProfilePage from '@/pages/profile';
 
 function App() {
   return (
-    <Router>
-      <AuthProvider>
-        <AuthModalProvider>
-          <AuthModal />
-          <Routes>
+    <ErrorBoundary>
+      <Router>
+        <AuthProvider>
+          <AuthModalProvider>
+            <Toaster position="top-right" richColors />
+            <AuthModal />
+            <Routes>
             {/* Public routes */}
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/auth/callback" element={<AuthCallback />} />
+            <Route
+              path="/"
+              element={
+                <PageErrorBoundary>
+                  <LandingPage />
+                </PageErrorBoundary>
+              }
+            />
+            <Route
+              path="/auth/callback"
+              element={
+                <PageErrorBoundary>
+                  <AuthCallback />
+                </PageErrorBoundary>
+              }
+            />
 
             {/* Redirect old /auth route to landing */}
             <Route path="/auth" element={<Navigate to="/" replace />} />
@@ -30,7 +49,9 @@ function App() {
             element={
               <ProtectedRoute>
                 <Layout>
-                  <DashboardPage />
+                  <PageErrorBoundary>
+                    <DashboardPage />
+                  </PageErrorBoundary>
                 </Layout>
               </ProtectedRoute>
             }
@@ -40,7 +61,9 @@ function App() {
             element={
               <ProtectedRoute>
                 <Layout>
-                  <SettingsPage />
+                  <PageErrorBoundary>
+                    <SettingsPage />
+                  </PageErrorBoundary>
                 </Layout>
               </ProtectedRoute>
             }
@@ -50,7 +73,9 @@ function App() {
             element={
               <ProtectedRoute>
                 <Layout>
-                  <ProfilePage />
+                  <PageErrorBoundary>
+                    <ProfilePage />
+                  </PageErrorBoundary>
                 </Layout>
               </ProtectedRoute>
             }
@@ -65,6 +90,7 @@ function App() {
         </AuthModalProvider>
       </AuthProvider>
     </Router>
+    </ErrorBoundary>
   );
 }
 
