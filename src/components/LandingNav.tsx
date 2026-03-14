@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import Container from '@/pages/landing/components/Container';
-import Button from '@/pages/landing/components/Button';
+import { useAuthModal } from '@/contexts/AuthModalContext';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface NavLinkProps {
   href: string;
@@ -19,6 +20,9 @@ function NavLink({ href, children }: NavLinkProps) {
 }
 
 export default function LandingNav() {
+  const { openAuthModal } = useAuthModal();
+  const { user } = useAuth();
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-6 lg:px-8 py-4">
       <Container size="xl">
@@ -37,14 +41,31 @@ export default function LandingNav() {
             </div>
 
             <div className="flex items-center justify-end gap-3">
-              <div className="hidden md:block">
-                <Button to="/auth" variant="ghost" size="sm" className="tracking-[0.01em]">
-                  Sign in
-                </Button>
-              </div>
-              <Button to="/auth" variant="primary" size="sm" className="tracking-[0.01em]">
-                Get Started
-              </Button>
+              {user ? (
+                <Link
+                  to="/dashboard/overview"
+                  className="px-5 py-2.5 text-[15px] font-medium text-white bg-[#1A2208] hover:bg-[#2A3218] rounded-full transition-colors cursor-pointer whitespace-nowrap tracking-[0.01em] leading-[1.5em]"
+                >
+                  Go to Dashboard
+                </Link>
+              ) : (
+                <>
+                  <div className="hidden md:block">
+                    <button
+                      onClick={openAuthModal}
+                      className="px-5 py-2.5 text-[15px] font-medium text-[#1A2208] hover:bg-white rounded-full transition-colors cursor-pointer whitespace-nowrap tracking-[0.01em] leading-[1.5em]"
+                    >
+                      Sign in
+                    </button>
+                  </div>
+                  <button
+                    onClick={openAuthModal}
+                    className="px-5 py-2.5 text-[15px] font-medium text-white bg-[#1A2208] hover:bg-[#2A3218] rounded-full transition-colors cursor-pointer whitespace-nowrap tracking-[0.01em] leading-[1.5em]"
+                  >
+                    Get Started
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>

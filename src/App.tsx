@@ -1,24 +1,28 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { AuthModalProvider } from '@/contexts/AuthModalContext';
+import { AuthModal } from '@/components/AuthModal';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Layout from '@/components/Layout';
 import LandingPage from '@/pages/landing';
-import AuthPage from '@/pages/auth';
 import AuthCallback from '@/pages/auth-callback';
 import DashboardPage from '@/pages/dashboard';
 import SettingsPage from '@/pages/settings';
-
-const ProfilePage = () => <div className="p-6"><h1 className="text-2xl font-bold">Profile</h1><p className="text-muted-foreground mt-2">Coming soon...</p></div>;
+import ProfilePage from '@/pages/profile';
 
 function App() {
   return (
     <Router>
       <AuthProvider>
-        <Routes>
-          {/* Public routes */}
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/auth" element={<AuthPage />} />
-          <Route path="/auth/callback" element={<AuthCallback />} />
+        <AuthModalProvider>
+          <AuthModal />
+          <Routes>
+            {/* Public routes */}
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
+
+            {/* Redirect old /auth route to landing */}
+            <Route path="/auth" element={<Navigate to="/" replace />} />
 
           {/* Protected routes */}
           <Route
@@ -55,9 +59,10 @@ function App() {
           {/* Redirect /dashboard to overview */}
           <Route path="/dashboard" element={<Navigate to="/dashboard/overview" replace />} />
 
-          {/* 404 - redirect to landing */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+            {/* 404 - redirect to landing */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </AuthModalProvider>
       </AuthProvider>
     </Router>
   );

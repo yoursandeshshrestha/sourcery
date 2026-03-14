@@ -1,3 +1,5 @@
+import { useAuthModal } from '@/contexts/AuthModalContext';
+import { useAuth } from '@/contexts/AuthContext';
 import Container from '../components/Container';
 import Heading from '../components/Heading';
 import Text from '../components/Text';
@@ -7,6 +9,17 @@ import DotsPattern from '../components/DotsPattern';
 import { CheckCircleIcon } from '../components/icons';
 
 export default function HeroSection() {
+  const { openAuthModal } = useAuthModal();
+  const { user } = useAuth();
+
+  const handleBrowseDeals = () => {
+    if (user) {
+      window.location.href = '/dashboard/overview';
+    } else {
+      openAuthModal();
+    }
+  };
+
   return (
     <section className="relative px-4 sm:px-6 lg:px-8 pt-32 sm:pt-49 pb-20 sm:pb-32 overflow-hidden">
       <DotsPattern opacity={20} />
@@ -21,9 +34,12 @@ export default function HeroSection() {
         </Text>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-          <Button to="/auth" variant="primary">
+          <button
+            onClick={handleBrowseDeals}
+            className="px-8 py-4 text-base font-medium text-white bg-[#1A2208] hover:bg-[#2A3218] rounded-full transition-all cursor-pointer whitespace-nowrap tracking-[0.01em] leading-[1.5em]"
+          >
             Browse Deals Now
-          </Button>
+          </button>
           <Button href="#how-it-works" variant="secondary">
             See How It Works
           </Button>

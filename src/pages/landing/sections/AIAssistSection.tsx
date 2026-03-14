@@ -3,7 +3,6 @@ import Container from '../components/Container';
 import Heading from '../components/Heading';
 import Text from '../components/Text';
 import DotsPattern from '../components/DotsPattern';
-import { ChatGPTIcon, ClaudeIcon } from '../components/icons';
 
 export default function AIAssistSection() {
   return (
@@ -27,7 +26,7 @@ export default function AIAssistSection() {
                 rel="noopener noreferrer"
                 className="w-full sm:w-auto bg-[#1A2208] hover:opacity-90 text-white font-medium px-6 py-3 text-sm rounded-3xl transition-opacity cursor-pointer inline-flex items-center justify-center gap-2"
               >
-                <ChatGPTIcon />
+                <img src="/logo/openai.svg" alt="ChatGPT" className="h-5 w-5" />
                 Ask ChatGPT
               </a>
               <a
@@ -36,7 +35,7 @@ export default function AIAssistSection() {
                 rel="noopener noreferrer"
                 className="w-full sm:w-auto bg-[#1A2208] hover:opacity-90 text-white font-medium px-6 py-3 text-sm rounded-3xl transition-opacity cursor-pointer inline-flex items-center justify-center gap-2"
               >
-                <ClaudeIcon />
+                <img src="/logo/claude.svg" alt="Claude" className="h-5 w-5" />
                 Ask Claude
               </a>
             </div>

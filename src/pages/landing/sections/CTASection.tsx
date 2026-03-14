@@ -1,35 +1,50 @@
 import { Link } from 'react-router-dom';
+import { useAuthModal } from '@/contexts/AuthModalContext';
 import Container from '../components/Container';
 import Text from '../components/Text';
 import SocialLink from '../components/SocialLink';
 import { LinkedInIcon, YouTubeIcon, TwitterIcon } from '../components/icons';
 
 interface FooterLinkProps {
-  href: string;
+  href?: string;
   children: string;
   isExternal?: boolean;
+  onClick?: () => void;
 }
 
-function FooterLink({ href, children, isExternal = true }: FooterLinkProps) {
-  if (isExternal) {
+function FooterLink({ href, children, isExternal = true, onClick }: FooterLinkProps) {
+  if (onClick) {
+    return (
+      <button onClick={onClick} className="text-sm text-[#5C5C49] hover:text-[#1A2208] transition-colors cursor-pointer text-left">
+        {children}
+      </button>
+    );
+  }
+  if (isExternal && href) {
     return (
       <a href={href} className="text-sm text-[#5C5C49] hover:text-[#1A2208] transition-colors cursor-pointer">
         {children}
       </a>
     );
   }
-  return (
-    <Link to={href} className="text-sm text-[#5C5C49] hover:text-[#1A2208] transition-colors cursor-pointer">
-      {children}
-    </Link>
-  );
+  if (href) {
+    return (
+      <Link to={href} className="text-sm text-[#5C5C49] hover:text-[#1A2208] transition-colors cursor-pointer">
+        {children}
+      </Link>
+    );
+  }
+  return null;
 }
 
 export default function CTASection() {
+  const { openAuthModal } = useAuthModal();
+
   return (
-    <footer className="py-16 px-4 sm:px-6 lg:px-8 bg-[#F9F7F4]">
-      <Container size="xl">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 lg:gap-12">
+    <footer className="py-16 bg-[#F9F7F4]">
+      <div className="px-4 sm:px-6 lg:px-8">
+        <Container size="xl">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 lg:gap-12">
           <div className="lg:col-span-2">
             <Link to="/" className="inline-block mb-4 cursor-pointer">
               <span className="text-2xl font-semibold text-[#1A2208]">Sourcery</span>
@@ -53,8 +68,8 @@ export default function CTASection() {
             <h4 className="text-sm font-semibold text-[#1A2208] mb-4">Get Started</h4>
             <ul className="space-y-2.5">
               <li><FooterLink href="#">Pricing</FooterLink></li>
-              <li><FooterLink href="/auth" isExternal={false}>Sign up for free</FooterLink></li>
-              <li><FooterLink href="/auth" isExternal={false}>Browse Deals</FooterLink></li>
+              <li><FooterLink onClick={openAuthModal}>Sign up for free</FooterLink></li>
+              <li><FooterLink onClick={openAuthModal}>Browse Deals</FooterLink></li>
             </ul>
           </div>
 
@@ -90,7 +105,8 @@ export default function CTASection() {
             </ul>
           </div>
         </div>
-      </Container>
+        </Container>
+      </div>
     </footer>
   );
 }
