@@ -18,7 +18,7 @@ export function SidebarFooter() {
             <div className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={() => navigate('/dashboard/overview')}
+                onClick={() => navigate('/')}
                 className="rounded-md px-2 py-1 text-[11px] font-medium text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-all duration-150 cursor-pointer"
               >
                 Home

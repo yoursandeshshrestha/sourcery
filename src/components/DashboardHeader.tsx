@@ -36,10 +36,11 @@ export function DashboardHeader() {
   };
 
   const handleLogout = async () => {
+    setShowLogoutDialog(false);
     if (signOut) {
       await signOut();
     }
-    setShowLogoutDialog(false);
+    navigate('/', { replace: true });
   };
 
   // Generate breadcrumbs from current path

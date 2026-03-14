@@ -35,7 +35,7 @@ export default function SettingsPage() {
       // Sign out and redirect
       await signOut();
       setShowDeleteDialog(false);
-      navigate('/auth');
+      navigate('/', { replace: true });
     } catch (error) {
       console.error('Failed to delete account:', error);
       alert('Failed to delete account. Please try again or contact support.');
