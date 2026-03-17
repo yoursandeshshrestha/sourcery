@@ -6,25 +6,39 @@
 
 -- ===== RESERVATIONS POLICIES =====
 
--- Investors can read their own reservations
-CREATE POLICY "Investors can read own reservations"
-  ON reservations FOR SELECT
-  USING (auth.uid() = investor_id);
-
--- Sourcers can read reservations for their deals
-CREATE POLICY "Sourcers can read deal reservations"
-  ON reservations FOR SELECT
-  USING (auth.uid() = sourcer_id);
+-- Anyone can view their own reservations (as investor or sourcer)
+CREATE POLICY "Users can view their own reservations"
+ON reservations FOR SELECT
+USING (
+  auth.uid() = investor_id OR
+  auth.uid() = sourcer_id OR
+  auth.uid() IN (SELECT id FROM profiles WHERE role = 'ADMIN')
+);
 
 -- Investors can create reservations
 CREATE POLICY "Investors can create reservations"
-  ON reservations FOR INSERT
-  WITH CHECK (auth.uid() = investor_id);
+ON reservations FOR INSERT
+WITH CHECK (
+  auth.uid() = investor_id AND
+  auth.uid() IN (SELECT id FROM profiles WHERE role IN ('INVESTOR', 'SOURCER', 'ADMIN'))
+);
 
--- System/Admin can update reservation status (for webhook handling)
-CREATE POLICY "System can update reservations"
-  ON reservations FOR UPDATE
-  USING (TRUE);
+-- Investors can update their own reservations (cancel)
+CREATE POLICY "Investors can update their own reservations"
+ON reservations FOR UPDATE
+USING (auth.uid() = investor_id)
+WITH CHECK (auth.uid() = investor_id);
+
+-- Sourcers can update reservations for their deals (confirm, complete)
+CREATE POLICY "Sourcers can update their deal reservations"
+ON reservations FOR UPDATE
+USING (auth.uid() = sourcer_id)
+WITH CHECK (auth.uid() = sourcer_id);
+
+-- Admins can do everything
+CREATE POLICY "Admins can manage all reservations"
+ON reservations FOR ALL
+USING (auth.uid() IN (SELECT id FROM profiles WHERE role = 'ADMIN'));
 
 -- ===== PROGRESSION PIPELINE POLICIES =====
 

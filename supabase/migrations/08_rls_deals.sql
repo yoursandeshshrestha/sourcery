@@ -13,7 +13,7 @@ CREATE POLICY "Anyone can read public deal data"
 -- CRITICAL POLICY: Private deal data access
 -- Users can see private columns (full_address, vendor_details, legal_pack_url) IF:
 -- 1. They are the Sourcer who created it
--- 2. OR they have an active reservation with payment_status = 'HELD_IN_ESCROW' or 'RELEASED'
+-- 2. OR they have an active reservation (PENDING or CONFIRMED status)
 CREATE POLICY "Private deal data access"
   ON deals FOR SELECT
   USING (
@@ -23,7 +23,7 @@ CREATE POLICY "Private deal data access"
       SELECT 1 FROM reservations
       WHERE reservations.deal_id = deals.id
       AND reservations.investor_id = auth.uid()
-      AND reservations.payment_status IN ('HELD_IN_ESCROW', 'RELEASED')
+      AND reservations.status IN ('PENDING', 'CONFIRMED')
     )
   );
 

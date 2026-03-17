@@ -20,6 +20,13 @@ VALUES
     false, -- Private bucket (KYC documents)
     10485760, -- 10MB limit
     ARRAY['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'application/pdf']
+  ),
+  (
+    'deal-images',
+    'deal-images',
+    true, -- Public bucket (deal images are public)
+    NULL, -- No file size limit
+    NULL -- No MIME type restrictions
   )
 ON CONFLICT (id) DO NOTHING;
 
@@ -40,6 +47,10 @@ DROP POLICY IF EXISTS "Users can update verification documents" ON storage.objec
 DROP POLICY IF EXISTS "Users can delete verification documents" ON storage.objects;
 DROP POLICY IF EXISTS "Users can view their own verification documents" ON storage.objects;
 DROP POLICY IF EXISTS "Admins can view all verification documents" ON storage.objects;
+DROP POLICY IF EXISTS "Anyone can view deal images" ON storage.objects;
+DROP POLICY IF EXISTS "Sourcers can upload deal images" ON storage.objects;
+DROP POLICY IF EXISTS "Sourcers can update their own deal images" ON storage.objects;
+DROP POLICY IF EXISTS "Sourcers can delete their own deal images" ON storage.objects;
 
 -- Allow authenticated users to upload their own avatar
 CREATE POLICY "Users can upload their own avatar"
@@ -134,5 +145,47 @@ USING (
     SELECT 1 FROM profiles
     WHERE profiles.id = auth.uid()
     AND profiles.role = 'ADMIN'
+  )
+);
+
+-- ============================================
+-- DEAL IMAGES BUCKET POLICIES
+-- ============================================
+
+-- Anyone can view deal images (they're public)
+CREATE POLICY "Anyone can view deal images"
+ON storage.objects FOR SELECT
+USING (bucket_id = 'deal-images');
+
+-- Sourcers can upload deal images
+CREATE POLICY "Sourcers can upload deal images"
+ON storage.objects FOR INSERT
+WITH CHECK (
+  bucket_id = 'deal-images' AND
+  auth.uid() IN (
+    SELECT id FROM profiles
+    WHERE role IN ('SOURCER', 'ADMIN')
+  )
+);
+
+-- Sourcers can update their own deal images
+CREATE POLICY "Sourcers can update their own deal images"
+ON storage.objects FOR UPDATE
+USING (
+  bucket_id = 'deal-images' AND
+  auth.uid() IN (
+    SELECT id FROM profiles
+    WHERE role IN ('SOURCER', 'ADMIN')
+  )
+);
+
+-- Sourcers can delete their own deal images
+CREATE POLICY "Sourcers can delete their own deal images"
+ON storage.objects FOR DELETE
+USING (
+  bucket_id = 'deal-images' AND
+  auth.uid() IN (
+    SELECT id FROM profiles
+    WHERE role IN ('SOURCER', 'ADMIN')
   )
 );

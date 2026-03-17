@@ -28,6 +28,9 @@ CREATE TABLE profiles (
   -- Investor-specific fields
   stripe_customer_id TEXT,
 
+  -- Application rejection tracking
+  rejection_reason TEXT,
+
   -- Timestamps
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -39,3 +42,6 @@ ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 -- Create indexes
 CREATE INDEX idx_profiles_role ON profiles(role);
 CREATE INDEX idx_profiles_verification_status ON profiles(verification_status);
+
+-- Add comments
+COMMENT ON COLUMN profiles.rejection_reason IS 'Reason provided by admin when rejecting sourcer application';
