@@ -47,35 +47,37 @@ export default function ProfilePage() {
 
   return (
     <>
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold">Profile</h1>
-      </div>
-      <div className="space-y-8">
-        {/* Basic Information */}
-        <BasicInfoSection />
+      <div className="px-6 py-8 w-full">
+        <div className="mb-6">
+          <h1 className="text-2xl font-semibold">Profile</h1>
+        </div>
+        <div className="space-y-8">
+          {/* Basic Information */}
+          <BasicInfoSection />
 
-        {/* Role & Application/Verification Status */}
-        <RoleSection />
+          {/* Role & Application/Verification Status */}
+          <RoleSection />
 
-        {/* Account Actions */}
-        <div className="rounded-md border border-border bg-card p-6">
-          <h2 className="text-lg font-semibold mb-4">Account</h2>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">Sign Out</p>
-                <p className="text-sm text-muted-foreground">
-                  Log out of your account on this device
-                </p>
+          {/* Account Actions */}
+          <div className="rounded-md border border-border bg-card p-6">
+            <h2 className="text-lg font-semibold mb-4">Account</h2>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium">Sign Out</p>
+                  <p className="text-sm text-muted-foreground">
+                    Log out of your account on this device
+                  </p>
+                </div>
+                <Button
+                  variant="outline"
+                  onClick={() => setLogoutDialogOpen(true)}
+                  className="cursor-pointer"
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Log Out
+                </Button>
               </div>
-              <Button
-                variant="outline"
-                onClick={() => setLogoutDialogOpen(true)}
-                className="cursor-pointer"
-              >
-                <LogOut className="h-4 w-4 mr-2" />
-                Log Out
-              </Button>
             </div>
           </div>
         </div>

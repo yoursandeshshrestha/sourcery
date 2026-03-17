@@ -57,52 +57,22 @@ export function DealForm({ deal, mode }: DealFormProps) {
   const [mediaUrls, setMediaUrls] = useState<string[]>(deal?.media_urls || []);
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(deal?.thumbnail_url || null);
 
-  // Calculated Values
+  // Calculated Values (for display preview only)
+  // ⚠️ SECURITY: ROI, Yield, and ROCE are calculated SERVER-SIDE by PostgreSQL trigger
+  // Client cannot manipulate these values - they're recalculated on save
   const [totalInvestment, setTotalInvestment] = useState(0);
   const [capitalRequired, setCapitalRequired] = useState(0);
-  const [calculatedRoi, setCalculatedRoi] = useState<number | null>(null);
-  const [calculatedYield, setCalculatedYield] = useState<number | null>(null);
-  const [calculatedRoce, setCalculatedRoce] = useState<number | null>(null);
 
-  // Calculate totals and metrics when inputs change
+  // Calculate totals for preview (server will recalculate on save)
   useEffect(() => {
     const purchase = parseFloat(purchasePrice) || 0;
     const refurb = parseFloat(refurbCosts) || 0;
     const sourcing = parseFloat(sourcingFee) || 0;
-    const profit = parseFloat(estimatedProfit) || 0;
-    const monthlyRent = parseFloat(estimatedRentalIncome) || 0;
 
     const total = purchase + refurb + sourcing;
     setTotalInvestment(total);
     setCapitalRequired(total);
-
-    // Calculate ROI (Return on Investment)
-    // ROI = (Profit / Total Investment) * 100
-    if (total > 0 && profit > 0) {
-      setCalculatedRoi((profit / total) * 100);
-    } else {
-      setCalculatedRoi(null);
-    }
-
-    // Calculate Yield (Rental Yield)
-    // Yield = (Annual Rental Income / Purchase Price) * 100
-    if (purchase > 0 && monthlyRent > 0) {
-      const annualRent = monthlyRent * 12;
-      setCalculatedYield((annualRent / purchase) * 100);
-    } else {
-      setCalculatedYield(null);
-    }
-
-    // Calculate ROCE (Return on Capital Employed)
-    // ROCE = (Annual Net Profit / Capital Employed) * 100
-    // Using profit as net profit approximation
-    if (total > 0 && monthlyRent > 0) {
-      const annualRent = monthlyRent * 12;
-      setCalculatedRoce((annualRent / total) * 100);
-    } else {
-      setCalculatedRoce(null);
-    }
-  }, [purchasePrice, refurbCosts, sourcingFee, estimatedProfit, estimatedRentalIncome]);
+  }, [purchasePrice, refurbCosts, sourcingFee]);
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -243,20 +213,16 @@ export function DealForm({ deal, mode }: DealFormProps) {
     try {
       setLoading(true);
 
-      const dealData: Partial<CreateDealInput> & {
-        calculated_roi?: number | null;
-        calculated_yield?: number | null;
-        calculated_roce?: number | null;
-      } = {
+      // ⚠️ SECURITY NOTE: calculated_roi, calculated_yield, and calculated_roce
+      // are NOT included here - they are calculated SERVER-SIDE by PostgreSQL trigger
+      // This prevents client manipulation of financial metrics
+      const dealData: Partial<CreateDealInput> = {
         headline: headline.trim(),
         description: description.trim() || null,
         strategy_type: strategyType,
         approximate_location: approximateLocation.trim() || '',
         full_address: fullAddress.trim() || '',
         capital_required: capitalRequired || 0,
-        calculated_roi: calculatedRoi,
-        calculated_yield: calculatedYield,
-        calculated_roce: calculatedRoce,
         media_urls: mediaUrls.length > 0 ? mediaUrls : undefined,
         thumbnail_url: thumbnailUrl || undefined,
         financial_metrics: {
@@ -535,6 +501,14 @@ export function DealForm({ deal, mode }: DealFormProps) {
                   Amount investor needs
                 </p>
               </div>
+            </div>
+
+            {/* Security Notice */}
+            <div className="mt-4 rounded-md bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 p-3">
+              <p className="text-xs text-blue-900 dark:text-blue-100">
+                <strong>🔒 Secure Calculations:</strong> ROI, Yield, and ROCE are calculated automatically by our server when you save.
+                This ensures accurate financial metrics that cannot be manipulated.
+              </p>
             </div>
           </div>
         </div>

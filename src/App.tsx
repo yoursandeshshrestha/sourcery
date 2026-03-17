@@ -29,6 +29,9 @@ import EditDealPage from '@/pages/deals/edit';
 import MyDealsPage from '@/pages/deals/my-deals';
 import MyReservationsPage from '@/pages/reservations/my-reservations';
 import DealReservationsPage from '@/pages/reservations/deal-reservations';
+import PipelinePage from '@/pages/pipeline';
+import PipelineDetailPage from '@/pages/pipeline/detail';
+import InvestorPipelinePage from '@/pages/account/InvestorPipelinePage';
 
 function App() {
   return (
@@ -217,6 +220,20 @@ function App() {
             }
           />
           <Route
+            path="/account/pipeline"
+            element={
+              <ProtectedRoute>
+                <InvestorRoute>
+                  <InvestorAccountLayout>
+                    <PageErrorBoundary>
+                      <InvestorPipelinePage />
+                    </PageErrorBoundary>
+                  </InvestorAccountLayout>
+                </InvestorRoute>
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/account/settings"
             element={
               <ProtectedRoute>
@@ -243,6 +260,32 @@ function App() {
                     </PageErrorBoundary>
                   </Layout>
                 </SourcerRoute>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Pipeline routes */}
+          <Route
+            path="/dashboard/pipeline/:id"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <PageErrorBoundary>
+                    <PipelineDetailPage />
+                  </PageErrorBoundary>
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/pipeline"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <PageErrorBoundary>
+                    <PipelinePage />
+                  </PageErrorBoundary>
+                </Layout>
               </ProtectedRoute>
             }
           />

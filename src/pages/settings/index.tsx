@@ -56,11 +56,12 @@ export default function SettingsPage() {
 
   return (
     <>
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold">Settings</h1>
-      </div>
-      {/* Settings Sections */}
-      <div className="space-y-6">
+      <div className="px-6 py-8 w-full">
+        <div className="mb-6">
+          <h1 className="text-2xl font-semibold">Settings</h1>
+        </div>
+        {/* Settings Sections */}
+        <div className="space-y-6">
         <div className="space-y-8">
           {/* Profile Section */}
           <div className="flex flex-col gap-3">
@@ -189,6 +190,7 @@ export default function SettingsPage() {
             </section>
           </div>
         </div>
+      </div>
       </div>
 
       {/* Delete Account Confirmation Dialog */}

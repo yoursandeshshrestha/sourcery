@@ -24,7 +24,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Loader2, Eye, Receipt, User, Mail, Building2 } from 'lucide-react';
+import { Loader2, Eye, Receipt, User, Mail, Building2, Clock, CheckCircle2, XCircle, BadgeCheck } from 'lucide-react';
 import { formatDateTime } from '@/lib/date';
 
 export default function DealReservationsPage() {
@@ -93,15 +93,31 @@ export default function DealReservationsPage() {
   };
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, string> = {
-      PENDING: 'bg-yellow-100 text-yellow-700 border-yellow-300',
-      CONFIRMED: 'bg-green-100 text-green-700 border-green-300',
-      CANCELLED: 'bg-red-100 text-red-700 border-red-300',
-      COMPLETED: 'bg-purple-100 text-purple-700 border-purple-300',
+    const config: Record<string, { icon: typeof Clock; className: string }> = {
+      PENDING: {
+        icon: Clock,
+        className: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-400 dark:border-amber-800',
+      },
+      CONFIRMED: {
+        icon: CheckCircle2,
+        className: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-400 dark:border-emerald-800',
+      },
+      CANCELLED: {
+        icon: XCircle,
+        className: 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950 dark:text-rose-400 dark:border-rose-800',
+      },
+      COMPLETED: {
+        icon: BadgeCheck,
+        className: 'bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-950 dark:text-violet-400 dark:border-violet-800',
+      },
     };
 
+    const statusConfig = config[status] || config.PENDING;
+    const Icon = statusConfig.icon;
+
     return (
-      <Badge variant="outline" className={variants[status] || variants.PENDING}>
+      <Badge variant="outline" className={`${statusConfig.className} flex items-center gap-1.5 w-fit`}>
+        <Icon className="h-3.5 w-3.5" />
         {RESERVATION_STATUS_LABELS[status as keyof typeof RESERVATION_STATUS_LABELS]}
       </Badge>
     );
@@ -109,6 +125,17 @@ export default function DealReservationsPage() {
 
   const getInitials = (firstName: string, lastName: string) => {
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+  };
+
+  const getStrategyBadgeClass = (strategy: string) => {
+    const classes: Record<string, string> = {
+      FLIP: 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950 dark:text-orange-400 dark:border-orange-800',
+      HMO: 'bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-950 dark:text-indigo-400 dark:border-indigo-800',
+      R2R: 'bg-cyan-50 text-cyan-700 border-cyan-200 dark:bg-cyan-950 dark:text-cyan-400 dark:border-cyan-800',
+      BTL: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-400 dark:border-emerald-800',
+      BRRR: 'bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-950 dark:text-violet-400 dark:border-violet-800',
+    };
+    return classes[strategy] || 'bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-950 dark:text-slate-400 dark:border-slate-800';
   };
 
   if (loading) {
@@ -131,25 +158,25 @@ export default function DealReservationsPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <div className="rounded-md border border-border bg-card p-4">
-          <p className="text-sm text-muted-foreground mb-1">Total Reservations</p>
-          <p className="text-2xl font-bold">{reservations.length}</p>
+        <div className="rounded-lg border border-border bg-card p-5 hover:shadow-sm transition-shadow">
+          <p className="text-sm font-medium text-muted-foreground mb-2">Total Reservations</p>
+          <p className="text-3xl font-bold">{reservations.length}</p>
         </div>
-        <div className="rounded-md border border-border bg-card p-4">
-          <p className="text-sm text-muted-foreground mb-1">Confirmed</p>
-          <p className="text-2xl font-bold text-green-600">
+        <div className="rounded-lg border border-emerald-200 bg-emerald-50 dark:bg-emerald-950 dark:border-emerald-800 p-5 hover:shadow-sm transition-shadow">
+          <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400 mb-2">Confirmed</p>
+          <p className="text-3xl font-bold text-emerald-700 dark:text-emerald-400">
             {reservations.filter((r) => r.status === 'CONFIRMED').length}
           </p>
         </div>
-        <div className="rounded-md border border-border bg-card p-4">
-          <p className="text-sm text-muted-foreground mb-1">Completed</p>
-          <p className="text-2xl font-bold text-purple-600">
+        <div className="rounded-lg border border-violet-200 bg-violet-50 dark:bg-violet-950 dark:border-violet-800 p-5 hover:shadow-sm transition-shadow">
+          <p className="text-sm font-medium text-violet-700 dark:text-violet-400 mb-2">Completed</p>
+          <p className="text-3xl font-bold text-violet-700 dark:text-violet-400">
             {reservations.filter((r) => r.status === 'COMPLETED').length}
           </p>
         </div>
-        <div className="rounded-md border border-border bg-card p-4">
-          <p className="text-sm text-muted-foreground mb-1">Total Revenue</p>
-          <p className="text-2xl font-bold">
+        <div className="rounded-lg border border-border bg-card p-5 hover:shadow-sm transition-shadow">
+          <p className="text-sm font-medium text-muted-foreground mb-2">Total Revenue</p>
+          <p className="text-3xl font-bold text-primary">
             {formatCurrency(
               reservations
                 .filter((r) => r.status === 'COMPLETED')
@@ -172,27 +199,27 @@ export default function DealReservationsPage() {
           </Button>
         </div>
       ) : (
-        <div className="rounded-md border border-border">
+        <div className="rounded-lg border border-border overflow-hidden bg-card">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Investor</TableHead>
-                <TableHead>Deal</TableHead>
-                <TableHead>Strategy</TableHead>
-                <TableHead>Reservation Fee</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Reserved On</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+              <TableRow className="bg-muted/50 hover:bg-muted/50">
+                <TableHead className="font-semibold">Investor</TableHead>
+                <TableHead className="font-semibold">Deal</TableHead>
+                <TableHead className="font-semibold">Strategy</TableHead>
+                <TableHead className="font-semibold">Reservation Fee</TableHead>
+                <TableHead className="font-semibold">Status</TableHead>
+                <TableHead className="font-semibold">Reserved On</TableHead>
+                <TableHead className="text-right font-semibold">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {reservations.map((reservation) => (
-                <TableRow key={reservation.id}>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Avatar className="h-8 w-8">
+                <TableRow key={reservation.id} className="hover:bg-muted/30">
+                  <TableCell className="py-4">
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-10 w-10 border-2 border-border">
                         <AvatarImage src={reservation.investor?.avatar_url || undefined} />
-                        <AvatarFallback>
+                        <AvatarFallback className="text-xs font-semibold bg-primary/10 text-primary">
                           {reservation.investor
                             ? getInitials(
                                 reservation.investor.first_name,
@@ -201,25 +228,39 @@ export default function DealReservationsPage() {
                             : 'IN'}
                         </AvatarFallback>
                       </Avatar>
-                      <div>
-                        <p className="font-medium text-sm">
+                      <div className="min-w-0">
+                        <p className="font-medium text-sm truncate">
                           {reservation.investor
                             ? `${reservation.investor.first_name} ${reservation.investor.last_name}`
                             : 'N/A'}
                         </p>
                         {reservation.investor?.company_name && (
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-xs text-muted-foreground truncate">
                             {reservation.investor.company_name}
                           </p>
                         )}
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell className="font-medium">
-                    {reservation.deal?.headline || 'N/A'}
+                  <TableCell className="py-4">
+                    <div className="max-w-[250px]">
+                      <p className="font-medium text-sm truncate">
+                        {reservation.deal?.headline || 'N/A'}
+                      </p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {reservation.deal?.approximate_location || ''}
+                      </p>
+                    </div>
                   </TableCell>
-                  <TableCell>
-                    <Badge variant="outline">
+                  <TableCell className="py-4">
+                    <Badge
+                      variant="outline"
+                      className={`font-medium ${
+                        reservation.deal?.strategy_type
+                          ? getStrategyBadgeClass(reservation.deal.strategy_type)
+                          : ''
+                      }`}
+                    >
                       {reservation.deal?.strategy_type
                         ? STRATEGY_LABELS[
                             reservation.deal.strategy_type as keyof typeof STRATEGY_LABELS
@@ -227,24 +268,25 @@ export default function DealReservationsPage() {
                         : 'N/A'}
                     </Badge>
                   </TableCell>
-                  <TableCell className="font-semibold">
-                    {formatCurrency(reservation.reservation_fee_amount)}
+                  <TableCell className="py-4">
+                    <span className="font-semibold text-base">
+                      {formatCurrency(reservation.reservation_fee_amount)}
+                    </span>
                   </TableCell>
-                  <TableCell>{getStatusBadge(reservation.status)}</TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
+                  <TableCell className="py-4">{getStatusBadge(reservation.status)}</TableCell>
+                  <TableCell className="py-4 text-sm text-muted-foreground">
                     {formatDateTime(reservation.reserved_at)}
                   </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleViewDetails(reservation)}
-                        className="cursor-pointer"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                    </div>
+                  <TableCell className="text-right py-4">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleViewDetails(reservation)}
+                      className="cursor-pointer hover:bg-primary/10 hover:text-primary"
+                    >
+                      <Eye className="h-4 w-4 mr-1.5" />
+                      <span className="text-xs font-medium">View</span>
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
@@ -264,14 +306,17 @@ export default function DealReservationsPage() {
               </DialogDescription>
             </DialogHeader>
 
-            <div className="space-y-4">
+            <div className="space-y-5">
               {/* Investor Info */}
-              <div className="rounded-md border border-border bg-muted p-4">
-                <h3 className="font-semibold mb-3">Investor Information</h3>
-                <div className="flex items-center gap-3 mb-3">
-                  <Avatar className="h-12 w-12">
+              <div className="rounded-lg border border-border bg-card p-5">
+                <h3 className="font-semibold text-base mb-4 flex items-center gap-2">
+                  <User className="h-4 w-4 text-primary" />
+                  Investor Information
+                </h3>
+                <div className="flex items-center gap-4 mb-4">
+                  <Avatar className="h-14 w-14 border-2 border-border">
                     <AvatarImage src={selectedReservation.investor?.avatar_url || undefined} />
-                    <AvatarFallback>
+                    <AvatarFallback className="text-sm font-semibold bg-primary/10 text-primary">
                       {selectedReservation.investor
                         ? getInitials(
                             selectedReservation.investor.first_name,
@@ -281,43 +326,53 @@ export default function DealReservationsPage() {
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="font-medium">
+                    <p className="font-semibold text-base">
                       {selectedReservation.investor
                         ? `${selectedReservation.investor.first_name} ${selectedReservation.investor.last_name}`
                         : 'N/A'}
                     </p>
                     {selectedReservation.investor?.company_name && (
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-muted-foreground mt-0.5">
                         {selectedReservation.investor.company_name}
                       </p>
                     )}
                   </div>
                 </div>
                 <div className="space-y-2 text-sm">
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Mail className="h-4 w-4" />
-                    <span>{selectedReservation.investor?.email || 'N/A'}</span>
+                  <div className="flex items-center gap-2 text-muted-foreground px-3 py-2 bg-muted/50 rounded-md">
+                    <Mail className="h-4 w-4 shrink-0" />
+                    <span className="break-all">{selectedReservation.investor?.email || 'N/A'}</span>
                   </div>
                 </div>
               </div>
 
               {/* Deal Info */}
-              <div className="rounded-md border border-border bg-muted p-4">
-                <h3 className="font-semibold mb-3">Deal Information</h3>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Property</span>
-                    <span className="font-medium">{selectedReservation.deal?.headline}</span>
+              <div className="rounded-lg border border-border bg-card p-5">
+                <h3 className="font-semibold text-base mb-4 flex items-center gap-2">
+                  <Building2 className="h-4 w-4 text-primary" />
+                  Deal Information
+                </h3>
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between items-start gap-4">
+                    <span className="text-muted-foreground font-medium">Property</span>
+                    <span className="font-semibold text-right">{selectedReservation.deal?.headline}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Location</span>
-                    <span className="font-medium">
+                  <div className="flex justify-between items-start gap-4">
+                    <span className="text-muted-foreground font-medium">Location</span>
+                    <span className="font-medium text-right">
                       {selectedReservation.deal?.approximate_location}
                     </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Strategy</span>
-                    <Badge variant="outline">
+                  <div className="flex justify-between items-center gap-4">
+                    <span className="text-muted-foreground font-medium">Strategy</span>
+                    <Badge
+                      variant="outline"
+                      className={`font-medium ${
+                        selectedReservation.deal?.strategy_type
+                          ? getStrategyBadgeClass(selectedReservation.deal.strategy_type)
+                          : ''
+                      }`}
+                    >
                       {selectedReservation.deal?.strategy_type
                         ? STRATEGY_LABELS[
                             selectedReservation.deal
@@ -330,22 +385,25 @@ export default function DealReservationsPage() {
               </div>
 
               {/* Reservation Info */}
-              <div className="rounded-md border border-border bg-muted p-4">
-                <h3 className="font-semibold mb-3">Reservation Details</h3>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Status</span>
+              <div className="rounded-lg border border-border bg-card p-5">
+                <h3 className="font-semibold text-base mb-4 flex items-center gap-2">
+                  <Receipt className="h-4 w-4 text-primary" />
+                  Reservation Details
+                </h3>
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between items-center gap-4">
+                    <span className="text-muted-foreground font-medium">Status</span>
                     {getStatusBadge(selectedReservation.status)}
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Reservation Fee</span>
-                    <span className="font-semibold">
+                  <div className="flex justify-between items-center gap-4">
+                    <span className="text-muted-foreground font-medium">Reservation Fee</span>
+                    <span className="font-bold text-base text-primary">
                       {formatCurrency(selectedReservation.reservation_fee_amount)}
                     </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Reserved On</span>
-                    <span className="font-medium">
+                  <div className="flex justify-between items-start gap-4">
+                    <span className="text-muted-foreground font-medium">Reserved On</span>
+                    <span className="font-medium text-right">
                       {formatDateTime(selectedReservation.reserved_at)}
                     </span>
                   </div>
@@ -354,9 +412,9 @@ export default function DealReservationsPage() {
 
               {/* Investor Notes */}
               {selectedReservation.investor_notes && (
-                <div className="rounded-md border border-border bg-muted p-4">
-                  <h3 className="font-semibold mb-2">Investor Notes</h3>
-                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                <div className="rounded-lg border border-border bg-card p-5">
+                  <h3 className="font-semibold text-base mb-3">Investor Notes</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
                     {selectedReservation.investor_notes}
                   </p>
                 </div>

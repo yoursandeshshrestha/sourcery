@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import LandingNav from '@/components/LandingNav';
 import Footer from '@/pages/landing/sections/Footer';
-import { User, Settings, Receipt } from 'lucide-react';
+import { User, Settings, Receipt, Kanban } from 'lucide-react';
 
 interface InvestorAccountLayoutProps {
   children: ReactNode;
@@ -12,6 +12,7 @@ interface InvestorAccountLayoutProps {
 const navigation = [
   { name: 'Profile', href: '/account/profile', icon: User },
   { name: 'My Reservations', href: '/account/reservations', icon: Receipt },
+  { name: 'Pipeline', href: '/account/pipeline', icon: Kanban },
   { name: 'Settings', href: '/account/settings', icon: Settings },
 ];
 
