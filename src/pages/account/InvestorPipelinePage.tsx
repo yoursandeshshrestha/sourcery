@@ -5,6 +5,7 @@ import { Loader2, MapPin, Building2, User } from 'lucide-react';
 import { toast } from 'sonner';
 import { DndContext, DragOverlay, useDraggable, useDroppable } from '@dnd-kit/core';
 import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
+import { getPublicUrl } from '@/lib/storage';
 
 interface PipelineStage {
   id: string;
@@ -209,10 +210,6 @@ export default function InvestorPipelinePage() {
           table: 'progression_pipeline',
         },
         (payload) => {
-          if (import.meta.env.DEV) {
-            console.log('Realtime pipeline update:', payload);
-          }
-
           // Check if this update is from the current user (within 2 seconds)
           const isCurrentUserUpdate = lastUpdateRef.current &&
             payload.eventType === 'UPDATE' &&
@@ -283,10 +280,18 @@ export default function InvestorPipelinePage() {
       // Combine data
       const transformedData = pipelineData.map((pipeline) => {
         const reservation = reservationsData.find((r) => r.id === pipeline.reservation_id);
+        const dealData = reservation?.deals || {};
+
+        // Convert storage path to public URL if thumbnail_url exists
+        let thumbnailUrl = dealData.thumbnail_url;
+        if (thumbnailUrl && !thumbnailUrl.startsWith('http')) {
+          thumbnailUrl = getPublicUrl('deal-images', thumbnailUrl);
+        }
+
         return {
           id: pipeline.id,
           current_stage: pipeline.current_stage,
-          deal: reservation?.deals || {},
+          deal: { ...dealData, thumbnail_url: thumbnailUrl },
           reservation: {
             reservation_fee_amount: reservation?.reservation_fee_amount || 0,
             reserved_at: reservation?.reserved_at || '',
