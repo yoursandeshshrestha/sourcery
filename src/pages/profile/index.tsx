@@ -4,18 +4,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { BasicInfoSection } from './components/BasicInfoSection';
 import { RoleSection } from './components/RoleSection';
-import { Button } from '@/components/ui/button';
-import { LogOut, Loader2 } from 'lucide-react';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+import { LogOut, Loader2, X } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function ProfilePage() {
   const navigate = useNavigate();
@@ -27,11 +17,13 @@ export default function ProfilePage() {
     try {
       setLoggingOut(true);
       await signOut();
-      navigate('/');
+      toast.success('Logged out successfully');
+      navigate('/', { replace: true });
     } catch (error) {
       if (import.meta.env.DEV) {
         console.error('Error logging out:', error);
       }
+      toast.error('Failed to log out. Please try again.');
       setLoggingOut(false);
       setLogoutDialogOpen(false);
     }
@@ -47,72 +39,91 @@ export default function ProfilePage() {
 
   return (
     <>
-      <div className="px-6 py-8 w-full">
-        <div className="mb-6">
-          <h1 className="text-2xl font-semibold">Profile</h1>
-        </div>
-        <div className="space-y-8">
-          {/* Basic Information */}
-          <BasicInfoSection />
+      <div className="mb-6">
+        <h1 className="text-2xl font-semibold text-[#1A1A1A]">Profile</h1>
+        <p className="text-sm text-[#6B6B6B] mt-1">Manage your profile information</p>
+      </div>
 
-          {/* Role & Application/Verification Status */}
-          <RoleSection />
+      <div className="space-y-8">
+        {/* Basic Information */}
+        <BasicInfoSection />
 
-          {/* Account Actions */}
-          <div className="rounded-md border border-border bg-card p-6">
-            <h2 className="text-lg font-semibold mb-4">Account</h2>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">Sign Out</p>
-                  <p className="text-sm text-muted-foreground">
-                    Log out of your account on this device
-                  </p>
-                </div>
-                <Button
-                  variant="outline"
-                  onClick={() => setLogoutDialogOpen(true)}
-                  className="cursor-pointer"
-                >
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Log Out
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* Role & Application/Verification Status */}
+        <RoleSection />
+
+        {/* Account Actions - REMOVED since logout is now in sidebar */}
       </div>
 
       {/* Logout Confirmation Dialog */}
-      <AlertDialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Log Out</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to log out? You'll need to sign in again to access your account.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="cursor-pointer" disabled={loggingOut}>
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleLogout}
-              disabled={loggingOut}
-              className="cursor-pointer"
+      {logoutDialogOpen && (
+        <>
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-black/50 z-50 animate-in fade-in"
+            onClick={() => !loggingOut && setLogoutDialogOpen(false)}
+          />
+
+          {/* Modal */}
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div
+              className="bg-white rounded-2xl shadow-2xl max-w-md w-full animate-in zoom-in-95"
+              onClick={(e) => e.stopPropagation()}
             >
-              {loggingOut ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Logging out...
-                </>
-              ) : (
-                'Log Out'
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+              {/* Header */}
+              <div className="flex items-start justify-between p-6 pb-4 border-b border-[#E9E6DF]">
+                <div>
+                  <h2 className="text-xl font-semibold text-[#1A1A1A] mb-1">Log Out</h2>
+                  <p className="text-sm text-[#6B6B6B]">
+                    Are you sure you want to log out?
+                  </p>
+                </div>
+                <button
+                  onClick={() => !loggingOut && setLogoutDialogOpen(false)}
+                  disabled={loggingOut}
+                  className="p-2 hover:bg-[#F9F7F4] rounded-full transition-colors cursor-pointer shrink-0 ml-4 disabled:opacity-50"
+                >
+                  <X className="h-5 w-5 text-[#6B6B6B]" />
+                </button>
+              </div>
+
+              {/* Content */}
+              <div className="p-6">
+                <p className="text-sm text-[#6B6B6B]">
+                  You'll need to sign in again to access your account.
+                </p>
+              </div>
+
+              {/* Footer */}
+              <div className="flex gap-3 p-6 pt-4 border-t border-[#E9E6DF]">
+                <button
+                  onClick={() => setLogoutDialogOpen(false)}
+                  disabled={loggingOut}
+                  className="flex-1 px-4 py-2.5 border border-[#E9E6DF] text-[#1A1A1A] hover:bg-[#F9F7F4] text-sm font-medium rounded-xl transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleLogout}
+                  disabled={loggingOut}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-[#1287ff] hover:bg-[#0A6FE6] text-white text-sm font-semibold rounded-xl transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loggingOut ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Logging out...
+                    </>
+                  ) : (
+                    <>
+                      <LogOut className="h-4 w-4" />
+                      Log Out
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </>
   );
 }
