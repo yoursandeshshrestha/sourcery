@@ -12,38 +12,14 @@ export default function AuthPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (import.meta.env.DEV) {
-      console.log('🔐 [AuthPage] State:', {
-        loading,
-        hasUser: !!user,
-        userEmail: user?.email,
-        hasProfile: !!profile,
-        profileRole: profile?.role
-      });
-    }
-
     if (!loading && user && profile) {
-      if (import.meta.env.DEV) {
-        console.log('✈️ [AuthPage] Redirecting to dashboard');
-      }
       navigate('/dashboard/overview');
-    } else if (!loading && user && !profile) {
-      if (import.meta.env.DEV) {
-        console.log('⚠️ [AuthPage] User exists but no profile!');
-      }
-    } else if (!loading && !user) {
-      if (import.meta.env.DEV) {
-        console.log('👤 [AuthPage] No user, staying on auth page');
-      }
     }
   }, [user, profile, loading, navigate]);
 
   const handleGoogleSignIn = async () => {
     const { error } = await signInWithGoogle();
     if (error) {
-      if (import.meta.env.DEV) {
-        console.error('Error signing in with Google:', error);
-      }
       toast.error('Failed to continue with Google. Please try again.');
     }
   };

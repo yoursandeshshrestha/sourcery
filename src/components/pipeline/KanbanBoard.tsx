@@ -113,10 +113,6 @@ export function KanbanBoard() {
           table: 'progression_pipeline',
         },
         (payload) => {
-          if (import.meta.env.DEV) {
-            console.log('Realtime pipeline update:', payload);
-          }
-
           // Check if this update is from the current user
           const isCurrentUserUpdate = lastUpdateRef.current &&
             payload.eventType === 'UPDATE' &&
