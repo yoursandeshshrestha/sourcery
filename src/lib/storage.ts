@@ -102,6 +102,20 @@ export async function deleteFile(
 }
 
 /**
+ * Get public URL from storage path
+ * Example: "deal-images/xxx.jpg" -> "https://xxx.supabase.co/storage/v1/object/public/deal-images/xxx.jpg"
+ */
+export function getPublicUrl(bucket: string, path: string): string | null {
+  if (!path) return null;
+
+  const { data } = supabase.storage
+    .from(bucket)
+    .getPublicUrl(path);
+
+  return data.publicUrl;
+}
+
+/**
  * Extract storage path from a public URL
  * Example: https://xxx.supabase.co/storage/v1/object/public/avatars/user-id/file.jpg
  * Returns: user-id/file.jpg
