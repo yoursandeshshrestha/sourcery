@@ -1,4 +1,14 @@
 import { type ReactNode } from 'react';
+import {
+  LayoutDashboard,
+  Kanban,
+  Building2,
+  Receipt,
+  User,
+  Settings,
+  FileCheck,
+  Users
+} from 'lucide-react';
 
 export interface NavItem {
   label: string;
@@ -14,12 +24,12 @@ export interface NavGroup {
 
 export const sidebarConfig: NavGroup[] = [
   {
-    label: 'Main',
+    label: 'Dashboard',
     items: [
       {
         label: 'Overview',
         href: '/dashboard/overview',
-        icon: <img src="/icons/home.svg" alt="" className="size-4 dark:invert" />,
+        icon: <LayoutDashboard className="size-4" />,
       },
     ],
   },
@@ -29,12 +39,12 @@ export const sidebarConfig: NavGroup[] = [
       {
         label: 'Profile',
         href: '/dashboard/profile',
-        icon: <img src="/icons/profile.svg" alt="" className="size-4 dark:invert" />,
+        icon: <User className="size-4" />,
       },
       {
         label: 'Settings',
         href: '/dashboard/settings',
-        icon: <img src="/icons/setting.svg" alt="" className="size-4 dark:invert" />,
+        icon: <Settings className="size-4" />,
       },
     ],
   },
@@ -42,17 +52,22 @@ export const sidebarConfig: NavGroup[] = [
 
 export const sourcerSidebarConfig: NavGroup[] = [
   {
-    label: 'Sourcer',
+    label: 'Deals',
     items: [
       {
         label: 'My Deals',
         href: '/dashboard/my-deals',
-        icon: <img src="/icons/home.svg" alt="" className="size-4 dark:invert" />,
+        icon: <Building2 className="size-4" />,
+      },
+      {
+        label: 'Pipeline',
+        href: '/dashboard/pipeline',
+        icon: <Kanban className="size-4" />,
       },
       {
         label: 'Reservations',
         href: '/dashboard/reservations/deals',
-        icon: <img src="/icons/profile.svg" alt="" className="size-4 dark:invert" />,
+        icon: <Receipt className="size-4" />,
       },
     ],
   },
@@ -60,17 +75,17 @@ export const sourcerSidebarConfig: NavGroup[] = [
 
 export const adminSidebarConfig: NavGroup[] = [
   {
-    label: 'Admin',
+    label: 'Administration',
     items: [
       {
         label: 'Applications',
         href: '/dashboard/admin/applications',
-        icon: <img src="/icons/profile.svg" alt="" className="size-4 dark:invert" />,
+        icon: <FileCheck className="size-4" />,
       },
       {
-        label: 'User Management',
+        label: 'Users',
         href: '/dashboard/admin/users',
-        icon: <img src="/icons/setting.svg" alt="" className="size-4 dark:invert" />,
+        icon: <Users className="size-4" />,
       },
     ],
   },
