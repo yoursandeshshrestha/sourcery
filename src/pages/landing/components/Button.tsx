@@ -20,12 +20,12 @@ export default function Button({
   onClick,
   className = ''
 }: ButtonProps) {
-  const baseClasses = 'font-medium rounded-full transition-opacity cursor-pointer inline-flex items-center justify-center';
+  const baseClasses = 'font-medium rounded-full transition-colors cursor-pointer inline-flex items-center justify-center';
 
   const variantClasses = {
-    primary: 'bg-[#000000] hover:opacity-90 text-white',
-    secondary: 'bg-white hover:opacity-80 text-[#1A2208] border border-[#E9E6DF]',
-    ghost: 'bg-white hover:opacity-80 text-[#1A2208]'
+    primary: 'bg-[#1287ff] hover:bg-[#0A6FE6] text-white',
+    secondary: 'bg-white hover:opacity-80 text-[#1287ff] border border-[#E9E6DF]',
+    ghost: 'bg-white hover:opacity-80 text-[#1287ff]'
   };
 
   const sizeClasses = {

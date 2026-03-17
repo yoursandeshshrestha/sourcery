@@ -36,7 +36,7 @@ export default function HeroSection() {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
           <button
             onClick={handleBrowseDeals}
-            className="px-8 py-4 text-base font-medium text-white bg-[#1A2208] hover:bg-[#2A3218] rounded-full transition-all cursor-pointer whitespace-nowrap tracking-[0.01em] leading-[1.5em]"
+            className="px-8 py-4 text-base font-medium text-white bg-[#1287ff] hover:bg-[#0A6FE6] rounded-full transition-all cursor-pointer whitespace-nowrap tracking-[0.01em] leading-[1.5em]"
           >
             Browse Deals Now
           </button>

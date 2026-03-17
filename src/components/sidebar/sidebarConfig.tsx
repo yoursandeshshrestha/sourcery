@@ -39,3 +39,39 @@ export const sidebarConfig: NavGroup[] = [
     ],
   },
 ];
+
+export const sourcerSidebarConfig: NavGroup[] = [
+  {
+    label: 'Sourcer',
+    items: [
+      {
+        label: 'My Deals',
+        href: '/dashboard/my-deals',
+        icon: <img src="/icons/home.svg" alt="" className="size-4 dark:invert" />,
+      },
+      {
+        label: 'Reservations',
+        href: '/dashboard/reservations/deals',
+        icon: <img src="/icons/profile.svg" alt="" className="size-4 dark:invert" />,
+      },
+    ],
+  },
+];
+
+export const adminSidebarConfig: NavGroup[] = [
+  {
+    label: 'Admin',
+    items: [
+      {
+        label: 'Applications',
+        href: '/dashboard/admin/applications',
+        icon: <img src="/icons/profile.svg" alt="" className="size-4 dark:invert" />,
+      },
+      {
+        label: 'User Management',
+        href: '/dashboard/admin/users',
+        icon: <img src="/icons/setting.svg" alt="" className="size-4 dark:invert" />,
+      },
+    ],
+  },
+];

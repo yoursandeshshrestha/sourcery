@@ -12,7 +12,7 @@ interface FeatureCardProps {
 export default function FeatureCard({ title, description, icon, className = '' }: FeatureCardProps) {
   return (
     <div className={`bg-[#F9F7F4] rounded-3xl p-8 ${className}`}>
-      <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center text-[#1A2208] mb-6">
+      <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center text-[#1287ff] mb-6">
         {icon}
       </div>
       <Heading level={3} className="mb-3">

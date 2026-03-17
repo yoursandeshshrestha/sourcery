@@ -14,7 +14,7 @@ export default function Text({
   className = ''
 }: TextProps) {
   const colorClasses = {
-    primary: 'text-[#1A2208]',
+    primary: 'text-[#1287ff]',
     secondary: 'text-[#5C5C49]'
   };
 

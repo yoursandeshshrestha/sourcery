@@ -8,7 +8,7 @@ interface HeadingProps {
 }
 
 export default function Heading({ children, level = 1, className = '' }: HeadingProps) {
-  const baseClasses = 'font-normal text-[#1A2208]';
+  const baseClasses = 'font-normal text-[#1287ff]';
   const fontFamily = { fontFamily: "'Recoleta Regular', serif" };
 
   const levelClasses = {

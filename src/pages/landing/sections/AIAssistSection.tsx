@@ -24,7 +24,7 @@ export default function AIAssistSection() {
                 href="https://chat.openai.com/?q=Tell+me+how+Sourcery+helps+property+investors+find+verified+off-market+deals"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full sm:w-auto bg-[#1A2208] hover:opacity-90 text-white font-medium px-6 py-3 text-sm rounded-3xl transition-opacity cursor-pointer inline-flex items-center justify-center gap-2"
+                className="w-full sm:w-auto bg-[#1287ff] hover:opacity-90 text-white font-medium px-6 py-3 text-sm rounded-3xl transition-opacity cursor-pointer inline-flex items-center justify-center gap-2"
               >
                 <img src="/logo/openai.svg" alt="ChatGPT" className="h-5 w-5" />
                 Ask ChatGPT
@@ -33,7 +33,7 @@ export default function AIAssistSection() {
                 href="https://claude.ai/new?q=Tell+me+how+Sourcery+helps+property+investors+find+verified+off-market+deals"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full sm:w-auto bg-[#1A2208] hover:opacity-90 text-white font-medium px-6 py-3 text-sm rounded-3xl transition-opacity cursor-pointer inline-flex items-center justify-center gap-2"
+                className="w-full sm:w-auto bg-[#1287ff] hover:opacity-90 text-white font-medium px-6 py-3 text-sm rounded-3xl transition-opacity cursor-pointer inline-flex items-center justify-center gap-2"
               >
                 <img src="/logo/claude.svg" alt="Claude" className="h-5 w-5" />
                 Ask Claude

@@ -22,7 +22,7 @@ export default function StepCard({
 }: StepCardProps) {
   return (
     <div className={`p-8 ${className}`}>
-      <div className="w-12 h-12 bg-white border border-[#E9E6DF] rounded-xl flex items-center justify-center text-[#1A2208] mb-6">
+      <div className="w-12 h-12 bg-white border border-[#E9E6DF] rounded-xl flex items-center justify-center text-[#1287ff] mb-6">
         {icon}
       </div>
       <Heading level={3} className="mb-3">
@@ -33,7 +33,7 @@ export default function StepCard({
       </Text>
       <Link
         to={linkTo}
-        className="inline-flex items-center gap-2 text-sm text-[#1A2208] font-medium hover:gap-3 transition-all cursor-pointer"
+        className="inline-flex items-center gap-2 text-sm text-[#1287ff] font-medium hover:gap-3 transition-all cursor-pointer"
       >
         {linkText}
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

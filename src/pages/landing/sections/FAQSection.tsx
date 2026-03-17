@@ -56,7 +56,7 @@ export default function FAQSection() {
                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
               >
                 <div className="flex items-center justify-between py-5">
-                  <h3 className="text-base font-medium text-[#1A2208] pr-8">
+                  <h3 className="text-base font-medium text-[#1287ff] pr-8">
                     {faq.question}
                   </h3>
                   <div className={`text-[#5C5C49] transition-transform shrink-0 ${openIndex === index ? 'rotate-90' : ''}`}>

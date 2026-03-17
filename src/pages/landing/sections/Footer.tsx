@@ -15,21 +15,21 @@ interface FooterLinkProps {
 function FooterLink({ href, children, isExternal = true, onClick }: FooterLinkProps) {
   if (onClick) {
     return (
-      <button onClick={onClick} className="text-sm text-[#5C5C49] hover:text-[#1A2208] transition-colors cursor-pointer text-left">
+      <button onClick={onClick} className="text-sm text-[#5C5C49] hover:text-[#1287ff] transition-colors cursor-pointer text-left">
         {children}
       </button>
     );
   }
   if (isExternal && href) {
     return (
-      <a href={href} className="text-sm text-[#5C5C49] hover:text-[#1A2208] transition-colors cursor-pointer">
+      <a href={href} className="text-sm text-[#5C5C49] hover:text-[#1287ff] transition-colors cursor-pointer">
         {children}
       </a>
     );
   }
   if (href) {
     return (
-      <Link to={href} className="text-sm text-[#5C5C49] hover:text-[#1A2208] transition-colors cursor-pointer">
+      <Link to={href} className="text-sm text-[#5C5C49] hover:text-[#1287ff] transition-colors cursor-pointer">
         {children}
       </Link>
     );
@@ -46,7 +46,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 lg:gap-12">
             <div className="lg:col-span-2">
               <Link to="/" className="inline-block mb-4 cursor-pointer">
-                <span className="text-2xl font-semibold text-[#1A2208]">Sourcery</span>
+                <span className="text-2xl font-semibold text-[#1287ff]">Sourcery</span>
               </Link>
               <Text variant="small" className="mb-6 leading-relaxed max-w-xs">
                 Verified off-market property deals with accurate financials and secure payments.
@@ -64,7 +64,7 @@ export default function Footer() {
             </div>
 
             <div>
-              <h4 className="text-sm font-semibold text-[#1A2208] mb-4">Get Started</h4>
+              <h4 className="text-sm font-semibold text-[#1287ff] mb-4">Get Started</h4>
               <ul className="space-y-2.5">
                 <li><FooterLink href="#">Pricing</FooterLink></li>
                 <li><FooterLink onClick={openAuthModal}>Sign up for free</FooterLink></li>
@@ -73,7 +73,7 @@ export default function Footer() {
             </div>
 
             <div>
-              <h4 className="text-sm font-semibold text-[#1A2208] mb-4">Strategies</h4>
+              <h4 className="text-sm font-semibold text-[#1287ff] mb-4">Strategies</h4>
               <ul className="space-y-2.5">
                 <li><FooterLink href="#">HMO</FooterLink></li>
                 <li><FooterLink href="#">Buy to Let</FooterLink></li>
@@ -84,7 +84,7 @@ export default function Footer() {
             </div>
 
             <div>
-              <h4 className="text-sm font-semibold text-[#1A2208] mb-4">Resources</h4>
+              <h4 className="text-sm font-semibold text-[#1287ff] mb-4">Resources</h4>
               <ul className="space-y-2.5">
                 <li><FooterLink href="#">Blog</FooterLink></li>
                 <li><FooterLink href="#">Case Studies</FooterLink></li>
@@ -94,7 +94,7 @@ export default function Footer() {
             </div>
 
             <div>
-              <h4 className="text-sm font-semibold text-[#1A2208] mb-4">Company</h4>
+              <h4 className="text-sm font-semibold text-[#1287ff] mb-4">Company</h4>
               <ul className="space-y-2.5">
                 <li><FooterLink href="#">About Us</FooterLink></li>
                 <li><FooterLink href="#">Contact</FooterLink></li>

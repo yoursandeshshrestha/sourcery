@@ -1,9 +1,23 @@
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+
 export default function DashboardPage() {
+  const navigate = useNavigate();
+  const { profile } = useAuth();
+
+  useEffect(() => {
+    // Redirect investors to the deals page
+    if (profile?.role === 'INVESTOR') {
+      navigate('/deals', { replace: true });
+    }
+  }, [profile, navigate]);
+
   return (
     <div className="p-6 space-y-6">
       <div>
         <h1 className="text-2xl font-semibold mb-2">
-          Welcome back, User!
+          Welcome back!
         </h1>
         <p className="text-muted-foreground">
           Your dashboard is ready.
