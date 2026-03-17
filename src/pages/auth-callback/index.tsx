@@ -62,11 +62,17 @@ export default function AuthCallback() {
         }
 
         if (profile) {
-          // Profile exists - redirect directly to dashboard
+          // Profile exists - redirect based on role
           if (import.meta.env.DEV) {
-            console.log('✈️ [AuthCallback] Profile found, redirecting to dashboard');
+            console.log('✈️ [AuthCallback] Profile found, redirecting based on role:', profile.role);
           }
-          navigate('/dashboard/overview', { replace: true });
+
+          // Redirect investors to landing page, others to dashboard
+          if (profile.role === 'INVESTOR') {
+            navigate('/', { replace: true });
+          } else {
+            navigate('/dashboard/overview', { replace: true });
+          }
         } else {
           // No profile - this shouldn't happen with auto-create trigger
           if (import.meta.env.DEV) {
