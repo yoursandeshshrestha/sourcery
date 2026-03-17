@@ -1,16 +1,18 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import type { Reservation } from '@/types/reservation';
 import { RESERVATION_STATUS_LABELS } from '@/types/reservation';
 import { STRATEGY_LABELS } from '@/types/deal';
-import { Loader2, Eye, X, Receipt, MapPin, User, Mail, Phone, Building2 } from 'lucide-react';
+import { Loader2, Eye, X, Receipt, MapPin, User, Mail, Phone } from 'lucide-react';
 import { formatDateTime } from '@/lib/date';
+import { getPublicUrl } from '@/lib/storage';
 
 export default function MyReservationsPage() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -21,6 +23,23 @@ export default function MyReservationsPage() {
   useEffect(() => {
     fetchMyReservations();
   }, []);
+
+  // Handle payment success/cancellation
+  useEffect(() => {
+    const payment = searchParams.get('payment');
+
+    if (payment === 'success') {
+      // Remove query parameters first to prevent re-triggering
+      setSearchParams({});
+      // Show toast and refresh
+      toast.success('Payment successful! Your reservation has been confirmed.');
+      fetchMyReservations();
+    } else if (payment === 'cancelled') {
+      // Remove query parameters first
+      setSearchParams({});
+      toast.error('Payment was cancelled. Please try again if you wish to reserve this deal.');
+    }
+  }, [searchParams.get('payment')]);
 
   const fetchMyReservations = async () => {
     try {
@@ -34,14 +53,7 @@ export default function MyReservationsPage() {
         .order('reserved_at', { ascending: false });
 
       if (reservationsError) {
-        if (import.meta.env.DEV) {
-          console.error('Reservations query error:', reservationsError);
-        }
         throw reservationsError;
-      }
-
-      if (import.meta.env.DEV) {
-        console.log('Reservations:', reservationsData);
       }
 
       // Then fetch deals and sourcer info for each reservation
@@ -53,12 +65,10 @@ export default function MyReservationsPage() {
             .eq('id', reservation.deal_id)
             .maybeSingle();
 
-          if (dealError && import.meta.env.DEV) {
-            console.error('Deal query error for deal_id', reservation.deal_id, ':', dealError);
-          }
-
-          if (!dealData && import.meta.env.DEV) {
-            console.warn('No deal found for deal_id:', reservation.deal_id, 'This could be an RLS issue');
+          // Convert storage path to public URL if thumbnail_url exists
+          let thumbnailUrl = dealData?.thumbnail_url;
+          if (thumbnailUrl && !thumbnailUrl.startsWith('http')) {
+            thumbnailUrl = getPublicUrl('deal-images', thumbnailUrl);
           }
 
           // Fetch sourcer contact info
@@ -68,25 +78,14 @@ export default function MyReservationsPage() {
             .eq('id', reservation.sourcer_id)
             .maybeSingle();
 
-          if (sourcerError && import.meta.env.DEV) {
-            console.error('Sourcer query error for sourcer_id', reservation.sourcer_id, ':', sourcerError);
-          }
-
-          if (!sourcerData && import.meta.env.DEV) {
-            console.warn('No sourcer found for sourcer_id:', reservation.sourcer_id);
-          }
 
           return {
             ...reservation,
-            deal: dealData || null,
+            deal: dealData ? { ...dealData, thumbnail_url: thumbnailUrl } : null,
             sourcer: sourcerData || null,
           };
         })
       );
-
-      if (import.meta.env.DEV) {
-        console.log('Reservations with deals:', reservationsWithDeals);
-      }
 
       setReservations(reservationsWithDeals);
     } catch (error) {
@@ -183,93 +182,98 @@ export default function MyReservationsPage() {
           </button>
         </div>
       ) : (
-        <div className="grid gap-4">
+        <div className="grid gap-6">
           {reservations.map((reservation) => (
-            <div key={reservation.id} className="bg-white border border-[#E9E6DF] rounded-2xl p-5 hover:border-[#1287ff] transition-colors">
-              <div className="flex items-start gap-4">
+            <div key={reservation.id} className="bg-white border-2 border-[#E9E6DF] rounded-2xl overflow-hidden shadow-sm">
+              <div className="flex">
                 {/* Thumbnail */}
-                <div className="w-32 h-24 rounded-xl overflow-hidden bg-[#F9F7F4] shrink-0">
+                <div className="w-64 h-48 bg-[#F9F7F4] shrink-0 relative">
                   {reservation.deal?.thumbnail_url ? (
-                    <img
-                      src={reservation.deal.thumbnail_url}
-                      alt={reservation.deal.headline}
-                      className="w-full h-full object-cover"
-                    />
+                    <>
+                      <img
+                        src={reservation.deal.thumbnail_url}
+                        alt={reservation.deal.headline}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent to-white/10" />
+                    </>
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                      <Receipt className="h-8 w-8 text-[#C5C0B8]" />
+                      <Receipt className="h-12 w-12 text-[#C5C0B8]" />
+                    </div>
+                  )}
+                  {/* Strategy Badge */}
+                  {reservation.deal?.strategy_type && (
+                    <div className="absolute top-3 left-3">
+                      <span className="px-3 py-1.5 rounded-full text-xs font-semibold bg-white/95 backdrop-blur-sm text-[#1A1A1A] shadow-sm">
+                        {STRATEGY_LABELS[reservation.deal.strategy_type as keyof typeof STRATEGY_LABELS]}
+                      </span>
                     </div>
                   )}
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-4 mb-2">
+                <div className="flex-1 p-6">
+                  {/* Header */}
+                  <div className="flex items-start justify-between gap-4 mb-4">
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-lg text-[#1A1A1A] line-clamp-1 mb-1">
+                      <h3 className="font-semibold text-xl text-[#1A1A1A] mb-2 line-clamp-2">
                         {reservation.deal?.headline || 'Deal Unavailable'}
                       </h3>
-                      <div className="flex items-center gap-3 text-sm text-[#6B6B6B]">
-                        <div className="flex items-center gap-1">
-                          <MapPin className="h-3.5 w-3.5" />
-                          <span>{reservation.deal?.approximate_location || 'N/A'}</span>
-                        </div>
-                        {reservation.deal?.strategy_type && (
-                          <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-[#F9F7F4] text-[#1A1A1A]">
-                            {STRATEGY_LABELS[reservation.deal.strategy_type as keyof typeof STRATEGY_LABELS]}
-                          </span>
-                        )}
+                      <div className="flex items-center gap-2 text-sm text-[#6B6B6B]">
+                        <MapPin className="h-4 w-4 shrink-0" />
+                        <span>{reservation.deal?.approximate_location || 'N/A'}</span>
                       </div>
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold shrink-0 ${getStatusColor(reservation.status)}`}>
+                    <span className={`px-3 py-1.5 rounded-lg text-xs font-semibold shrink-0 ${getStatusColor(reservation.status)}`}>
                       {RESERVATION_STATUS_LABELS[reservation.status as keyof typeof RESERVATION_STATUS_LABELS]}
                     </span>
                   </div>
 
-                  {/* Details */}
-                  <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-[#E9E6DF]">
+                  {/* Details Grid */}
+                  <div className="grid grid-cols-2 gap-6 pb-5 border-b border-[#E9E6DF]">
                     <div>
-                      <p className="text-xs text-[#6B6B6B] mb-0.5">Reservation Fee</p>
-                      <p className="font-semibold text-[#1A1A1A]">{formatCurrency(reservation.reservation_fee_amount)}</p>
+                      <p className="text-xs font-medium text-[#6B6B6B] mb-1 uppercase tracking-wide">Reservation Fee</p>
+                      <p className="font-bold text-lg text-[#1287ff]">{formatCurrency(reservation.reservation_fee_amount)}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-[#6B6B6B] mb-0.5">Reserved On</p>
-                      <p className="text-sm text-[#1A1A1A]">{formatDateTime(reservation.reserved_at)}</p>
+                      <p className="text-xs font-medium text-[#6B6B6B] mb-1 uppercase tracking-wide">Reserved On</p>
+                      <p className="text-sm font-medium text-[#1A1A1A]">{formatDateTime(reservation.reserved_at)}</p>
                     </div>
                   </div>
 
                   {/* Sourcer Contact Info - Only show for confirmed reservations */}
                   {reservation.status === 'CONFIRMED' && reservation.sourcer && (
-                    <div className="mt-4 pt-4 border-t border-[#E9E6DF]">
-                      <p className="text-xs font-semibold text-[#6B6B6B] mb-3 uppercase tracking-wide">Contact Sourcer</p>
-                      <div className="bg-[#F9F7F4] rounded-lg p-3 space-y-2">
-                        <div className="flex items-center gap-2 text-sm">
+                    <div className="mt-5 pb-5 border-b border-[#E9E6DF]">
+                      <p className="text-xs font-semibold text-[#6B6B6B] mb-3 uppercase tracking-wide">Sourcer Contact</p>
+                      <div className="space-y-2.5">
+                        <div className="flex items-center gap-2.5 text-sm">
                           <User className="h-4 w-4 text-[#1287ff] shrink-0" />
-                          <span className="font-medium text-[#1A1A1A]">
+                          <span className="font-semibold text-[#1A1A1A]">
                             {reservation.sourcer.first_name} {reservation.sourcer.last_name}
                           </span>
+                          {reservation.sourcer.company_name && (
+                            <>
+                              <span className="text-[#C5C0B8]">•</span>
+                              <span className="text-[#6B6B6B]">{reservation.sourcer.company_name}</span>
+                            </>
+                          )}
                         </div>
-                        {reservation.sourcer.company_name && (
-                          <div className="flex items-center gap-2 text-sm">
-                            <Building2 className="h-4 w-4 text-[#1287ff] shrink-0" />
-                            <span className="text-[#6B6B6B]">{reservation.sourcer.company_name}</span>
-                          </div>
-                        )}
-                        <div className="flex items-center gap-2 text-sm">
+                        <div className="flex items-center gap-2.5 text-sm">
                           <Mail className="h-4 w-4 text-[#1287ff] shrink-0" />
                           <a
                             href={`mailto:${reservation.sourcer.email}`}
-                            className="text-[#1287ff] hover:text-[#0A6FE6] hover:underline cursor-pointer"
+                            className="text-[#1287ff] font-medium cursor-pointer"
                           >
                             {reservation.sourcer.email}
                           </a>
                         </div>
                         {reservation.sourcer.phone && (
-                          <div className="flex items-center gap-2 text-sm">
+                          <div className="flex items-center gap-2.5 text-sm">
                             <Phone className="h-4 w-4 text-[#1287ff] shrink-0" />
                             <a
                               href={`tel:${reservation.sourcer.phone}`}
-                              className="text-[#1287ff] hover:text-[#0A6FE6] hover:underline cursor-pointer"
+                              className="text-[#1287ff] font-medium cursor-pointer"
                             >
                               {reservation.sourcer.phone}
                             </a>
@@ -280,10 +284,10 @@ export default function MyReservationsPage() {
                   )}
 
                   {/* Actions */}
-                  <div className="flex gap-2 mt-4">
+                  <div className="flex gap-3 mt-5">
                     <button
                       onClick={() => window.open(`/deals/${reservation.deal_id}`, '_blank')}
-                      className="flex items-center gap-2 px-4 py-2 border border-[#E9E6DF] hover:border-[#1287ff] text-[#1A1A1A] hover:text-[#1287ff] rounded-lg text-sm font-medium transition-colors cursor-pointer"
+                      className="flex items-center gap-2 px-5 py-2.5 bg-[#1287ff] text-white rounded-xl text-sm font-semibold cursor-pointer"
                     >
                       <Eye className="h-4 w-4" />
                       View Deal
@@ -291,10 +295,10 @@ export default function MyReservationsPage() {
                     {(reservation.status === 'CONFIRMED' || reservation.status === 'PENDING') && (
                       <button
                         onClick={() => handleCancelClick(reservation)}
-                        className="flex items-center gap-2 px-4 py-2 border border-red-200 hover:border-red-400 text-red-600 hover:text-red-700 rounded-lg text-sm font-medium transition-colors cursor-pointer"
+                        className="flex items-center gap-2 px-5 py-2.5 border-2 border-red-200 text-red-600 rounded-xl text-sm font-semibold cursor-pointer"
                       >
                         <X className="h-4 w-4" />
-                        Cancel Reservation
+                        Cancel
                       </button>
                     )}
                   </div>
