@@ -3,8 +3,8 @@ import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import type { Deal } from '@/types/deal';
-import type { CreateReservationInput } from '@/types/reservation';
-import { Loader2, AlertCircle, X } from 'lucide-react';
+import { Loader2, AlertCircle, X, CreditCard } from 'lucide-react';
+import { redirectToCheckout } from '@/lib/stripe';
 
 interface ReserveDialogProps {
   deal: Deal;
@@ -48,36 +48,23 @@ export function ReserveDialog({ deal, open, onOpenChange, onSuccess }: ReserveDi
     try {
       setLoading(true);
 
-      const reservationData: CreateReservationInput = {
-        deal_id: deal.id,
-        investor_id: user.id,
-        sourcer_id: deal.sourcer_id,
-        reservation_fee_amount: deal.reservation_fee,
-        investor_notes: notes.trim() || undefined,
-        status: 'CONFIRMED', // Auto-confirm for now (no payment integration yet)
-      };
-
-      const { error } = await supabase.from('reservations').insert(reservationData);
-
-      if (error) {
-        // Check for unique constraint violation
-        if (error.code === '23505') {
-          toast.error('You have already reserved this deal');
-          onOpenChange(false);
-          return;
-        }
-        throw error;
+      // Save investor notes if provided
+      if (notes.trim()) {
+        // Store notes in localStorage to be added after payment confirmation
+        localStorage.setItem(`reservation_notes_${deal.id}`, notes.trim());
       }
 
-      toast.success('Deal reserved successfully!');
-      onOpenChange(false);
-      onSuccess();
-    } catch (error) {
+      // Redirect to Stripe Checkout
+      await redirectToCheckout(deal.id);
+
+      // Note: User will be redirected to Stripe
+      // On success, they'll return to /account/reservations?payment=success
+      // The webhook will handle updating the reservation status
+    } catch (error: any) {
       if (import.meta.env.DEV) {
-        console.error('Error reserving deal:', error);
+        console.error('Error initiating checkout:', error);
       }
-      toast.error('Failed to reserve deal. Please try again.');
-    } finally {
+      toast.error(error.message || 'Failed to start checkout. Please try again.');
       setLoading(false);
     }
   };
@@ -139,10 +126,9 @@ export function ReserveDialog({ deal, open, onOpenChange, onSuccess }: ReserveDi
 
             {/* Payment Notice */}
             <div className="flex gap-3 p-4 rounded-xl border border-blue-200 bg-blue-50">
-              <AlertCircle className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
+              <CreditCard className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
               <div className="text-sm text-blue-900">
-                <strong className="font-semibold">Note:</strong> Payment integration is coming soon. For now, your reservation
-                will be confirmed immediately. The sourcer will contact you regarding payment.
+                <strong className="font-semibold">Secure Payment:</strong> You'll be redirected to Stripe to complete your payment securely. The reservation fee will be held in escrow until the deal completes.
               </div>
             </div>
 
@@ -182,10 +168,13 @@ export function ReserveDialog({ deal, open, onOpenChange, onSuccess }: ReserveDi
               {loading ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Reserving...
+                  Redirecting...
                 </>
               ) : (
-                'Confirm Reservation'
+                <>
+                  <CreditCard className="h-4 w-4" />
+                  Proceed to Payment
+                </>
               )}
             </button>
           </div>

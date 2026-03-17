@@ -14,6 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ArrowLeft, Loader2, Save, Home, MapPin, TrendingUp, Calendar, Clock, MessageSquare } from 'lucide-react';
 import { formatDate, formatDateTime } from '@/lib/date';
 import { STRATEGY_LABELS } from '@/types/deal';
+import { PayoutButton } from '@/components/stripe/PayoutButton';
 
 export default function PipelineDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -159,9 +160,6 @@ export default function PipelineDetailPage() {
       toast.success('Pipeline updated successfully');
       fetchPipeline();
     } catch (error) {
-      if (import.meta.env.DEV) {
-        console.error('Error updating pipeline:', error);
-      }
       toast.error('Failed to update pipeline');
     } finally {
       setSaving(false);
@@ -429,6 +427,24 @@ export default function PipelineDetailPage() {
               </div>
             </div>
           </Card>
+
+          {/* Payout Authorization - Only show for investors when deal is in COMPLETION stage */}
+          {user?.id === investor?.id &&
+            pipeline.current_stage === 'COMPLETION' &&
+            reservation.status === 'CONFIRMED' && (
+            <Card className="p-6">
+              <h2 className="text-lg font-semibold mb-4">Authorize Payout</h2>
+              <p className="text-sm text-muted-foreground mb-4">
+                The deal has reached completion. Authorize the payout to release funds to the sourcer.
+              </p>
+              <PayoutButton
+                reservationId={reservation.id}
+                reservationFeeAmount={reservation.reservation_fee_amount}
+                sourcerName={`${sourcer?.first_name} ${sourcer?.last_name}`}
+                onSuccess={fetchPipeline}
+              />
+            </Card>
+          )}
 
           {/* Messaging */}
           <Card className="p-6">
