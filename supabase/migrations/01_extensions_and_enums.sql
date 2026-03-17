@@ -6,6 +6,7 @@
 
 -- Enable necessary extensions
 CREATE EXTENSION IF NOT EXISTS "pg_trgm"; -- For full-text search
+CREATE EXTENSION IF NOT EXISTS "pgcrypto"; -- For password hashing in seed data
 
 -- Create custom enum types
 CREATE TYPE user_role AS ENUM ('INVESTOR', 'SOURCER', 'ADMIN');
