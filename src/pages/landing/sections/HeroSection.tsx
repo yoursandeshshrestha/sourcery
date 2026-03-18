@@ -1,23 +1,16 @@
-import { useAuthModal } from '@/contexts/AuthModalContext';
-import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import Container from '../components/Container';
 import Heading from '../components/Heading';
 import Text from '../components/Text';
 import Button from '../components/Button';
 import TrustBadge from '../components/TrustBadge';
 import DotsPattern from '../components/DotsPattern';
-import { CheckCircleIcon } from '../components/icons';
 
 export default function HeroSection() {
-  const { openAuthModal } = useAuthModal();
-  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const handleBrowseDeals = () => {
-    if (user) {
-      window.location.href = '/dashboard/overview';
-    } else {
-      openAuthModal();
-    }
+    navigate('/deals');
   };
 
   return (
@@ -46,9 +39,9 @@ export default function HeroSection() {
         </div>
 
         <div className="flex flex-wrap items-center justify-center gap-6">
-          <TrustBadge icon={<CheckCircleIcon />} text="Verified Financials" />
-          <TrustBadge icon={<CheckCircleIcon />} text="Escrow Protected" />
-          <TrustBadge icon={<CheckCircleIcon />} text="Full Transparency" />
+          <TrustBadge icon={<img src="/png/check-mark.png" alt="" className="w-5 h-5" />} text="Verified Financials" />
+          <TrustBadge icon={<img src="/png/check-mark.png" alt="" className="w-5 h-5" />} text="Escrow Protected" />
+          <TrustBadge icon={<img src="/png/check-mark.png" alt="" className="w-5 h-5" />} text="Full Transparency" />
         </div>
       </Container>
     </section>
