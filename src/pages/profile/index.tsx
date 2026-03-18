@@ -39,19 +39,21 @@ export default function ProfilePage() {
 
   return (
     <>
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-[#1A1A1A]">Profile</h1>
-        <p className="text-sm text-[#6B6B6B] mt-1">Manage your profile information</p>
-      </div>
+      <div className="px-6 py-8">
+        <div className="mb-6">
+          <h1 className="text-2xl font-semibold text-[#1A1A1A]">Profile</h1>
+          <p className="text-sm text-[#6B6B6B] mt-1">Manage your profile information</p>
+        </div>
 
-      <div className="space-y-8">
-        {/* Basic Information */}
-        <BasicInfoSection />
+        <div className="space-y-8">
+          {/* Basic Information */}
+          <BasicInfoSection />
 
-        {/* Role & Application/Verification Status */}
-        <RoleSection />
+          {/* Role & Application/Verification Status */}
+          <RoleSection />
 
-        {/* Account Actions - REMOVED since logout is now in sidebar */}
+          {/* Account Actions - REMOVED since logout is now in sidebar */}
+        </div>
       </div>
 
       {/* Logout Confirmation Dialog */}

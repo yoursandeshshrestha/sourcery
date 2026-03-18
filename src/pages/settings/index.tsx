@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -8,10 +8,31 @@ import { StripeConnectOnboarding } from '@/components/stripe/StripeConnectOnboar
 import { Loader2, X } from 'lucide-react';
 
 export default function SettingsPage() {
-  const { user, profile, signOut } = useAuth();
+  const { user, profile, signOut, refreshProfile } = useAuth();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleting, setDeleting] = useState(false);
+
+  // Handle Stripe Connect return URLs
+  useEffect(() => {
+    const stripeStatus = searchParams.get('stripe');
+
+    if (stripeStatus === 'success') {
+      toast.success('Stripe onboarding completed successfully!');
+      // Refresh profile to get updated stripe status
+      refreshProfile();
+      // Clean up URL
+      searchParams.delete('stripe');
+      setSearchParams(searchParams, { replace: true });
+    } else if (stripeStatus === 'refresh') {
+      toast.info('Please complete your Stripe onboarding');
+      // Clean up URL
+      searchParams.delete('stripe');
+      setSearchParams(searchParams, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   const handleDeleteAccount = async () => {
     try {
@@ -50,12 +71,13 @@ export default function SettingsPage() {
 
   return (
     <>
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-[#1A1A1A]">Settings</h1>
-        <p className="text-sm text-[#6B6B6B] mt-1">Manage your account settings</p>
-      </div>
+      <div className="px-6 py-8">
+        <div className="mb-6">
+          <h1 className="text-2xl font-semibold text-[#1A1A1A]">Settings</h1>
+          <p className="text-sm text-[#6B6B6B] mt-1">Manage your account settings</p>
+        </div>
 
-      <div className="space-y-8">
+        <div className="space-y-8">
           {/* Profile Section */}
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-0.5">
@@ -192,6 +214,7 @@ export default function SettingsPage() {
             </section>
           </div>
         </div>
+      </div>
 
       {/* Delete Account Confirmation Dialog */}
       {showDeleteDialog && (
