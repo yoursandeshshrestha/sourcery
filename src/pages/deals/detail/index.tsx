@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import type { Deal } from '@/types/deal';
 import type { Reservation } from '@/types/reservation';
 import { STRATEGY_LABELS, STRATEGY_DESCRIPTIONS } from '@/types/deal';
+import { NDADialog } from '@/components/deals/NDADialog';
 import { ReserveDialog } from '@/components/deals/ReserveDialog';
 import {
   Loader2,
@@ -41,6 +42,8 @@ export default function DealDetailPage() {
   const [deal, setDeal] = useState<Deal | null>(null);
   const [loading, setLoading] = useState(true);
   const [reservation, setReservation] = useState<Reservation | null>(null);
+  const [ndaDialogOpen, setNdaDialogOpen] = useState(false);
+  const [ndaSignatureName, setNdaSignatureName] = useState<string>('');
   const [reserveDialogOpen, setReserveDialogOpen] = useState(false);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [cancelling, setCancelling] = useState(false);
@@ -135,6 +138,13 @@ export default function DealDetailPage() {
     setTimeout(() => {
       navigate('/account/reservations');
     }, 1000); // Small delay to let the toast show
+  };
+
+  const handleNDAAccept = (signatureName: string) => {
+    // Store signature name and proceed to payment
+    setNdaSignatureName(signatureName);
+    setNdaDialogOpen(false);
+    setReserveDialogOpen(true);
   };
 
   const handleCancelReservation = async () => {
@@ -446,7 +456,7 @@ export default function DealDetailPage() {
           {/* Action Button */}
           {!isOwnDeal && !reservation && deal.status === 'ACTIVE' && (
             <button
-              onClick={() => setReserveDialogOpen(true)}
+              onClick={() => setNdaDialogOpen(true)}
               className="w-full flex items-center justify-center gap-2 py-3 bg-[#1287ff] hover:bg-[#0A6FE6] text-white text-sm font-semibold rounded-xl transition-colors cursor-pointer"
             >
               <Coins className="h-4 w-4" />
@@ -500,13 +510,24 @@ export default function DealDetailPage() {
         </div>
       </div>
 
-      {/* Reserve Dialog */}
+      {/* NDA Dialog - Shows first */}
       {!isOwnDeal && (
+        <NDADialog
+          deal={deal}
+          open={ndaDialogOpen}
+          onOpenChange={setNdaDialogOpen}
+          onAccept={handleNDAAccept}
+        />
+      )}
+
+      {/* Reserve Dialog - Shows after NDA is signed */}
+      {!isOwnDeal && ndaSignatureName && (
         <ReserveDialog
           deal={deal}
           open={reserveDialogOpen}
           onOpenChange={setReserveDialogOpen}
           onSuccess={handleReservationSuccess}
+          ndaSignatureName={ndaSignatureName}
         />
       )}
 
