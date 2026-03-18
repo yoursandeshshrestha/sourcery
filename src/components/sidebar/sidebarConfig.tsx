@@ -7,7 +7,8 @@ import {
   User,
   Settings,
   FileCheck,
-  Users
+  Users,
+  MessageSquare
 } from 'lucide-react';
 
 export interface NavItem {
@@ -30,6 +31,16 @@ export const sidebarConfig: NavGroup[] = [
         label: 'Overview',
         href: '/dashboard/overview',
         icon: <LayoutDashboard className="size-4" />,
+      },
+    ],
+  },
+  {
+    label: 'Communication',
+    items: [
+      {
+        label: 'Messages',
+        href: '/dashboard/messages',
+        icon: <MessageSquare className="size-4" />,
       },
     ],
   },
@@ -74,6 +85,26 @@ export const sourcerSidebarConfig: NavGroup[] = [
 ];
 
 export const adminSidebarConfig: NavGroup[] = [
+  {
+    label: 'System Overview',
+    items: [
+      {
+        label: 'All Deals',
+        href: '/dashboard/admin/deals',
+        icon: <Building2 className="size-4" />,
+      },
+      {
+        label: 'All Pipelines',
+        href: '/dashboard/admin/pipelines',
+        icon: <Kanban className="size-4" />,
+      },
+      {
+        label: 'All Reservations',
+        href: '/dashboard/admin/reservations',
+        icon: <Receipt className="size-4" />,
+      },
+    ],
+  },
   {
     label: 'Administration',
     items: [

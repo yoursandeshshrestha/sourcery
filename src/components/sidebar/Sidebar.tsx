@@ -7,7 +7,27 @@ import { sidebarConfig, sourcerSidebarConfig, adminSidebarConfig } from './sideb
 export function Sidebar() {
   const { profile } = useAuth();
   const isAdmin = profile?.role === 'ADMIN';
-  const isSourcer = profile?.role === 'SOURCER' || profile?.role === 'ADMIN';
+  const isSourcer = profile?.role === 'SOURCER';
+
+  // Build navigation config based on role
+  let navGroups: typeof sidebarConfig = [];
+
+  if (isAdmin) {
+    // Admin order: Dashboard → System Overview → Administration → Account
+    const dashboard = sidebarConfig.find((g) => g.label === 'Dashboard');
+    const account = sidebarConfig.find((g) => g.label === 'Account');
+
+    if (dashboard) navGroups.push(dashboard);
+    navGroups.push(...adminSidebarConfig);
+    if (account) navGroups.push(account);
+  } else if (isSourcer) {
+    // Sourcer: Dashboard → Deals → Account (no Communication)
+    navGroups = sidebarConfig.filter((group) => group.label !== 'Communication');
+    navGroups.splice(1, 0, ...sourcerSidebarConfig);
+  } else {
+    // Investor: all base config
+    navGroups = sidebarConfig;
+  }
 
   return (
     <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground">
@@ -20,17 +40,9 @@ export function Sidebar() {
       {/* Navigation */}
       <div className="flex-1 px-1">
         <div className="flex flex-col gap-2">
-          {sidebarConfig.map((group, index) => (
+          {navGroups.map((group, index) => (
             <SidebarNavGroup key={index} group={group} />
           ))}
-          {isSourcer &&
-            sourcerSidebarConfig.map((group, index) => (
-              <SidebarNavGroup key={`sourcer-${index}`} group={group} />
-            ))}
-          {isAdmin &&
-            adminSidebarConfig.map((group, index) => (
-              <SidebarNavGroup key={`admin-${index}`} group={group} />
-            ))}
         </div>
       </div>
 
