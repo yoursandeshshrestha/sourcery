@@ -90,7 +90,7 @@ serve(async (req) => {
  * Creates and confirms reservation when payment is successful
  */
 async function handleCheckoutCompleted(supabase: any, session: Stripe.Checkout.Session) {
-  const { deal_id, investor_id, sourcer_id, payment_type, reservation_fee_amount, deal_headline } = session.metadata || {};
+  const { deal_id, investor_id, sourcer_id, payment_type, reservation_fee_amount, deal_headline, nda_signature_name } = session.metadata || {};
 
   if (payment_type === 'dans_lead') {
     // Handle Dan's Leads purchase
@@ -184,6 +184,9 @@ async function handleCheckoutCompleted(supabase: any, session: Stripe.Checkout.S
         reservation_fee_paid: true,
         payment_intent_id: session.payment_intent as string,
         confirmed_at: new Date().toISOString(),
+        nda_signed_at: nda_signature_name ? new Date().toISOString() : null,
+        nda_signature_name: nda_signature_name || null,
+        nda_ip_address: session.customer_details?.address?.country || null, // Store country as proxy for IP
       })
       .select()
       .single();

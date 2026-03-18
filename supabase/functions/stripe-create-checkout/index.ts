@@ -32,7 +32,7 @@ serve(async (req) => {
     }
 
     // Parse request body
-    const { deal_id, payment_type } = await req.json();
+    const { deal_id, payment_type, nda_signature_name } = await req.json();
 
     if (!deal_id) {
       throw new Error('Missing deal_id');
@@ -79,6 +79,7 @@ serve(async (req) => {
         payment_type: payment_type || 'reservation',
         deal_headline: deal.headline,
         reservation_fee_amount: deal.reservation_fee.toString(),
+        nda_signature_name: nda_signature_name || '', // Store NDA signature in metadata
       },
       `${appUrl}/account/reservations?payment=success&deal_id=${deal.id}`,
       `${appUrl}/deals/${deal.id}?payment=cancelled`,
