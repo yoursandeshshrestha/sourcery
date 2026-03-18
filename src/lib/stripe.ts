@@ -23,7 +23,10 @@ export const getStripe = (): Promise<Stripe | null> | null => {
 /**
  * Create a checkout session for deal reservation
  */
-export async function createCheckoutSession(dealId: string) {
+export async function createCheckoutSession(
+  dealId: string,
+  ndaSignatureName?: string
+) {
   try {
     const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
@@ -35,6 +38,7 @@ export async function createCheckoutSession(dealId: string) {
       body: {
         deal_id: dealId,
         payment_type: 'reservation',
+        nda_signature_name: ndaSignatureName,
       },
       headers: {
         Authorization: `Bearer ${session.access_token}`,
@@ -57,9 +61,12 @@ export async function createCheckoutSession(dealId: string) {
 /**
  * Redirect to Stripe Checkout
  */
-export async function redirectToCheckout(dealId: string) {
+export async function redirectToCheckout(
+  dealId: string,
+  ndaSignatureName?: string
+) {
   try {
-    const { url } = await createCheckoutSession(dealId);
+    const { url } = await createCheckoutSession(dealId, ndaSignatureName);
 
     if (!url) {
       throw new Error('Failed to create checkout session');

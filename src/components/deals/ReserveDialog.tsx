@@ -11,9 +11,10 @@ interface ReserveDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
+  ndaSignatureName: string; // Name from NDA signature
 }
 
-export function ReserveDialog({ deal, open, onOpenChange, onSuccess }: ReserveDialogProps) {
+export function ReserveDialog({ deal, open, onOpenChange, onSuccess, ndaSignatureName }: ReserveDialogProps) {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [notes, setNotes] = useState('');
@@ -54,8 +55,8 @@ export function ReserveDialog({ deal, open, onOpenChange, onSuccess }: ReserveDi
         localStorage.setItem(`reservation_notes_${deal.id}`, notes.trim());
       }
 
-      // Redirect to Stripe Checkout
-      await redirectToCheckout(deal.id);
+      // Redirect to Stripe Checkout with NDA signature data
+      await redirectToCheckout(deal.id, ndaSignatureName);
 
       // Note: User will be redirected to Stripe
       // On success, they'll return to /account/reservations?payment=success
