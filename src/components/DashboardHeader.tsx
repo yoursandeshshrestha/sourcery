@@ -21,6 +21,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { StripeHeaderIndicator } from '@/components/stripe/StripeHeaderIndicator';
 
 export function DashboardHeader() {
   const { toggleSidebar, isCollapsed } = useSidebar();
@@ -135,7 +136,10 @@ export function DashboardHeader() {
       </nav>
 
       {/* User Info */}
-      <div className="ml-auto flex items-center gap-2">
+      <div className="ml-auto flex items-center gap-3">
+        {/* Stripe Onboarding Indicator */}
+        <StripeHeaderIndicator />
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="flex items-center gap-2 cursor-pointer outline-none focus:outline-none">

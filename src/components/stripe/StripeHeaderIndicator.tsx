@@ -1,22 +1,19 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { AlertTriangle, X, ExternalLink, Shield, DollarSign, Lock, Zap, Loader2 } from 'lucide-react';
+import { AlertTriangle, ExternalLink, Shield, DollarSign, Lock, Zap, Loader2, X } from 'lucide-react';
 import { getConnectAccountStatus, createConnectAccount, getConnectAccountLink } from '@/lib/stripe';
 import { toast } from 'sonner';
 
 /**
- * Banner that shows for Sourcers who haven't completed Stripe onboarding
- * Appears at the top of the app to remind them to complete setup
+ * Compact Stripe indicator that shows in the header for Sourcers who need onboarding
  */
-export function StripeOnboardingBanner() {
+export function StripeHeaderIndicator() {
   const { profile } = useAuth();
-  const [dismissed, setDismissed] = useState(false);
   const [checking, setChecking] = useState(true);
   const [needsOnboarding, setNeedsOnboarding] = useState(false);
   const [isRestricted, setIsRestricted] = useState(false);
-  const [showExplainerModal, setShowExplainerModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -26,14 +23,6 @@ export function StripeOnboardingBanner() {
   const checkOnboardingStatus = async () => {
     // Only show for Sourcers
     if (profile?.role !== 'SOURCER') {
-      setChecking(false);
-      return;
-    }
-
-    // Check if dismissed in this session
-    const dismissedKey = `stripe-banner-dismissed-${profile.id}`;
-    if (sessionStorage.getItem(dismissedKey)) {
-      setDismissed(true);
       setChecking(false);
       return;
     }
@@ -60,12 +49,6 @@ export function StripeOnboardingBanner() {
     } finally {
       setChecking(false);
     }
-  };
-
-  const handleDismiss = () => {
-    setDismissed(true);
-    // Store dismissal in session storage (clears when browser closes)
-    sessionStorage.setItem(`stripe-banner-dismissed-${profile?.id}`, 'true');
   };
 
   const handleStartOnboarding = async () => {
@@ -95,74 +78,33 @@ export function StripeOnboardingBanner() {
     }
   };
 
-  if (checking || !needsOnboarding || dismissed || profile?.role !== 'SOURCER') {
+  if (checking || !needsOnboarding || profile?.role !== 'SOURCER') {
     return null;
   }
 
   return (
     <>
-      <Alert
-        variant="default"
-        className={` ${
+      {/* Compact Header Button */}
+      <Button
+        size="sm"
+        onClick={() => setShowModal(true)}
+        className={`cursor-pointer ${
           isRestricted
-            ? 'border-red-200 bg-red-50 dark:bg-red-950'
-            : 'border-amber-200 bg-amber-50 dark:bg-amber-950'
+            ? 'bg-red-600 hover:bg-red-700 text-white'
+            : 'bg-amber-600 hover:bg-amber-700 text-white'
         }`}
       >
-        <AlertTriangle className={`h-4 w-4 ${
-          isRestricted
-            ? 'text-red-600 dark:text-red-400'
-            : 'text-amber-600 dark:text-amber-400'
-        }`} />
-        <AlertDescription className="flex items-center justify-between gap-4">
-          <div className="flex-1">
-            <strong className={`font-semibold ${
-              isRestricted
-                ? 'text-red-900 dark:text-red-100'
-                : 'text-amber-900 dark:text-amber-100'
-            }`}>
-              {isRestricted ? 'Stripe Account Restricted' : 'Complete Stripe Onboarding'}
-            </strong>
-            <p className={`text-sm mt-1 ${
-              isRestricted
-                ? 'text-red-700 dark:text-red-300'
-                : 'text-amber-700 dark:text-amber-300'
-            }`}>
-              {isRestricted
-                ? 'Your Stripe account requires verification. Complete this now to accept payments and receive payouts.'
-                : 'You need to connect your Stripe account before you can list deals and receive payouts.'}
-            </p>
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <Button
-              size="sm"
-              onClick={() => setShowExplainerModal(true)}
-              className={`cursor-pointer ${
-                isRestricted ? 'bg-red-600 hover:bg-red-700' : ''
-              }`}
-            >
-              <ExternalLink className="h-3.5 w-3.5 mr-1.5" />
-              {isRestricted ? 'Verify Now' : 'Complete Now'}
-            </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={handleDismiss}
-              className="cursor-pointer"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-        </AlertDescription>
-      </Alert>
+        <AlertTriangle className="h-3.5 w-3.5 mr-1.5" />
+        {isRestricted ? 'Verify Stripe' : 'Complete Stripe'}
+      </Button>
 
       {/* Stripe Connect Explainer Modal */}
-      {showExplainerModal && (
+      {showModal && (
         <>
           {/* Backdrop */}
           <div
             className="fixed inset-0 bg-black/60 z-50 animate-in fade-in backdrop-blur-sm"
-            onClick={() => !loading && setShowExplainerModal(false)}
+            onClick={() => !loading && setShowModal(false)}
           />
 
           {/* Modal */}
@@ -194,7 +136,7 @@ export function StripeOnboardingBanner() {
                   </div>
                 </div>
                 <button
-                  onClick={() => setShowExplainerModal(false)}
+                  onClick={() => setShowModal(false)}
                   disabled={loading}
                   className="p-2 hover:bg-muted rounded-lg transition-colors cursor-pointer shrink-0 ml-4"
                 >
@@ -307,7 +249,7 @@ export function StripeOnboardingBanner() {
               {/* Footer */}
               <div className="flex gap-3 p-6 pt-4 border-t border-border bg-muted/30">
                 <Button
-                  onClick={() => setShowExplainerModal(false)}
+                  onClick={() => setShowModal(false)}
                   variant="outline"
                   disabled={loading}
                   className="cursor-pointer"

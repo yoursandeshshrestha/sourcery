@@ -1,7 +1,6 @@
 import { SidebarProvider, useSidebar } from '@/contexts/SidebarContext';
 import { Sidebar } from '@/components/sidebar/Sidebar';
 import { DashboardHeader } from '@/components/DashboardHeader';
-import { StripeOnboardingBanner } from '@/components/stripe/StripeOnboardingBanner';
 
 function LayoutContent({ children }: { children: React.ReactNode }) {
   const { isCollapsed } = useSidebar();
@@ -24,10 +23,6 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
 
         {/* Page Content */}
         <div className="flex-1 overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch]">
-          {/* Stripe Onboarding Banner (only shows for Sourcers who need it) */}
-          <div className="px-6">
-            <StripeOnboardingBanner />
-          </div>
           {children}
         </div>
       </main>
