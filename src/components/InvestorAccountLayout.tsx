@@ -1,9 +1,9 @@
-import { type ReactNode } from 'react';
+import { type ReactNode, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import LandingNav from '@/components/LandingNav';
 import Footer from '@/pages/landing/sections/Footer';
-import { User, Settings, Receipt, Kanban, LogOut } from 'lucide-react';
+import { User, Settings, Receipt, Kanban, LogOut, Loader2, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface InvestorAccountLayoutProps {
@@ -21,9 +21,12 @@ export default function InvestorAccountLayout({ children }: InvestorAccountLayou
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut } = useAuth();
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   const handleLogout = async () => {
     try {
+      setLoggingOut(true);
       await signOut();
       toast.success('Logged out successfully');
       navigate('/', { replace: true });
@@ -32,6 +35,8 @@ export default function InvestorAccountLayout({ children }: InvestorAccountLayou
         console.error('Error logging out:', error);
       }
       toast.error('Failed to log out. Please try again.');
+      setLoggingOut(false);
+      setShowLogoutDialog(false);
     }
   };
 
@@ -70,7 +75,7 @@ export default function InvestorAccountLayout({ children }: InvestorAccountLayou
 
                   {/* Logout Button */}
                   <button
-                    onClick={handleLogout}
+                    onClick={() => setShowLogoutDialog(true)}
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-full text-[15px] font-medium text-[#5C5C49] hover:bg-[#F9F7F4] transition-colors cursor-pointer"
                   >
                     <LogOut className="h-5 w-5" />
@@ -82,7 +87,7 @@ export default function InvestorAccountLayout({ children }: InvestorAccountLayou
 
             {/* Main Content */}
             <div className="flex-1 min-w-0">
-              <div className="bg-white rounded-2xl border border-[#E9E6DF] p-8">
+              <div className="bg-white rounded-2xl border border-[#E9E6DF]">
                 {children}
               </div>
             </div>
@@ -91,6 +96,64 @@ export default function InvestorAccountLayout({ children }: InvestorAccountLayou
       </main>
 
       <Footer />
+
+      {/* Logout Confirmation Dialog */}
+      {showLogoutDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div
+            className="bg-white rounded-2xl shadow-2xl max-w-md w-full animate-in zoom-in-95"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-6">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-red-50 rounded-xl">
+                    <LogOut className="h-5 w-5 text-red-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-[#1A1A1A]">Confirm Logout</h3>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowLogoutDialog(false)}
+                  disabled={loggingOut}
+                  className="p-2 hover:bg-[#F9F7F4] rounded-full transition-colors cursor-pointer shrink-0 ml-4 disabled:opacity-50"
+                >
+                  <X className="h-5 w-5 text-[#5C5C49]" />
+                </button>
+              </div>
+
+              <p className="text-[#5C5C49] mb-6">
+                Are you sure you want to log out? You'll need to sign in again to access your account.
+              </p>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowLogoutDialog(false)}
+                  disabled={loggingOut}
+                  className="flex-1 px-4 py-2.5 border border-[#E9E6DF] text-[#1A1A1A] hover:bg-[#F9F7F4] text-sm font-medium rounded-xl transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleLogout}
+                  disabled={loggingOut}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-xl transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loggingOut ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Logging out...
+                    </>
+                  ) : (
+                    'Logout'
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

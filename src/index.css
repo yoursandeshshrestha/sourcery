@@ -424,3 +424,196 @@
   line-height: 1.5;
 }
 
+/* Stream Chat Custom Styles - Messages Widget */
+.str-chat__theme-light {
+  --str-chat__primary-color: #1287ff;
+  --str-chat__active-primary-color: #0A6FE6;
+  --str-chat__surface-color: #ffffff;
+  --str-chat__secondary-surface-color: #F8FAFC;
+  --str-chat__primary-surface-color: #F8FAFC;
+  --str-chat__primary-surface-color-low-emphasis: #F8FAFC;
+  --str-chat__border-radius-circle: 16px;
+  --str-chat__border-radius-md: 12px;
+  --str-chat__spacing-px: 1px;
+  --str-chat__spacing-0_5: 2px;
+  --str-chat__spacing-1: 4px;
+  --str-chat__spacing-2: 8px;
+  --str-chat__spacing-3: 12px;
+  --str-chat__spacing-4: 16px;
+}
+
+.str-chat__container {
+  height: 100%;
+  background: transparent;
+}
+
+.str-chat__main-panel {
+  background: transparent;
+}
+
+.str-chat__list {
+  background: #F8FAFC;
+  padding: 12px;
+}
+
+.str-chat__message-simple {
+  background: transparent;
+}
+
+.str-chat__message-simple__content--text-inner {
+  background: #ffffff;
+  border: 1px solid #E5E7EB;
+  border-radius: 16px;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: #0f172a;
+  line-height: 1.5;
+}
+
+.str-chat__message-simple--me .str-chat__message-simple__content--text-inner {
+  background: #1287ff;
+  color: #ffffff;
+  border-color: #1287ff;
+}
+
+.str-chat__message-simple-text-inner--is-emoji {
+  font-size: 32px;
+  background: transparent;
+  border: none;
+}
+
+.str-chat__input-flat {
+  background: #ffffff;
+  border-top: 1px solid #E5E7EB;
+  padding: 12px 16px;
+}
+
+.str-chat__input-flat-wrapper {
+  background: #F8FAFC;
+  border: 1px solid #E5E7EB;
+  border-radius: 20px;
+  padding: 8px 12px;
+}
+
+.str-chat__input-flat textarea {
+  font-size: 14px;
+  color: #0f172a;
+  line-height: 1.5;
+}
+
+.str-chat__input-flat textarea::placeholder {
+  color: #64748b;
+}
+
+.str-chat__send-button {
+  background: #1287ff;
+  border-radius: 12px;
+  padding: 6px 12px;
+}
+
+.str-chat__send-button:hover {
+  background: #0A6FE6;
+}
+
+.str-chat__message-simple__actions__action--options {
+  background: #ffffff;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+}
+
+.str-chat__message-simple__actions__action--options:hover {
+  background: #F8FAFC;
+}
+
+.str-chat__avatar {
+  border: 1px solid #E5E7EB;
+}
+
+.str-chat__message-simple-status {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.str-chat__li {
+  margin-bottom: 8px;
+}
+
+/* Custom Toast Styles */
+[data-sonner-toast] {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+}
+
+[data-sonner-toast][data-type="success"] {
+  background: white !important;
+  border-color: #d1fae5 !important;
+}
+
+[data-sonner-toast][data-type="success"] [data-icon] {
+  color: #10b981 !important;
+}
+
+[data-sonner-toast][data-type="success"] [data-title] {
+  color: #059669 !important;
+}
+
+[data-sonner-toast][data-type="error"] {
+  background: white !important;
+  border-color: #fee2e2 !important;
+}
+
+[data-sonner-toast][data-type="error"] [data-icon] {
+  color: #ef4444 !important;
+}
+
+[data-sonner-toast][data-type="error"] [data-title] {
+  color: #dc2626 !important;
+}
+
+[data-sonner-toast][data-type="info"] {
+  background: white !important;
+  border-color: #dbeafe !important;
+}
+
+[data-sonner-toast][data-type="info"] [data-icon] {
+  color: #3b82f6 !important;
+}
+
+[data-sonner-toast][data-type="info"] [data-title] {
+  color: #2563eb !important;
+}
+
+[data-sonner-toast][data-type="warning"] {
+  background: white !important;
+  border-color: #fef3c7 !important;
+}
+
+[data-sonner-toast][data-type="warning"] [data-icon] {
+  color: #f59e0b !important;
+}
+
+[data-sonner-toast][data-type="warning"] [data-title] {
+  color: #d97706 !important;
+}
+
+[data-sonner-toast] [data-content] {
+  color: #64748b !important;
+  font-size: 13px !important;
+}
+
+[data-sonner-toast] [data-title] {
+  font-weight: 600 !important;
+  font-size: 14px !important;
+}
+
+[data-sonner-toast] [data-close-button] {
+  background: #f8fafc !important;
+  border-color: #e5e7eb !important;
+  color: #64748b !important;
+  border-radius: 8px !important;
+}
+
+[data-sonner-toast] [data-close-button]:hover {
+  background: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+}
+

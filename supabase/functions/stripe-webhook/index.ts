@@ -209,6 +209,25 @@ async function handleCheckoutCompleted(supabase: any, session: Stripe.Checkout.S
       console.error('Error updating deal status:', dealError);
     }
 
+    // Initialize Stream chat channel for the reservation
+    try {
+      await supabase.functions.invoke('stream-initialize-channel', {
+        body: {
+          reservation_id: reservation.id,
+          investor_id,
+          sourcer_id,
+        },
+      });
+
+      if (Deno.env.get('VITE_ENVIRONMENT') === 'development') {
+        console.log('Stream chat channel initialized for reservation:', reservation.id);
+      }
+    } catch (channelError) {
+      // Don't fail the reservation if chat setup fails
+      console.error('Failed to initialize Stream chat channel:', channelError);
+      // Continue - reservation is still valid even if chat setup fails
+    }
+
     if (Deno.env.get('VITE_ENVIRONMENT') === 'development') {
       console.log('Reservation created and confirmed:', reservation.id);
     }

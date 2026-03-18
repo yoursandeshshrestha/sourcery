@@ -15,11 +15,13 @@ import { ArrowLeft, Loader2, Save, Home, MapPin, TrendingUp, Calendar, Clock, Me
 import { formatDate, formatDateTime } from '@/lib/date';
 import { STRATEGY_LABELS } from '@/types/deal';
 import { PayoutButton } from '@/components/stripe/PayoutButton';
+import { useMessages } from '@/contexts/MessagesContext';
 
 export default function PipelineDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { openThread } = useMessages();
   const [pipeline, setPipeline] = useState<ProgressionPipeline | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -189,8 +191,16 @@ export default function PipelineDetailPage() {
     return `${firstName?.[0] || ''}${lastName?.[0] || ''}`.toUpperCase();
   };
 
+  // Determine other participant for messages
+  const otherParticipant = pipeline && reservation
+    ? user?.id === investor?.id
+      ? sourcer
+      : investor
+    : null;
+
   return (
-    <div className="container py-6 max-w-5xl">
+    <>
+      <div className="container py-6 max-w-5xl">
       {/* Header */}
       <div className="mb-6">
         <Button
@@ -452,15 +462,33 @@ export default function PipelineDetailPage() {
             <p className="text-sm text-muted-foreground mb-4">
               Use the messaging system to communicate about this deal.
             </p>
-            <Link to={`/dashboard/messages/${reservation.deal_id}`}>
-              <Button variant="outline" size="sm" className="w-full cursor-pointer">
-                <MessageSquare className="h-4 w-4 mr-2" />
-                Open Messages
-              </Button>
-            </Link>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full cursor-pointer"
+              onClick={() => {
+                if (otherParticipant && deal) {
+                  openThread({
+                    reservationId: reservation.id,
+                    dealHeadline: deal.headline,
+                    otherParticipant: {
+                      id: otherParticipant.id,
+                      first_name: otherParticipant.first_name,
+                      last_name: otherParticipant.last_name,
+                      avatar_url: otherParticipant.avatar_url,
+                      role: otherParticipant.id === investor?.id ? 'INVESTOR' : 'SOURCER',
+                    },
+                  });
+                }
+              }}
+            >
+              <MessageSquare className="h-4 w-4 mr-2" />
+              Open Messages
+            </Button>
           </Card>
         </div>
       </div>
     </div>
+    </>
   );
 }

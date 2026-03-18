@@ -375,7 +375,7 @@ export default function InvestorPipelinePage() {
   }
 
   return (
-    <>
+    <div className="p-8">
       <div className="mb-6">
         <h1 className="text-2xl font-semibold text-[#1A1A1A]">Investment Pipeline</h1>
         <p className="text-sm text-[#6B6B6B] mt-1">
@@ -443,6 +443,6 @@ export default function InvestorPipelinePage() {
           </div>
         </>
       )}
-    </>
+    </div>
   );
 }

@@ -41,7 +41,7 @@ export default function Footer() {
   const { openAuthModal } = useAuthModal();
 
   return (
-    <footer className="py-16 bg-[#F9F7F4] px-4 sm:px-6 lg:px-8">
+    <footer className="py-16 bg-[#F9F7F4]">
       <Container size="xl">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 lg:gap-12">
             <div className="lg:col-span-2">

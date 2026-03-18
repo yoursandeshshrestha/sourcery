@@ -23,7 +23,7 @@ export function DealCard({ deal }: DealCardProps) {
 
   return (
     <div className="bg-white rounded-2xl border border-[#E9E6DF] overflow-hidden cursor-pointer group">
-      <Link to={`/deals/${deal.id}`} target="_blank" rel="noopener noreferrer" className="block">
+      <Link to={`/deals/${deal.id}`} className="block">
         {/* Image */}
         <div className="aspect-video bg-[#F9F7F4] relative overflow-hidden">
           {deal.thumbnail_url ? (

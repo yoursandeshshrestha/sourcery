@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
@@ -19,6 +19,7 @@ export default function MyReservationsPage() {
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [reservationToCancel, setReservationToCancel] = useState<Reservation | null>(null);
   const [cancelling, setCancelling] = useState(false);
+  const hasShownPaymentToast = useRef(false);
 
   useEffect(() => {
     fetchMyReservations();
@@ -28,18 +29,23 @@ export default function MyReservationsPage() {
   useEffect(() => {
     const payment = searchParams.get('payment');
 
+    // Prevent showing toast multiple times (e.g., in React StrictMode)
+    if (hasShownPaymentToast.current) return;
+
     if (payment === 'success') {
-      // Remove query parameters first to prevent re-triggering
-      setSearchParams({});
+      hasShownPaymentToast.current = true;
       // Show toast and refresh
       toast.success('Payment successful! Your reservation has been confirmed.');
       fetchMyReservations();
+      // Remove query parameters after showing toast
+      setSearchParams({}, { replace: true });
     } else if (payment === 'cancelled') {
-      // Remove query parameters first
-      setSearchParams({});
+      hasShownPaymentToast.current = true;
       toast.error('Payment was cancelled. Please try again if you wish to reserve this deal.');
+      // Remove query parameters after showing toast
+      setSearchParams({}, { replace: true });
     }
-  }, [searchParams.get('payment')]);
+  }, [searchParams]);
 
   const fetchMyReservations = async () => {
     try {
@@ -162,10 +168,11 @@ export default function MyReservationsPage() {
 
   return (
     <>
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-[#1A1A1A]">My Reservations</h1>
-        <p className="text-sm text-[#6B6B6B] mt-1">Manage your deal reservations</p>
-      </div>
+      <div className="p-8">
+        <div className="mb-6">
+          <h1 className="text-2xl font-semibold text-[#1A1A1A]">My Reservations</h1>
+          <p className="text-sm text-[#6B6B6B] mt-1">Manage your deal reservations</p>
+        </div>
       {/* Reservations */}
       {reservations.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 border border-[#E9E6DF] rounded-2xl bg-white">
@@ -308,6 +315,7 @@ export default function MyReservationsPage() {
           ))}
         </div>
       )}
+      </div>
 
       {/* Cancel Confirmation Dialog */}
       {cancelDialogOpen && (

@@ -1,14 +1,16 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAuthModal } from '@/contexts/AuthModalContext';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Loader2 } from 'lucide-react';
 
 export function AuthModal() {
   const { isOpen, closeAuthModal } = useAuthModal();
   const { signInWithGoogle, user, profile, loading } = useAuth();
   const navigate = useNavigate();
+  const [isSigningIn, setIsSigningIn] = useState(false);
 
   // Redirect to dashboard when user is authenticated ONLY if modal is open
   useEffect(() => {
@@ -19,6 +21,7 @@ export function AuthModal() {
   }, [isOpen, user, profile, loading, navigate, closeAuthModal]);
 
   const handleGoogleSignIn = async () => {
+    setIsSigningIn(true);
     const { error } = await signInWithGoogle();
     if (error) {
       if (import.meta.env.DEV) {
@@ -26,6 +29,7 @@ export function AuthModal() {
       }
       toast.error('Failed to continue with Google. Please try again.');
     }
+    setIsSigningIn(false);
   };
 
   return (
@@ -49,13 +53,24 @@ export function AuthModal() {
           {/* Google Sign In Button */}
           <button
             onClick={handleGoogleSignIn}
-            disabled={loading}
+            disabled={isSigningIn}
             className="w-full max-w-sm bg-white border-2 border-[#E9E6DF] rounded-full px-6 py-3.5 flex items-center justify-center gap-3 hover:bg-[#F5F3ED] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed group"
           >
-            <img src="/logo/google.svg" alt="Google" className="h-5 w-5" />
-            <span className="text-[15px] font-medium text-[#1A2208] tracking-[0.01em]">
-              {loading ? 'Signing in...' : 'Continue with Google'}
-            </span>
+            {isSigningIn ? (
+              <>
+                <Loader2 className="h-5 w-5 animate-spin" />
+                <span className="text-[15px] font-medium text-[#1A2208] tracking-[0.01em]">
+                  Signing in...
+                </span>
+              </>
+            ) : (
+              <>
+                <img src="/logo/google.svg" alt="Google" className="h-5 w-5" />
+                <span className="text-[15px] font-medium text-[#1A2208] tracking-[0.01em]">
+                  Continue with Google
+                </span>
+              </>
+            )}
           </button>
 
           {/* Trust Indicators */}
