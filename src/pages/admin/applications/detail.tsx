@@ -161,7 +161,7 @@ export default function ApplicationDetailPage() {
 
   return (
     <>
-      <div className="px-6 py-8 w-full pb-32">
+      <div className="px-6 pt-6 pb-32 w-full">
         {/* Header */}
         <div className="mb-8">
           <Button

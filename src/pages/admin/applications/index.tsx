@@ -152,7 +152,7 @@ export default function ApplicationsPage() {
   }
 
   return (
-    <div className="px-6 py-8 w-full">
+    <div className="px-6 pt-6 pb-8 w-full">
       {/* Page Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight mb-2">Sourcer Applications</h1>

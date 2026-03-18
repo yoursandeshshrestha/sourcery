@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAuthModal } from '@/contexts/AuthModalContext';
 import type { Deal } from '@/types/deal';
 import type { Reservation } from '@/types/reservation';
 import { STRATEGY_LABELS, STRATEGY_DESCRIPTIONS } from '@/types/deal';
@@ -23,6 +24,7 @@ import {
   Phone,
   X,
 } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,7 +40,8 @@ import { formatDateTime } from '@/lib/date';
 export default function DealDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
+  const { openAuthModal } = useAuthModal();
   const [deal, setDeal] = useState<Deal | null>(null);
   const [loading, setLoading] = useState(true);
   const [reservation, setReservation] = useState<Reservation | null>(null);
@@ -140,6 +143,14 @@ export default function DealDetailPage() {
     }, 1000); // Small delay to let the toast show
   };
 
+  const handleReserveClick = () => {
+    if (!user) {
+      openAuthModal();
+      return;
+    }
+    setNdaDialogOpen(true);
+  };
+
   const handleNDAAccept = (signatureName: string) => {
     // Store signature name and proceed to payment
     setNdaSignatureName(signatureName);
@@ -199,8 +210,90 @@ export default function DealDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-[#1287ff]" />
+      <div className="w-full bg-[#F9F7F4] min-h-screen">
+        <div className="max-w-7xl mx-auto px-6 pt-6 pb-8">
+          <Skeleton className="h-10 w-32 mb-6" />
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Main Content */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Hero Image Skeleton */}
+              <Skeleton className="aspect-video w-full rounded-2xl" />
+
+              {/* Header Skeleton */}
+              <div className="space-y-3">
+                <Skeleton className="h-6 w-32" />
+                <Skeleton className="h-9 w-3/4" />
+                <Skeleton className="h-5 w-1/2" />
+              </div>
+
+              {/* Key Metrics Skeleton */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="rounded-2xl border border-[#E9E6DF] bg-white p-4">
+                    <Skeleton className="h-4 w-20 mb-2" />
+                    <Skeleton className="h-6 w-24" />
+                  </div>
+                ))}
+              </div>
+
+              {/* Description Skeleton */}
+              <div className="rounded-2xl border border-[#E9E6DF] bg-white p-6 space-y-3">
+                <Skeleton className="h-6 w-32" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-3/4" />
+              </div>
+
+              {/* Strategy Info Skeleton */}
+              <div className="rounded-2xl border border-[#E9E6DF] bg-white p-6 space-y-3">
+                <Skeleton className="h-6 w-48" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-full" />
+              </div>
+            </div>
+
+            {/* Sidebar */}
+            <div className="space-y-6">
+              {/* Sourcer Info Skeleton */}
+              <div className="rounded-2xl border border-[#E9E6DF] bg-white p-6">
+                <Skeleton className="h-4 w-24 mb-4" />
+                <div className="flex items-center gap-3 mb-4">
+                  <Skeleton className="h-12 w-12 rounded-full" />
+                  <div className="space-y-2 flex-1">
+                    <Skeleton className="h-5 w-32" />
+                    <Skeleton className="h-4 w-24" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Fees Skeleton */}
+              <div className="rounded-2xl border border-[#E9E6DF] bg-white p-6 space-y-3">
+                <Skeleton className="h-4 w-16 mb-4" />
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <Skeleton className="h-4 w-28" />
+                    <Skeleton className="h-4 w-20" />
+                  </div>
+                  <div className="flex justify-between">
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-4 w-20" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Metadata Skeleton */}
+              <div className="rounded-2xl border border-[#E9E6DF] bg-white p-6 space-y-3">
+                <Skeleton className="h-4 w-32 mb-4" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-3/4" />
+              </div>
+
+              {/* Action Button Skeleton */}
+              <Skeleton className="h-12 w-full rounded-xl" />
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -456,7 +549,7 @@ export default function DealDetailPage() {
           {/* Action Button */}
           {!isOwnDeal && !reservation && deal.status === 'ACTIVE' && (
             <button
-              onClick={() => setNdaDialogOpen(true)}
+              onClick={handleReserveClick}
               className="w-full flex items-center justify-center gap-2 py-3 bg-[#1287ff] hover:bg-[#0A6FE6] text-white text-sm font-semibold rounded-xl transition-colors cursor-pointer"
             >
               <Coins className="h-4 w-4" />

@@ -5,7 +5,8 @@ import { supabase } from '@/lib/supabase';
 import type { Deal, StrategyType } from '@/types/deal';
 import { STRATEGY_LABELS } from '@/types/deal';
 import { DealCard } from '@/components/deals/DealCard';
-import { Search, Loader2, Building2, X, Home, ChevronDown } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Search, Building2, X, Home, ChevronDown } from 'lucide-react';
 
 export default function BrowseDealsPage() {
   const [deals, setDeals] = useState<Deal[]>([]);
@@ -116,8 +117,54 @@ export default function BrowseDealsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-[#6B6B6B]" />
+      <div className="flex flex-col h-full bg-[#F5F5F5]">
+        {/* Top Search Bar Skeleton */}
+        <div className="bg-white border-b border-[#E9E6DF] px-6 py-4">
+          <div className="max-w-[1920px] mx-auto flex items-center justify-between gap-4">
+            <Skeleton className="h-10 w-32" />
+            <Skeleton className="flex-1 max-w-2xl h-10 rounded-full" />
+            <Skeleton className="h-10 w-24 rounded-full" />
+          </div>
+        </div>
+
+        {/* Title Skeleton */}
+        <div className="bg-white border-b border-[#E9E6DF] px-6 py-4">
+          <div className="max-w-[1920px] mx-auto">
+            <Skeleton className="h-7 w-64 mb-2" />
+            <Skeleton className="h-5 w-48" />
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <main className="flex-1 overflow-y-auto">
+          <div className="max-w-[1920px] mx-auto px-6 py-6">
+            {/* Result Count and Sort Skeleton */}
+            <div className="flex items-center justify-between mb-5">
+              <Skeleton className="h-5 w-32" />
+              <Skeleton className="h-10 w-48 rounded-lg" />
+            </div>
+
+            {/* Deals Grid Skeleton */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                <div key={i} className="bg-white rounded-2xl border border-[#E9E6DF] overflow-hidden">
+                  <Skeleton className="aspect-video w-full" />
+                  <div className="p-4 space-y-3">
+                    <Skeleton className="h-5 w-full" />
+                    <Skeleton className="h-4 w-3/4" />
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-full" />
+                    </div>
+                    <Skeleton className="h-10 w-full rounded-xl" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </main>
       </div>
     );
   }

@@ -14,7 +14,7 @@ export default function DashboardPage() {
   }, [profile, navigate]);
 
   return (
-    <div className="px-6 py-8 space-y-6">
+    <div className="px-6 pt-6 pb-8 space-y-6">
       <div>
         <h1 className="text-2xl font-semibold mb-2">
           Welcome back!
