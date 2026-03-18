@@ -2,7 +2,10 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Toaster } from 'sonner';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { AuthModalProvider } from '@/contexts/AuthModalContext';
+import { StreamChatProvider } from '@/contexts/StreamChatContext';
+import { MessagesProvider } from '@/contexts/MessagesContext';
 import { AuthModal } from '@/components/AuthModal';
+import { MessagesWidget, MessagesWidgetButton } from '@/components/messages/MessagesWidget';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { PageErrorBoundary } from '@/components/PageErrorBoundary';
 import ScrollToTop from '@/components/ScrollToTop';
@@ -32,17 +35,36 @@ import DealReservationsPage from '@/pages/reservations/deal-reservations';
 import PipelinePage from '@/pages/pipeline';
 import PipelineDetailPage from '@/pages/pipeline/detail';
 import InvestorPipelinePage from '@/pages/account/InvestorPipelinePage';
+import MessagesPage from '@/pages/messages';
 
 function App() {
   return (
     <ErrorBoundary>
       <Router>
         <AuthProvider>
-          <AuthModalProvider>
-            <ScrollToTop />
-            <Toaster position="top-right" richColors />
-            <AuthModal />
-            <Routes>
+          <StreamChatProvider>
+            <MessagesProvider>
+              <AuthModalProvider>
+                <ScrollToTop />
+                <Toaster
+                  position="top-center"
+                  toastOptions={{
+                    style: {
+                      background: 'white',
+                      color: '#0f172a',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '12px',
+                      padding: '16px',
+                      fontSize: '14px',
+                      fontWeight: '500',
+                    },
+                    className: 'custom-toast',
+                  }}
+                />
+                <AuthModal />
+                <MessagesWidget />
+                <MessagesWidgetButton />
+                <Routes>
             {/* Public routes */}
             <Route
               path="/"
@@ -160,33 +182,25 @@ function App() {
             }
           />
 
-          {/* Investor Public Browsing Routes (Landing page style) */}
+          {/* Public Browsing Routes (Landing page style) */}
           <Route
             path="/deals/:id"
             element={
-              <ProtectedRoute>
-                <InvestorRoute>
-                  <InvestorLayout>
-                    <PageErrorBoundary>
-                      <DealDetailPage />
-                    </PageErrorBoundary>
-                  </InvestorLayout>
-                </InvestorRoute>
-              </ProtectedRoute>
+              <InvestorLayout>
+                <PageErrorBoundary>
+                  <DealDetailPage />
+                </PageErrorBoundary>
+              </InvestorLayout>
             }
           />
           <Route
             path="/deals"
             element={
-              <ProtectedRoute>
-                <InvestorRoute>
-                  <DealsLayout>
-                    <PageErrorBoundary>
-                      <BrowseDealsPage />
-                    </PageErrorBoundary>
-                  </DealsLayout>
-                </InvestorRoute>
-              </ProtectedRoute>
+              <DealsLayout>
+                <PageErrorBoundary>
+                  <BrowseDealsPage />
+                </PageErrorBoundary>
+              </DealsLayout>
             }
           />
 
@@ -290,6 +304,20 @@ function App() {
             }
           />
 
+          {/* Messages routes */}
+          <Route
+            path="/dashboard/messages"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <PageErrorBoundary>
+                    <MessagesPage />
+                  </PageErrorBoundary>
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+
           {/* Admin routes */}
           <Route
             path="/dashboard/admin/applications/:id"
@@ -340,9 +368,11 @@ function App() {
             {/* 404 - redirect to landing */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
-        </AuthModalProvider>
-      </AuthProvider>
-    </Router>
+              </AuthModalProvider>
+            </MessagesProvider>
+          </StreamChatProvider>
+        </AuthProvider>
+      </Router>
     </ErrorBoundary>
   );
 }
