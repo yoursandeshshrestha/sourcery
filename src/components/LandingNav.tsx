@@ -21,7 +21,7 @@ function NavLink({ href, children }: NavLinkProps) {
 
 export default function LandingNav() {
   const { openAuthModal } = useAuthModal();
-  const { user, profile } = useAuth();
+  const { profile } = useAuth();
 
   const isInvestor = profile?.role === 'INVESTOR';
   const isDashboardUser = profile?.role === 'SOURCER' || profile?.role === 'ADMIN';
@@ -72,22 +72,12 @@ export default function LandingNav() {
                   Account
                 </Link>
               ) : (
-                <>
-                  <div className="hidden md:block">
-                    <button
-                      onClick={openAuthModal}
-                      className="px-5 py-2 text-[15px] font-medium text-[#5C5C49] hover:text-[#1287ff] rounded-lg transition-colors cursor-pointer whitespace-nowrap tracking-[0.01em] leading-[1.5em]"
-                    >
-                      Sign in
-                    </button>
-                  </div>
-                  <button
-                    onClick={openAuthModal}
-                    className="px-5 py-2 text-[15px] font-medium text-[#5C5C49] hover:text-[#1287ff] rounded-lg transition-colors cursor-pointer whitespace-nowrap tracking-[0.01em] leading-[1.5em]"
-                  >
-                    Get Started
-                  </button>
-                </>
+                <button
+                  onClick={openAuthModal}
+                  className="px-5 py-2 text-[15px] font-medium text-[#5C5C49] hover:text-[#1287ff] rounded-lg transition-colors cursor-pointer whitespace-nowrap tracking-[0.01em] leading-[1.5em]"
+                >
+                  Get Started
+                </button>
               )}
             </div>
           </div>
