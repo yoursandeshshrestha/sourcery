@@ -47,7 +47,7 @@ export function PayoutButton({
     try {
       setLoading(true);
 
-      const result = await initiatePayoutTransfer(reservationId);
+      await initiatePayoutTransfer(reservationId);
 
       toast.success('Payout completed successfully!');
       setDialogOpen(false);

@@ -316,7 +316,7 @@ export default function BrowseDealsPage() {
               <Building2 className="h-16 w-16 text-[#C5C0B8] mb-4" />
               <p className="text-xl font-semibold mb-2 text-[#1A1A1A]">No deals found</p>
               <p className="text-[#6B6B6B]">
-                {searchQuery || strategyFilter !== 'all'
+                {searchQuery || strategyFilter.length > 0
                   ? 'Try adjusting your filters'
                   : 'Check back soon for new opportunities'}
               </p>

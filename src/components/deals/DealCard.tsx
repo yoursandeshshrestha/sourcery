@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { MapPin, Building2, Heart, Bed, Bath } from 'lucide-react';
+import { MapPin, Building2 } from 'lucide-react';
 import type { Deal } from '@/types/deal';
 import { STRATEGY_LABELS } from '@/types/deal';
 

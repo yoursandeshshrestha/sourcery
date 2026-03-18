@@ -4,9 +4,7 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useMessages } from '@/contexts/MessagesContext';
 import { useStreamChat } from '@/contexts/StreamChatContext';
-import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MessageSquare, X, ArrowLeft } from 'lucide-react';
 import { Chat } from 'stream-chat-react';
@@ -50,7 +48,7 @@ export function MessagesWidget() {
           id,
           investor_id,
           sourcer_id,
-          deals (
+          deal:deals!deal_id (
             headline
           ),
           investor:profiles!reservations_investor_id_fkey(
@@ -78,11 +76,11 @@ export function MessagesWidget() {
       }
 
       const threadsData = await Promise.all(
-        reservations.map(async (reservation) => {
+        reservations.map(async (reservation: any) => {
           const otherParticipant =
             reservation.investor_id === user.id
-              ? reservation.sourcer
-              : reservation.investor;
+              ? (Array.isArray(reservation.sourcer) ? reservation.sourcer[0] : reservation.sourcer)
+              : (Array.isArray(reservation.investor) ? reservation.investor[0] : reservation.investor);
 
           let lastMessage = null;
           let unreadCount = 0;
@@ -111,9 +109,11 @@ export function MessagesWidget() {
             }
           }
 
+          const deal = Array.isArray(reservation.deal) ? reservation.deal[0] : reservation.deal;
+
           return {
             reservation_id: reservation.id,
-            deal_headline: reservation.deals?.headline || 'Unknown Deal',
+            deal_headline: deal?.headline || 'Unknown Deal',
             other_participant: otherParticipant,
             last_message: lastMessage,
             unread_count: unreadCount,
@@ -127,7 +127,7 @@ export function MessagesWidget() {
         return new Date(b.last_message.created_at).getTime() - new Date(a.last_message.created_at).getTime();
       });
 
-      setThreads(threadsData as MessageThread[]);
+      setThreads(threadsData.filter(t => t.other_participant) as MessageThread[]);
     } catch (error) {
       if (import.meta.env.DEV) {
         console.error('Error fetching message threads:', error);
@@ -167,8 +167,6 @@ export function MessagesWidget() {
   const getInitials = (firstName: string, lastName: string) => {
     return `${firstName?.[0] || ''}${lastName?.[0] || ''}`.toUpperCase();
   };
-
-  const totalUnread = threads.reduce((sum, thread) => sum + thread.unread_count, 0);
 
   if (!isOpen) {
     return null;

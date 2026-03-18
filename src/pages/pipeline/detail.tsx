@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ArrowLeft, Loader2, Save, Home, MapPin, TrendingUp, Calendar, Clock, MessageSquare } from 'lucide-react';
+import { ArrowLeft, Loader2, Save, Home, MapPin, TrendingUp, Clock, MessageSquare } from 'lucide-react';
 import { formatDate, formatDateTime } from '@/lib/date';
 import { STRATEGY_LABELS } from '@/types/deal';
 import { PayoutButton } from '@/components/stripe/PayoutButton';
@@ -383,7 +383,7 @@ export default function PipelineDetailPage() {
                     <p className="text-sm font-medium">
                       {investor?.first_name} {investor?.last_name}
                     </p>
-                    <p className="text-xs text-muted-foreground">{investor?.email}</p>
+                    <p className="text-xs text-muted-foreground">{(investor as any)?.email}</p>
                   </div>
                 </div>
               </div>
@@ -402,7 +402,7 @@ export default function PipelineDetailPage() {
                     <p className="text-sm font-medium">
                       {sourcer?.first_name} {sourcer?.last_name}
                     </p>
-                    <p className="text-xs text-muted-foreground">{sourcer?.email}</p>
+                    <p className="text-xs text-muted-foreground">{(sourcer as any)?.email}</p>
                   </div>
                 </div>
               </div>
@@ -433,7 +433,7 @@ export default function PipelineDetailPage() {
 
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Reserved:</span>
-                <span className="font-medium">{formatDate(reservation.created_at)}</span>
+                <span className="font-medium">{formatDate((reservation as any).created_at)}</span>
               </div>
             </div>
           </Card>

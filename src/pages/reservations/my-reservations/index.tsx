@@ -65,7 +65,7 @@ export default function MyReservationsPage() {
       // Then fetch deals and sourcer info for each reservation
       const reservationsWithDeals = await Promise.all(
         (reservationsData || []).map(async (reservation) => {
-          const { data: dealData, error: dealError } = await supabase
+          const { data: dealData } = await supabase
             .from('deals')
             .select('id, headline, approximate_location, strategy_type, thumbnail_url')
             .eq('id', reservation.deal_id)
@@ -78,7 +78,7 @@ export default function MyReservationsPage() {
           }
 
           // Fetch sourcer contact info
-          const { data: sourcerData, error: sourcerError } = await supabase
+          const { data: sourcerData } = await supabase
             .from('profiles')
             .select('id, first_name, last_name, email, phone, company_name')
             .eq('id', reservation.sourcer_id)
@@ -275,14 +275,14 @@ export default function MyReservationsPage() {
                             {reservation.sourcer.email}
                           </a>
                         </div>
-                        {reservation.sourcer.phone && (
+                        {(reservation.sourcer as any).phone && (
                           <div className="flex items-center gap-2.5 text-sm">
                             <Phone className="h-4 w-4 text-[#1287ff] shrink-0" />
                             <a
-                              href={`tel:${reservation.sourcer.phone}`}
+                              href={`tel:${(reservation.sourcer as any).phone}`}
                               className="text-[#1287ff] font-medium cursor-pointer"
                             >
-                              {reservation.sourcer.phone}
+                              {(reservation.sourcer as any).phone}
                             </a>
                           </div>
                         )}

@@ -1,20 +1,18 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
-import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import type { Deal } from '@/types/deal';
-import { Loader2, AlertCircle, X, CreditCard } from 'lucide-react';
+import { Loader2, X, CreditCard } from 'lucide-react';
 import { redirectToCheckout } from '@/lib/stripe';
 
 interface ReserveDialogProps {
   deal: Deal;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSuccess: () => void;
   ndaSignatureName: string; // Name from NDA signature
 }
 
-export function ReserveDialog({ deal, open, onOpenChange, onSuccess, ndaSignatureName }: ReserveDialogProps) {
+export function ReserveDialog({ deal, open, onOpenChange, ndaSignatureName }: ReserveDialogProps) {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [notes, setNotes] = useState('');

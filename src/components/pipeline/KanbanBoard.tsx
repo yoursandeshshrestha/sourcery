@@ -14,11 +14,10 @@ import { DealCard } from './DealCard';
 import { Loader2 } from 'lucide-react';
 
 export function KanbanBoard() {
-  const { user } = useAuth();
+  useAuth();
   const [pipelines, setPipelines] = useState<ProgressionPipeline[]>([]);
   const [loading, setLoading] = useState(true);
   const [activePipeline, setActivePipeline] = useState<ProgressionPipeline | null>(null);
-  const [updatingId, setUpdatingId] = useState<string | null>(null);
   const lastUpdateRef = useRef<{ id: string; timestamp: number } | null>(null);
 
   // Fetch pipelines
@@ -165,8 +164,6 @@ export function KanbanBoard() {
     setActivePipeline(null);
 
     try {
-      setUpdatingId(pipelineId);
-
       // Track this update to prevent refetching on realtime event
       lastUpdateRef.current = { id: pipelineId, timestamp: Date.now() };
 
@@ -185,8 +182,6 @@ export function KanbanBoard() {
       toast.error('Failed to update deal stage');
       // Revert optimistic update
       fetchPipelines();
-    } finally {
-      setUpdatingId(null);
     }
   };
 

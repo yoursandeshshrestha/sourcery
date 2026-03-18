@@ -193,7 +193,7 @@ export default function InvestorPipelinePage() {
   const [deals, setDeals] = useState<DealInPipeline[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeDeal, setActiveDeal] = useState<DealInPipeline | null>(null);
-  const [updating, setUpdating] = useState(false);
+  const [_updating, setUpdating] = useState(false);
   const lastUpdateRef = useRef<{ id: string; timestamp: number } | null>(null);
 
   useEffect(() => {
@@ -280,7 +280,7 @@ export default function InvestorPipelinePage() {
       // Combine data
       const transformedData = pipelineData.map((pipeline) => {
         const reservation = reservationsData.find((r) => r.id === pipeline.reservation_id);
-        const dealData = reservation?.deals || {};
+        const dealData: any = reservation?.deals || {};
 
         // Convert storage path to public URL if thumbnail_url exists
         let thumbnailUrl = dealData.thumbnail_url;

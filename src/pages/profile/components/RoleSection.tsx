@@ -70,7 +70,6 @@ export function RoleSection() {
 
   // Role and status checks
   const isInvestor = profile.role === 'INVESTOR';
-  const isSourcer = profile.role === 'SOURCER';
   const verificationStatus = profile.verification_status;
 
   // Application state logic
@@ -78,10 +77,6 @@ export function RoleSection() {
   const hasRejectedApplication = isInvestor && verificationStatus === 'REJECTED';
   const hasCancelledApplication = isInvestor && verificationStatus === 'CANCELLED';
   const canApply = isInvestor && (!verificationStatus || hasRejectedApplication || hasCancelledApplication);
-
-  // Sourcer verification status
-  const isVerifiedSourcer = isSourcer && verificationStatus === 'VERIFIED';
-  const isPendingSourcer = isSourcer && verificationStatus === 'PENDING';
 
   const handleCancelApplication = async () => {
     if (!user) return;

@@ -15,7 +15,6 @@ import {
   MapPin,
   TrendingUp,
   Coins,
-  Building2,
   Eye,
   Calendar,
   FileText,
@@ -131,16 +130,6 @@ export default function DealDetailPage() {
         console.error('Error checking reservation:', error);
       }
     }
-  };
-
-  const handleReservationSuccess = () => {
-    checkReservation();
-    fetchDeal(); // Refresh deal to get updated status
-
-    // Redirect to reservations page
-    setTimeout(() => {
-      navigate('/account/reservations');
-    }, 1000); // Small delay to let the toast show
   };
 
   const handleReserveClick = () => {
@@ -496,19 +485,19 @@ export default function DealDetailPage() {
                 <div className="pt-4 border-t border-[#E9E6DF] space-y-2">
                   <p className="text-xs font-semibold text-[#6B6B6B] mb-2 uppercase tracking-wide">Contact Details</p>
                   <a
-                    href={`mailto:${deal.sourcer.email}`}
+                    href={`mailto:${(deal.sourcer as any).email}`}
                     className="flex items-center gap-2 text-sm text-[#1287ff] hover:text-[#0A6FE6] hover:underline cursor-pointer"
                   >
                     <Mail className="h-4 w-4 shrink-0" />
-                    <span className="truncate">{deal.sourcer.email}</span>
+                    <span className="truncate">{(deal.sourcer as any).email}</span>
                   </a>
-                  {deal.sourcer.phone && (
+                  {(deal.sourcer as any).phone && (
                     <a
-                      href={`tel:${deal.sourcer.phone}`}
+                      href={`tel:${(deal.sourcer as any).phone}`}
                       className="flex items-center gap-2 text-sm text-[#1287ff] hover:text-[#0A6FE6] hover:underline cursor-pointer"
                     >
                       <Phone className="h-4 w-4 shrink-0" />
-                      <span>{deal.sourcer.phone}</span>
+                      <span>{(deal.sourcer as any).phone}</span>
                     </a>
                   )}
                 </div>
@@ -619,7 +608,6 @@ export default function DealDetailPage() {
           deal={deal}
           open={reserveDialogOpen}
           onOpenChange={setReserveDialogOpen}
-          onSuccess={handleReservationSuccess}
           ndaSignatureName={ndaSignatureName}
         />
       )}

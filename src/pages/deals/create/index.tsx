@@ -6,7 +6,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Loader2, AlertTriangle, ExternalLink, CheckCircle2 } from 'lucide-react';
 import { getConnectAccountStatus } from '@/lib/stripe';
-import { toast } from 'sonner';
 
 export default function CreateDealPage() {
   const { profile } = useAuth();

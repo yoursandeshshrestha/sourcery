@@ -218,7 +218,7 @@ export function DealForm({ deal, mode }: DealFormProps) {
       // This prevents client manipulation of financial metrics
       const dealData: Partial<CreateDealInput> = {
         headline: headline.trim(),
-        description: description.trim() || null,
+        description: description.trim() || undefined,
         strategy_type: strategyType,
         approximate_location: approximateLocation.trim() || '',
         full_address: fullAddress.trim() || '',
@@ -271,7 +271,7 @@ export function DealForm({ deal, mode }: DealFormProps) {
 
   return (
     <>
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-6">
       {/* Help Banner & Test Data Button */}
       {mode === 'create' && (
         <div className="flex items-center justify-between gap-4 rounded-md border border-border bg-muted/50 p-4">
