@@ -12,7 +12,7 @@ function NavLink({ href, children }: NavLinkProps) {
   return (
     <a
       href={href}
-      className="px-3 py-2 text-[15px] font-medium text-[#5C5C49] hover:bg-white rounded-lg transition-colors cursor-pointer whitespace-nowrap tracking-[0.01em] leading-[1.5em]"
+      className="px-3 py-2 text-[15px] font-medium text-[#5C5C49] hover:text-[#1287ff] rounded-lg transition-colors cursor-pointer whitespace-nowrap tracking-[0.01em] leading-[1.5em]"
     >
       {children}
     </a>
@@ -40,16 +40,18 @@ export default function LandingNav() {
             <div className="hidden lg:flex items-center justify-center gap-1">
               {isInvestor ? (
                 <>
-                  <Link to="/deals" className="px-3 py-2 text-[15px] font-medium text-[#5C5C49] hover:bg-[#F9F7F4] rounded-lg transition-colors cursor-pointer whitespace-nowrap tracking-[0.01em] leading-[1.5em]">
+                  <Link to="/deals" className="px-3 py-2 text-[15px] font-medium text-[#5C5C49] hover:text-[#1287ff] rounded-lg transition-colors cursor-pointer whitespace-nowrap tracking-[0.01em] leading-[1.5em]">
                     Browse Deals
                   </Link>
-                  <Link to="/account/reservations" className="px-3 py-2 text-[15px] font-medium text-[#5C5C49] hover:bg-[#F9F7F4] rounded-lg transition-colors cursor-pointer whitespace-nowrap tracking-[0.01em] leading-[1.5em]">
+                  <Link to="/account/reservations" className="px-3 py-2 text-[15px] font-medium text-[#5C5C49] hover:text-[#1287ff] rounded-lg transition-colors cursor-pointer whitespace-nowrap tracking-[0.01em] leading-[1.5em]">
                     My Reservations
                   </Link>
                 </>
               ) : (
                 <>
-                  <NavLink href="#features">Browse Deals</NavLink>
+                  <Link to="/deals" className="px-3 py-2 text-[15px] font-medium text-[#5C5C49] hover:text-[#1287ff] rounded-lg transition-colors cursor-pointer whitespace-nowrap tracking-[0.01em] leading-[1.5em]">
+                    Browse Deals
+                  </Link>
                   <NavLink href="#how-it-works">How It Works</NavLink>
                   <NavLink href="#">For Investors</NavLink>
                 </>
@@ -74,7 +76,7 @@ export default function LandingNav() {
               ) : (
                 <button
                   onClick={openAuthModal}
-                  className="px-5 py-2 text-[15px] font-medium text-[#5C5C49] hover:text-[#1287ff] rounded-lg transition-colors cursor-pointer whitespace-nowrap tracking-[0.01em] leading-[1.5em]"
+                  className="px-8 py-2 text-base font-medium bg-white hover:opacity-80 text-[#1287ff] border border-[#E9E6DF] rounded-full transition-colors cursor-pointer whitespace-nowrap"
                 >
                   Get Started
                 </button>
