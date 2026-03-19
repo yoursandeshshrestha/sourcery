@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import {
   Table,
   TableBody,
@@ -28,7 +30,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Loader2, Users, Search, Shield, UserCheck, User } from 'lucide-react';
+import { Loader2, Users, Search, Shield, UserCheck, User, ChevronLeft, ChevronRight } from 'lucide-react';
 import { formatDate } from '@/lib/date';
 
 interface Profile {
@@ -41,45 +43,119 @@ interface Profile {
   created_at: string;
 }
 
-interface Stats {
-  total: number;
-  investors: number;
-  sourcers: number;
-  admins: number;
-}
-
 export default function UsersPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [users, setUsers] = useState<Profile[]>([]);
-  const [filteredUsers, setFilteredUsers] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [roleFilter, setRoleFilter] = useState<string>('all');
-  const [stats, setStats] = useState<Stats>({ total: 0, investors: 0, sourcers: 0, admins: 0 });
+  const [roleFilter, setRoleFilter] = useState<string>(() => {
+    return searchParams.get('role') || 'all';
+  });
+  const [currentPage, setCurrentPage] = useState(() => {
+    const pageParam = searchParams.get('page');
+    return pageParam ? parseInt(pageParam, 10) : 1;
+  });
+  const [totalCount, setTotalCount] = useState(0);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
   const [newRole, setNewRole] = useState<'INVESTOR' | 'SOURCER' | 'ADMIN' | null>(null);
   const [updatingUserId, setUpdatingUserId] = useState<string | null>(null);
+  const ITEMS_PER_PAGE = 20;
 
+  // Sync all filters from URL params
   useEffect(() => {
-    fetchUsers();
+    const roleParam = searchParams.get('role');
+    const searchParam = searchParams.get('search');
+    const pageParam = searchParams.get('page');
+
+    setRoleFilter(roleParam || 'all');
+    setSearchQuery(searchParam || '');
+    setCurrentPage(pageParam ? parseInt(pageParam, 10) : 1);
+  }, [searchParams]);
+
+  // Set initial URL params if not present
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams);
+    let updated = false;
+
+    if (!searchParams.has('role')) {
+      params.set('role', 'all');
+      updated = true;
+    }
+    if (!searchParams.has('search')) {
+      params.set('search', '');
+      updated = true;
+    }
+    if (!searchParams.has('page')) {
+      params.set('page', '1');
+      updated = true;
+    }
+
+    if (updated) {
+      setSearchParams(params, { replace: true });
+    }
   }, []);
 
   useEffect(() => {
-    filterUsers();
-  }, [users, searchQuery, roleFilter]);
+    fetchUsers();
+    fetchStats();
+  }, [currentPage, searchQuery, roleFilter]);
+
+  const fetchStats = async () => {
+    try {
+      let query = supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true });
+
+      // Apply filters
+      if (roleFilter !== 'all') {
+        query = query.eq('role', roleFilter);
+      }
+
+      if (searchQuery) {
+        query = query.or(`first_name.ilike.%${searchQuery}%,last_name.ilike.%${searchQuery}%,email.ilike.%${searchQuery}%`);
+      }
+
+      const { count, error } = await query;
+
+      if (error) throw error;
+      setTotalCount(count || 0);
+    } catch (error) {
+      if (import.meta.env.DEV) {
+        console.error('Error fetching stats:', error);
+      }
+    }
+  };
 
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+
+      const from = (currentPage - 1) * ITEMS_PER_PAGE;
+      const to = from + ITEMS_PER_PAGE - 1;
+
+      let query = supabase
         .from('profiles')
-        .select('id, first_name, last_name, email, role, verification_status, created_at')
-        .order('created_at', { ascending: false });
+        .select('id, first_name, last_name, email, role, verification_status, created_at');
+
+      // Apply filters
+      if (roleFilter !== 'all') {
+        query = query.eq('role', roleFilter);
+      }
+
+      if (searchQuery) {
+        query = query.or(`first_name.ilike.%${searchQuery}%,last_name.ilike.%${searchQuery}%,email.ilike.%${searchQuery}%`);
+      }
+
+      query = query
+        .order('created_at', { ascending: false })
+        .range(from, to);
+
+      const { data, error } = await query;
 
       if (error) throw error;
 
       setUsers(data || []);
-      calculateStats(data || []);
     } catch (error) {
       if (import.meta.env.DEV) {
         console.error('Error fetching users:', error);
@@ -88,38 +164,6 @@ export default function UsersPage() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const calculateStats = (profiles: Profile[]) => {
-    const stats = {
-      total: profiles.length,
-      investors: profiles.filter((p) => p.role === 'INVESTOR').length,
-      sourcers: profiles.filter((p) => p.role === 'SOURCER').length,
-      admins: profiles.filter((p) => p.role === 'ADMIN').length,
-    };
-    setStats(stats);
-  };
-
-  const filterUsers = () => {
-    let filtered = [...users];
-
-    // Apply search filter
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(
-        (user) =>
-          user.first_name.toLowerCase().includes(query) ||
-          user.last_name.toLowerCase().includes(query) ||
-          user.email.toLowerCase().includes(query)
-      );
-    }
-
-    // Apply role filter
-    if (roleFilter !== 'all') {
-      filtered = filtered.filter((user) => user.role === roleFilter);
-    }
-
-    setFilteredUsers(filtered);
   };
 
   const handleRoleChange = (user: Profile, role: 'INVESTOR' | 'SOURCER' | 'ADMIN') => {
@@ -225,7 +269,7 @@ export default function UsersPage() {
         <div>
           <h1 className="text-2xl font-semibold mb-2">User Management</h1>
           <p className="text-muted-foreground">
-            Manage user accounts, roles, and permissions ({filteredUsers.length} {filteredUsers.length === 1 ? 'user' : 'users'})
+            Manage user accounts, roles, and permissions ({totalCount} {totalCount === 1 ? 'user' : 'users'})
           </p>
         </div>
       </div>
@@ -238,11 +282,33 @@ export default function UsersPage() {
             type="text"
             placeholder="Search by name or email..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value;
+              setSearchQuery(value);
+              setCurrentPage(1);
+
+              // Update URL
+              const params = new URLSearchParams(searchParams);
+              params.set('search', value);
+              params.set('page', '1');
+              setSearchParams(params);
+            }}
             className="pl-9 rounded-lg"
           />
         </div>
-        <Select value={roleFilter} onValueChange={setRoleFilter}>
+        <Select
+          value={roleFilter}
+          onValueChange={(value) => {
+            setRoleFilter(value);
+            setCurrentPage(1);
+
+            // Update URL
+            const params = new URLSearchParams(searchParams);
+            params.set('role', value);
+            params.set('page', '1');
+            setSearchParams(params);
+          }}
+        >
           <SelectTrigger className="w-full sm:w-[180px] cursor-pointer rounded-lg">
             <SelectValue placeholder="Filter by role" />
           </SelectTrigger>
@@ -273,6 +339,27 @@ export default function UsersPage() {
             </SelectItem>
           </SelectContent>
         </Select>
+        {(searchQuery || roleFilter !== 'all') && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setSearchQuery('');
+              setRoleFilter('all');
+              setCurrentPage(1);
+
+              // Reset URL params to defaults
+              const params = new URLSearchParams();
+              params.set('role', 'all');
+              params.set('search', '');
+              params.set('page', '1');
+              setSearchParams(params);
+            }}
+            className="cursor-pointer whitespace-nowrap rounded-lg"
+          >
+            Clear filters
+          </Button>
+        )}
       </div>
 
       {/* Users Table */}
@@ -289,14 +376,14 @@ export default function UsersPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredUsers.length === 0 ? (
+              {users.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                     No users found
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredUsers.map((user) => (
+                users.map((user) => (
                   <TableRow key={user.id}>
                     <TableCell className="font-medium">
                       {user.first_name} {user.last_name}
@@ -348,6 +435,54 @@ export default function UsersPage() {
             </TableBody>
           </Table>
         </div>
+
+      {/* Pagination */}
+      {totalCount > ITEMS_PER_PAGE && (
+        <div className="flex items-center justify-between pt-6">
+          <p className="text-sm text-muted-foreground">
+            Showing {totalCount === 0 ? 0 : (currentPage - 1) * ITEMS_PER_PAGE + 1}-{Math.min(currentPage * ITEMS_PER_PAGE, totalCount)} of {totalCount} users
+          </p>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const newPage = Math.max(1, currentPage - 1);
+                setCurrentPage(newPage);
+
+                // Update URL
+                const params = new URLSearchParams(searchParams);
+                params.set('page', newPage.toString());
+                setSearchParams(params);
+              }}
+              disabled={currentPage === 1}
+              className="cursor-pointer rounded-lg"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <span className="text-sm text-muted-foreground">
+              Page {currentPage} of {Math.ceil(totalCount / ITEMS_PER_PAGE)}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const newPage = Math.min(Math.ceil(totalCount / ITEMS_PER_PAGE), currentPage + 1);
+                setCurrentPage(newPage);
+
+                // Update URL
+                const params = new URLSearchParams(searchParams);
+                params.set('page', newPage.toString());
+                setSearchParams(params);
+              }}
+              disabled={currentPage === Math.ceil(totalCount / ITEMS_PER_PAGE)}
+              className="cursor-pointer rounded-lg"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Confirmation Dialog */}
       <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
