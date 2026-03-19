@@ -220,7 +220,7 @@ export function RoleSection() {
                     variant="default"
                     size="sm"
                     onClick={() => setShowApplicationModal(true)}
-                    className="cursor-pointer"
+                    className="cursor-pointer rounded-lg"
                   >
                     {hasCancelledApplication || hasRejectedApplication ? 'Apply Again' : 'Apply Now'}
                     <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
@@ -246,7 +246,7 @@ export function RoleSection() {
                     size="sm"
                     onClick={() => setShowCancelDialog(true)}
                     disabled={isCancelling}
-                    className="cursor-pointer text-destructive hover:text-destructive"
+                    className="cursor-pointer text-destructive hover:text-destructive rounded-lg"
                   >
                     {isCancelling ? (
                       <>
@@ -296,13 +296,13 @@ export function RoleSection() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="cursor-pointer" disabled={isCancelling}>
+            <AlertDialogCancel className="cursor-pointer rounded-lg" disabled={isCancelling}>
               Keep Application
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleCancelApplication}
               disabled={isCancelling}
-              className="bg-destructive text-white hover:bg-destructive/90 cursor-pointer"
+              className="bg-destructive text-white hover:bg-destructive/90 cursor-pointer rounded-lg"
             >
               {isCancelling ? (
                 <>

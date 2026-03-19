@@ -71,13 +71,13 @@ export default function SettingsPage() {
 
   return (
     <>
-      <div className="p-8">
-        <div className="mb-6">
-          <h1 className="text-2xl font-semibold text-[#1A1A1A]">Settings</h1>
-          <p className="text-sm text-[#6B6B6B] mt-1">Manage your account settings</p>
+      <div className="p-6 space-y-6">
+        <div>
+          <h1 className="text-2xl font-semibold mb-2">Settings</h1>
+          <p className="text-muted-foreground">Manage your account settings</p>
         </div>
 
-        <div className="space-y-8">
+        <div className="space-y-6">
           {/* Profile Section */}
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-0.5">
@@ -204,7 +204,7 @@ export default function SettingsPage() {
                   <div className="flex items-center gap-1 shrink-0">
                     <button
                       onClick={() => setShowDeleteDialog(true)}
-                      className="h-7 px-3 py-1 text-xs font-medium bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors cursor-pointer"
+                      className="h-7 px-3 py-1 text-xs font-medium bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors cursor-pointer"
                     >
                       Delete Account
                     </button>
@@ -228,32 +228,32 @@ export default function SettingsPage() {
           {/* Modal */}
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div
-              className="bg-white rounded-2xl shadow-2xl max-w-md w-full animate-in zoom-in-95"
+              className="bg-card rounded-lg shadow-xl max-w-md w-full animate-in zoom-in-95 border"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
-              <div className="flex items-start justify-between p-6 pb-4 border-b border-[#E9E6DF]">
+              <div className="flex items-start justify-between p-6 pb-4 border-b">
                 <div>
-                  <h2 className="text-xl font-semibold text-[#1A1A1A] mb-1">Delete Account</h2>
-                  <p className="text-sm text-[#6B6B6B]">
+                  <h2 className="text-xl font-semibold mb-1">Delete Account</h2>
+                  <p className="text-sm text-muted-foreground">
                     This action cannot be undone
                   </p>
                 </div>
                 <button
                   onClick={() => !deleting && setShowDeleteDialog(false)}
                   disabled={deleting}
-                  className="p-2 hover:bg-[#F9F7F4] rounded-full transition-colors cursor-pointer shrink-0 ml-4 disabled:opacity-50"
+                  className="p-2 hover:bg-accent rounded-lg transition-colors cursor-pointer shrink-0 ml-4 disabled:opacity-50"
                 >
-                  <X className="h-5 w-5 text-[#6B6B6B]" />
+                  <X className="h-5 w-5 text-muted-foreground" />
                 </button>
               </div>
 
               {/* Content */}
               <div className="p-6 space-y-4">
-                <p className="text-sm text-[#6B6B6B]">
+                <p className="text-sm text-muted-foreground">
                   Are you sure you want to delete your account? This action cannot be undone.
                 </p>
-                <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                   <p className="font-medium text-red-900 text-sm mb-2">
                     All of your data will be permanently deleted, including:
                   </p>
@@ -267,18 +267,18 @@ export default function SettingsPage() {
               </div>
 
               {/* Footer */}
-              <div className="flex gap-3 p-6 pt-4 border-t border-[#E9E6DF]">
+              <div className="flex gap-3 p-6 pt-4 border-t">
                 <button
                   onClick={() => setShowDeleteDialog(false)}
                   disabled={deleting}
-                  className="flex-1 px-4 py-2.5 border border-[#E9E6DF] text-[#1A1A1A] hover:bg-[#F9F7F4] text-sm font-medium rounded-xl transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-4 py-2.5 border bg-background hover:bg-accent text-sm font-medium rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleDeleteAccount}
                   disabled={deleting}
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-xl transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {deleting ? (
                     <>

@@ -115,7 +115,7 @@ export function BasicInfoSection() {
             size="sm"
             onClick={handleEdit}
             disabled={loading}
-            className="cursor-pointer"
+            className="cursor-pointer rounded-lg"
           >
             <Pencil className="h-3.5 w-3.5 mr-1.5" />
             Edit
@@ -160,7 +160,7 @@ export function BasicInfoSection() {
                 size="sm"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={loading || isUploadingAvatar}
-                className="cursor-pointer"
+                className="cursor-pointer rounded-lg"
               >
                 {isUploadingAvatar ? (
                   <>
@@ -187,7 +187,7 @@ export function BasicInfoSection() {
                     }
                   }}
                   disabled={loading || isUploadingAvatar}
-                  className="cursor-pointer text-destructive hover:text-destructive"
+                  className="cursor-pointer text-destructive hover:text-destructive rounded-lg"
                 >
                   <X className="h-4 w-4 mr-2" />
                   Remove
@@ -259,7 +259,7 @@ export function BasicInfoSection() {
 
             {/* Error Message */}
             {saveError && (
-              <div className="text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md p-3">
+              <div className="text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg p-3">
                 {saveError}
               </div>
             )}
@@ -270,14 +270,14 @@ export function BasicInfoSection() {
                 variant="outline"
                 onClick={handleCancel}
                 disabled={loading}
-                className="cursor-pointer"
+                className="cursor-pointer rounded-lg"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleSave}
                 disabled={loading}
-                className="cursor-pointer"
+                className="cursor-pointer rounded-lg"
               >
                 {loading ? (
                   <>
