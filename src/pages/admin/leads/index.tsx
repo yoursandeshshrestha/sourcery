@@ -213,17 +213,23 @@ export default function AdminLeadsPage() {
 
       toast.success('Lead deleted successfully');
 
-      // Remove from local state immediately for instant UI update
-      setLeads(prevLeads => prevLeads.filter(lead => lead.id !== deletingLead.id));
-
       setDeletingLead(null);
 
-      // Refresh stats in background
-      fetchStats();
+      // Refresh stats
+      await fetchStats();
 
       // If we're deleting the last item on a page that's not page 1, go to previous page
       if (leads.length === 1 && currentPage > 1) {
-        setCurrentPage(currentPage - 1);
+        const newPage = currentPage - 1;
+        setCurrentPage(newPage);
+
+        // Update URL
+        const params = new URLSearchParams(searchParams);
+        params.set('page', newPage.toString());
+        setSearchParams(params);
+      } else {
+        // Refetch current page to get updated data
+        await fetchLeads();
       }
     } catch (error) {
       if (import.meta.env.DEV) {
