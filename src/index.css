@@ -11,7 +11,7 @@
   --card-foreground: oklch(0.14 0 0);
   --popover: oklch(1.00 0 0);
   --popover-foreground: oklch(0.14 0 0);
-  --primary: #cb6442;
+  --primary: #1287ff;
   --primary-foreground: #ffffff;
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.20 0 0);
@@ -38,9 +38,9 @@
   --sidebar-accent-foreground: oklch(0.20 0 0);
   --sidebar-border: oklch(0.90 0 0);
   --sidebar-ring: oklch(0.71 0 0);
-  --font-sans: Geist Mono, monospace;
-  --font-serif: Geist Mono, monospace;
-  --font-mono: Geist Mono, monospace;
+  --font-sans: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-serif: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'Courier New', Courier, monospace;
   --shadow-color: hsl(0 0% 0%);
   --shadow-opacity: 0;
   --shadow-blur: 0px;
@@ -60,7 +60,7 @@
   --tracking-normal: 0em;
 
   /* Typography */
-  font-family: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   line-height: 1.5;
   font-weight: 400;
   font-synthesis: none;
@@ -88,7 +88,7 @@
   --popover: var(--base-900);
   --popover-foreground: var(--base-200);
 
-  --primary: #cb6442;
+  --primary: #1287ff;
   --primary-foreground: #ffffff;
 
   --secondary: var(--base-800);
@@ -109,7 +109,7 @@
 
   --sidebar: var(--base-900);
   --sidebar-foreground: var(--base-200);
-  --sidebar-primary: #cb6442;
+  --sidebar-primary: #1287ff;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: var(--base-800);
   --sidebar-accent-foreground: var(--base-200);
