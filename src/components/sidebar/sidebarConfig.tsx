@@ -8,7 +8,8 @@ import {
   Settings,
   FileCheck,
   Users,
-  MessageSquare
+  MessageSquare,
+  ShoppingBag
 } from 'lucide-react';
 
 export interface NavItem {
@@ -41,6 +42,16 @@ export const sidebarConfig: NavGroup[] = [
         label: 'Messages',
         href: '/dashboard/messages',
         icon: <MessageSquare className="size-4" />,
+      },
+    ],
+  },
+  {
+    label: 'Marketplace',
+    items: [
+      {
+        label: "Dan's Leads",
+        href: '/dashboard/leads',
+        icon: <ShoppingBag className="size-4" />,
       },
     ],
   },
@@ -117,6 +128,11 @@ export const adminSidebarConfig: NavGroup[] = [
         label: 'Users',
         href: '/dashboard/admin/users',
         icon: <Users className="size-4" />,
+      },
+      {
+        label: "Manage Leads",
+        href: '/dashboard/admin/leads',
+        icon: <ShoppingBag className="size-4" />,
       },
     ],
   },

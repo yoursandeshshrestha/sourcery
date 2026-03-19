@@ -36,6 +36,11 @@ import PipelinePage from '@/pages/pipeline';
 import PipelineDetailPage from '@/pages/pipeline/detail';
 import InvestorPipelinePage from '@/pages/account/InvestorPipelinePage';
 import MessagesPage from '@/pages/messages';
+import BrowseLeadsPage from '@/pages/leads';
+import PurchasedLeadsPage from '@/pages/leads/purchased';
+import AdminLeadsPage from '@/pages/admin/leads';
+import CreateLeadPage from '@/pages/admin/leads/create';
+import EditLeadPage from '@/pages/admin/leads/edit';
 
 function App() {
   return (
@@ -318,7 +323,75 @@ function App() {
             }
           />
 
+          {/* Dan's Leads routes */}
+          <Route
+            path="/dashboard/leads/purchased"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <PageErrorBoundary>
+                    <PurchasedLeadsPage />
+                  </PageErrorBoundary>
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/leads"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <PageErrorBoundary>
+                    <BrowseLeadsPage />
+                  </PageErrorBoundary>
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+
           {/* Admin routes */}
+          <Route
+            path="/dashboard/admin/leads/create"
+            element={
+              <ProtectedRoute>
+                <AdminRoute>
+                  <Layout>
+                    <PageErrorBoundary>
+                      <CreateLeadPage />
+                    </PageErrorBoundary>
+                  </Layout>
+                </AdminRoute>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/admin/leads/:id/edit"
+            element={
+              <ProtectedRoute>
+                <AdminRoute>
+                  <Layout>
+                    <PageErrorBoundary>
+                      <EditLeadPage />
+                    </PageErrorBoundary>
+                  </Layout>
+                </AdminRoute>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/admin/leads"
+            element={
+              <ProtectedRoute>
+                <AdminRoute>
+                  <Layout>
+                    <PageErrorBoundary>
+                      <AdminLeadsPage />
+                    </PageErrorBoundary>
+                  </Layout>
+                </AdminRoute>
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/dashboard/admin/applications/:id"
             element={
