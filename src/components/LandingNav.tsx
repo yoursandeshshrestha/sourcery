@@ -33,7 +33,7 @@ export default function LandingNav() {
           <div className="grid grid-cols-3 items-center px-6 py-3">
             <div className="flex items-center justify-start">
               <Link to="/" className="flex items-center cursor-pointer">
-                <span className="text-xl font-semibold text-[#1287ff]">Sourcery</span>
+                <img src="/logo/sourcery.png" alt="Sourcery" className="h-8 w-auto object-contain" />
               </Link>
             </div>
 
