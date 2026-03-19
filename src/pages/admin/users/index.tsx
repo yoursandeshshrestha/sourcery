@@ -219,106 +219,64 @@ export default function UsersPage() {
   }
 
   return (
-    <div className="px-6 pt-6 pb-8 w-full">
+    <div className="p-6 space-y-6">
       {/* Page Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight mb-2">User Management</h1>
-        <p className="text-muted-foreground">Manage user accounts, roles, and permissions</p>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className="rounded-md border border-border bg-card p-6">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-sm font-medium text-muted-foreground">Total Users</p>
-            <div className="h-9 w-9 rounded-full bg-slate-500/10 flex items-center justify-center">
-              <Users className="h-4 w-4 text-slate-600" />
-            </div>
-          </div>
-          <div className="text-2xl font-bold">{stats.total}</div>
-        </div>
-
-        <div className="rounded-md border border-border bg-card p-6">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-sm font-medium text-muted-foreground">Investors</p>
-            <div className="h-9 w-9 rounded-full bg-green-500/10 flex items-center justify-center">
-              <User className="h-4 w-4 text-green-600" />
-            </div>
-          </div>
-          <div className="text-2xl font-bold">{stats.investors}</div>
-        </div>
-
-        <div className="rounded-md border border-border bg-card p-6">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-sm font-medium text-muted-foreground">Sourcers</p>
-            <div className="h-9 w-9 rounded-full bg-blue-500/10 flex items-center justify-center">
-              <UserCheck className="h-4 w-4 text-blue-600" />
-            </div>
-          </div>
-          <div className="text-2xl font-bold">{stats.sourcers}</div>
-        </div>
-
-        <div className="rounded-md border border-border bg-card p-6">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-sm font-medium text-muted-foreground">Admins</p>
-            <div className="h-9 w-9 rounded-full bg-purple-500/10 flex items-center justify-center">
-              <Shield className="h-4 w-4 text-purple-600" />
-            </div>
-          </div>
-          <div className="text-2xl font-bold">{stats.admins}</div>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold mb-2">User Management</h1>
+          <p className="text-muted-foreground">
+            Manage user accounts, roles, and permissions ({filteredUsers.length} {filteredUsers.length === 1 ? 'user' : 'users'})
+          </p>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="rounded-md border border-border bg-card p-6 mb-6">
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Search by name or email..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
-            />
-          </div>
-          <Select value={roleFilter} onValueChange={setRoleFilter}>
-            <SelectTrigger className="w-full sm:w-[180px] cursor-pointer">
-              <SelectValue placeholder="Filter by role" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all" className="cursor-pointer">
-                <div className="flex items-center">
-                  <Users className="h-3.5 w-3.5 mr-2 text-muted-foreground" />
-                  All Roles
-                </div>
-              </SelectItem>
-              <SelectItem value="INVESTOR" className="cursor-pointer">
-                <div className="flex items-center">
-                  <User className="h-3.5 w-3.5 mr-2 text-green-600" />
-                  Investors
-                </div>
-              </SelectItem>
-              <SelectItem value="SOURCER" className="cursor-pointer">
-                <div className="flex items-center">
-                  <UserCheck className="h-3.5 w-3.5 mr-2 text-blue-600" />
-                  Sourcers
-                </div>
-              </SelectItem>
-              <SelectItem value="ADMIN" className="cursor-pointer">
-                <div className="flex items-center">
-                  <Shield className="h-3.5 w-3.5 mr-2 text-purple-600" />
-                  Admins
-                </div>
-              </SelectItem>
-            </SelectContent>
-          </Select>
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Search by name or email..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9 rounded-lg"
+          />
         </div>
+        <Select value={roleFilter} onValueChange={setRoleFilter}>
+          <SelectTrigger className="w-full sm:w-[180px] cursor-pointer rounded-lg">
+            <SelectValue placeholder="Filter by role" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all" className="cursor-pointer">
+              <div className="flex items-center">
+                <Users className="h-3.5 w-3.5 mr-2 text-muted-foreground" />
+                All Roles
+              </div>
+            </SelectItem>
+            <SelectItem value="INVESTOR" className="cursor-pointer">
+              <div className="flex items-center">
+                <User className="h-3.5 w-3.5 mr-2 text-green-600" />
+                Investors
+              </div>
+            </SelectItem>
+            <SelectItem value="SOURCER" className="cursor-pointer">
+              <div className="flex items-center">
+                <UserCheck className="h-3.5 w-3.5 mr-2 text-blue-600" />
+                Sourcers
+              </div>
+            </SelectItem>
+            <SelectItem value="ADMIN" className="cursor-pointer">
+              <div className="flex items-center">
+                <Shield className="h-3.5 w-3.5 mr-2 text-purple-600" />
+                Admins
+              </div>
+            </SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Users Table */}
-      <div className="mb-6">
-        <div className="rounded-md border border-border">
+      <div className="border border-border rounded-lg overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>
@@ -359,7 +317,7 @@ export default function UsersPage() {
                         }
                         disabled={updatingUserId === user.id}
                       >
-                        <SelectTrigger className="w-[150px] ml-auto cursor-pointer">
+                        <SelectTrigger className="w-[150px] ml-auto cursor-pointer rounded-lg">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -390,7 +348,6 @@ export default function UsersPage() {
             </TableBody>
           </Table>
         </div>
-      </div>
 
       {/* Confirmation Dialog */}
       <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -407,8 +364,8 @@ export default function UsersPage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="cursor-pointer">Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmRoleChange} className="cursor-pointer">
+            <AlertDialogCancel className="cursor-pointer rounded-lg">Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmRoleChange} className="cursor-pointer rounded-lg">
               Change Role
             </AlertDialogAction>
           </AlertDialogFooter>
