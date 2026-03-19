@@ -62,6 +62,9 @@ export function DealForm({ deal, mode }: DealFormProps) {
   // Client cannot manipulate these values - they're recalculated on save
   const [totalInvestment, setTotalInvestment] = useState(0);
   const [capitalRequired, setCapitalRequired] = useState(0);
+  const [previewROI, setPreviewROI] = useState<number | null>(null);
+  const [previewYield, setPreviewYield] = useState<number | null>(null);
+  const [previewROCE, setPreviewROCE] = useState<number | null>(null);
 
   // Calculate totals for preview (server will recalculate on save)
   useEffect(() => {
@@ -74,15 +77,75 @@ export function DealForm({ deal, mode }: DealFormProps) {
     setCapitalRequired(total);
   }, [purchasePrice, refurbCosts, sourcingFee]);
 
+  const canCalculateMetrics = () => {
+    const purchase = parseFloat(purchasePrice) || 0;
+    const sourcing = parseFloat(sourcingFee) || 0;
+    const gdv = parseFloat(estimatedGdv) || 0;
+    const rentalIncome = parseFloat(estimatedRentalIncome) || 0;
+    const profit = parseFloat(estimatedProfit) || 0;
+
+    // Need at least purchase price, sourcing fee, and one of: GDV, rental income, or profit
+    return purchase > 0 && sourcing > 0 && (gdv > 0 || rentalIncome > 0 || profit > 0);
+  };
+
+  const calculateMetrics = () => {
+    const purchase = parseFloat(purchasePrice) || 0;
+    const refurb = parseFloat(refurbCosts) || 0;
+    const sourcing = parseFloat(sourcingFee) || 0;
+    const gdv = parseFloat(estimatedGdv) || 0;
+    const rentalIncome = parseFloat(estimatedRentalIncome) || 0;
+    const profit = parseFloat(estimatedProfit) || 0;
+
+    const totalInv = purchase + refurb + sourcing;
+    const capReq = totalInv;
+
+    // Calculate ROI: ((GDV - Total Investment) / Total Investment) * 100
+    let roi: number | null = null;
+    if (totalInv > 0 && gdv > 0) {
+      roi = ((gdv - totalInv) / totalInv) * 100;
+    }
+
+    // Calculate Yield: (Monthly Rental * 12 / GDV) * 100
+    let yieldVal: number | null = null;
+    if (gdv > 0 && rentalIncome > 0) {
+      yieldVal = ((rentalIncome * 12) / gdv) * 100;
+    }
+
+    // Calculate ROCE: (Profit / Capital Required) * 100
+    let roce: number | null = null;
+    if (capReq > 0 && profit > 0) {
+      roce = (profit / capReq) * 100;
+    }
+
+    setPreviewROI(roi);
+    setPreviewYield(yieldVal);
+    setPreviewROCE(roce);
+
+    toast.success('Metrics calculated! These are estimates only.');
+  };
+
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
+    // Check max 3 images limit
+    const remainingSlots = 3 - mediaUrls.length;
+    if (remainingSlots <= 0) {
+      toast.error('Maximum 3 images allowed');
+      event.target.value = '';
+      return;
+    }
+
     try {
       setUploadingImages(true);
       const uploadedUrls: string[] = [];
+      const filesToUpload = Array.from(files).slice(0, remainingSlots);
 
-      for (const file of Array.from(files)) {
+      if (files.length > remainingSlots) {
+        toast.error(`Only ${remainingSlots} more image(s) can be added (max 3 total)`);
+      }
+
+      for (const file of filesToUpload) {
         // Validate file type
         if (!file.type.startsWith('image/')) {
           toast.error(`${file.name} is not an image file`);
@@ -122,7 +185,9 @@ export function DealForm({ deal, mode }: DealFormProps) {
         setThumbnailUrl(uploadedUrls[0]);
       }
 
-      toast.success(`${uploadedUrls.length} image(s) uploaded successfully`);
+      if (uploadedUrls.length > 0) {
+        toast.success(`${uploadedUrls.length} image(s) uploaded successfully`);
+      }
     } catch (error) {
       if (import.meta.env.DEV) {
         console.error('Error uploading images:', error);
@@ -503,11 +568,60 @@ export function DealForm({ deal, mode }: DealFormProps) {
               </div>
             </div>
 
+            {/* Calculate Metrics Button */}
+            <div className="mt-6">
+              <Button
+                type="button"
+                onClick={calculateMetrics}
+                variant="outline"
+                disabled={!canCalculateMetrics()}
+                className={`w-full ${canCalculateMetrics() ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+              >
+                <Zap className="h-4 w-4 mr-2" />
+                Calculate ROI, Yield, and ROCE
+              </Button>
+              {!canCalculateMetrics() && (
+                <p className="text-xs text-muted-foreground mt-2 text-center">
+                  Fill in Purchase Price, Sourcing Fee, and at least one of: GDV, Rental Income, or Profit
+                </p>
+              )}
+            </div>
+
+            {/* Preview Metrics */}
+            {(previewROI !== null || previewYield !== null || previewROCE !== null) && (
+              <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                {previewROI !== null && (
+                  <div className="rounded-md bg-primary/10 border border-primary/20 p-4">
+                    <p className="text-xs text-muted-foreground mb-1">ROI (Preview)</p>
+                    <p className="text-2xl font-bold text-primary">
+                      {previewROI.toFixed(2)}%
+                    </p>
+                  </div>
+                )}
+                {previewYield !== null && (
+                  <div className="rounded-md bg-primary/10 border border-primary/20 p-4">
+                    <p className="text-xs text-muted-foreground mb-1">Yield (Preview)</p>
+                    <p className="text-2xl font-bold text-primary">
+                      {previewYield.toFixed(2)}%
+                    </p>
+                  </div>
+                )}
+                {previewROCE !== null && (
+                  <div className="rounded-md bg-primary/10 border border-primary/20 p-4">
+                    <p className="text-xs text-muted-foreground mb-1">ROCE (Preview)</p>
+                    <p className="text-2xl font-bold text-primary">
+                      {previewROCE.toFixed(2)}%
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Security Notice */}
             <div className="mt-4 rounded-md bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 p-3">
               <p className="text-xs text-blue-900 dark:text-blue-100">
                 <strong>🔒 Secure Calculations:</strong> ROI, Yield, and ROCE are calculated automatically by our server when you save.
-                This ensures accurate financial metrics that cannot be manipulated.
+                This ensures accurate financial metrics that cannot be manipulated. The button above shows preview values only.
               </p>
             </div>
           </div>
@@ -562,18 +676,26 @@ export function DealForm({ deal, mode }: DealFormProps) {
 
         {/* Upload Button */}
         <div className="mb-4">
-          <Label htmlFor="image-upload" className="cursor-pointer">
-            <div className="flex items-center justify-center border-2 border-dashed border-border rounded-md p-8 hover:border-primary/50 transition-colors">
+          <Label htmlFor="image-upload" className={mediaUrls.length >= 3 ? 'cursor-not-allowed' : 'cursor-pointer'}>
+            <div className={`flex items-center justify-center border-2 border-dashed border-border rounded-md p-8 transition-colors ${
+              mediaUrls.length >= 3 ? 'opacity-50 cursor-not-allowed' : 'hover:border-primary/50 cursor-pointer'
+            }`}>
               {uploadingImages ? (
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Loader2 className="h-5 w-5 animate-spin" />
                   <span>Uploading images...</span>
                 </div>
+              ) : mediaUrls.length >= 3 ? (
+                <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                  <Upload className="h-8 w-8" />
+                  <span className="text-sm font-medium">Maximum images reached</span>
+                  <span className="text-xs">Remove an image to upload more (max 3 images)</span>
+                </div>
               ) : (
                 <div className="flex flex-col items-center gap-2 text-muted-foreground">
                   <Upload className="h-8 w-8" />
                   <span className="text-sm font-medium">Click to upload images</span>
-                  <span className="text-xs">PNG, JPG up to 5MB each</span>
+                  <span className="text-xs">PNG, JPG up to 5MB each (max 3 images)</span>
                 </div>
               )}
             </div>
@@ -584,7 +706,7 @@ export function DealForm({ deal, mode }: DealFormProps) {
             accept="image/*"
             multiple
             onChange={handleImageUpload}
-            disabled={uploadingImages}
+            disabled={uploadingImages || mediaUrls.length >= 3}
             className="hidden"
           />
         </div>
@@ -593,11 +715,11 @@ export function DealForm({ deal, mode }: DealFormProps) {
         {mediaUrls.length > 0 && (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {mediaUrls.map((url, index) => (
-              <div key={index} className="relative group rounded-md overflow-hidden border border-border">
+              <div key={index} className="relative group rounded-md overflow-hidden border border-border aspect-video">
                 <img
                   src={url}
                   alt={`Property ${index + 1}`}
-                  className="w-full h-32 object-cover"
+                  className="w-full h-full object-cover"
                 />
                 {/* Thumbnail Badge */}
                 {thumbnailUrl === url && (
