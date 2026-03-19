@@ -69,7 +69,7 @@ export default function EditDealPage() {
   }
 
   return (
-    <div className="px-6 pt-6 pb-32 w-full">
+    <div className="px-6 pt-6 pb-24 w-full">
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight mb-2">Edit Deal</h1>
         <p className="text-muted-foreground">

@@ -39,7 +39,7 @@ export default function CreateDealPage() {
 
   if (checking) {
     return (
-      <div className="px-6 pt-6 pb-32 w-full">
+      <div className="px-6 pt-6 pb-24 w-full">
         <div className="flex items-center justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
@@ -49,7 +49,7 @@ export default function CreateDealPage() {
 
   if (!onboardingComplete) {
     return (
-      <div className="px-6 pt-6 pb-32 w-full max-w-3xl mx-auto">
+      <div className="px-6 pt-6 pb-24 w-full max-w-3xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold tracking-tight mb-2">Create New Deal</h1>
           <p className="text-muted-foreground">
@@ -126,7 +126,7 @@ export default function CreateDealPage() {
   }
 
   return (
-    <div className="px-6 pt-6 pb-32 w-full">
+    <div className="px-6 pt-6 pb-24 w-full">
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight mb-2">Create New Deal</h1>
         <p className="text-muted-foreground">
