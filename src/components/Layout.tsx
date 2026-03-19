@@ -9,7 +9,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
     <div className="flex h-screen w-full overflow-hidden bg-background">
       {/* Sidebar */}
       <aside
-        className={`h-full border-r border-sidebar-border bg-sidebar transition-all duration-300 shrink-0 ${
+        className={`h-full bg-sidebar transition-all duration-300 shrink-0 ${
           isCollapsed ? 'w-16' : 'w-64'
         }`}
       >
