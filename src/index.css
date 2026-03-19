@@ -21,25 +21,25 @@
   --accent-foreground: oklch(0.20 0 0);
   --destructive: oklch(0.58 0.24 28.48);
   --destructive-foreground: oklch(0.97 0 0);
-  --border: oklch(0.92 0 0);
-  --input: oklch(0.92 0 0);
+  --border: oklch(0.94 0 0);
+  --input: oklch(0.94 0 0);
   --ring: oklch(0.71 0 0);
   --chart-1: oklch(0.56 0 0);
   --chart-2: oklch(0.56 0 0);
   --chart-3: oklch(0.56 0 0);
   --chart-4: oklch(0.56 0 0);
   --chart-5: oklch(0.56 0 0);
-  --radius: 0rem;
-  --sidebar: oklch(0.96 0 0);
-  --sidebar-foreground: oklch(0.14 0 0);
-  --sidebar-primary: oklch(0.20 0 0);
-  --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.94 0 0);
-  --sidebar-accent-foreground: oklch(0.20 0 0);
-  --sidebar-border: oklch(0.90 0 0);
-  --sidebar-ring: oklch(0.71 0 0);
-  --font-sans: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-serif: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --radius: 0.55rem;
+  --sidebar: #f0f0f0;
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.992 0.003 40);
+  --sidebar-accent: #e0e0e0;
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: #d0d0d0;
+  --sidebar-ring: oklch(0.708 0 0);
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-serif: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-mono: 'Courier New', Courier, monospace;
   --shadow-color: hsl(0 0% 0%);
   --shadow-opacity: 0;
@@ -60,7 +60,7 @@
   --tracking-normal: 0em;
 
   /* Typography */
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   line-height: 1.5;
   font-weight: 400;
   font-synthesis: none;
@@ -103,17 +103,17 @@
   --destructive: #ef4444;
   --destructive-foreground: var(--base-200);
 
-  --border: oklch(0.27 0 0);
-  --input: oklch(0.27 0 0);
+  --border: var(--base-800);
+  --input: var(--base-800);
   --ring: var(--base-700);
 
   --sidebar: var(--base-900);
   --sidebar-foreground: var(--base-200);
-  --sidebar-primary: #1287ff;
-  --sidebar-primary-foreground: #ffffff;
+  --sidebar-primary: var(--base-200);
+  --sidebar-primary-foreground: var(--base-950);
   --sidebar-accent: var(--base-800);
   --sidebar-accent-foreground: var(--base-200);
-  --sidebar-border: oklch(0.26 0 0);
+  --sidebar-border: var(--base-800);
   --sidebar-ring: var(--base-700);
 
   --chart-1: oklch(0.488 0.243 264.376);
