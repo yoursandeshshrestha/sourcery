@@ -62,22 +62,15 @@ export default function UsersPage() {
   const [updatingUserId, setUpdatingUserId] = useState<string | null>(null);
   const ITEMS_PER_PAGE = 20;
 
-  // Sync all filters from URL params (only when values actually change)
+  // Sync all filters from URL params
   useEffect(() => {
-    const roleParam = searchParams.get('role') || 'all';
-    const searchParam = searchParams.get('search') || '';
+    const roleParam = searchParams.get('role');
+    const searchParam = searchParams.get('search');
     const pageParam = searchParams.get('page');
-    const page = pageParam ? parseInt(pageParam, 10) : 1;
 
-    if (roleParam !== roleFilter) {
-      setRoleFilter(roleParam);
-    }
-    if (searchParam !== searchQuery) {
-      setSearchQuery(searchParam);
-    }
-    if (page !== currentPage) {
-      setCurrentPage(page);
-    }
+    setRoleFilter(roleParam || 'all');
+    setSearchQuery(searchParam || '');
+    setCurrentPage(pageParam ? parseInt(pageParam, 10) : 1);
   }, [searchParams]);
 
   // Set initial URL params if not present
@@ -106,6 +99,7 @@ export default function UsersPage() {
   useEffect(() => {
     fetchUsers();
     fetchStats();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage, searchQuery, roleFilter]);
 
   const fetchStats = async () => {
