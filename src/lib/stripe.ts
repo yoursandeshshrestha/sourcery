@@ -227,7 +227,7 @@ export async function createDansLeadCheckoutSession(leadId: string, amount: numb
 
     // First, create the purchase record
     const { data: purchase, error: purchaseError } = await supabase
-      .from('dans_leads_purchases')
+      .from('lead_purchases')
       .insert({
         lead_id: leadId,
         buyer_id: session.user.id,
