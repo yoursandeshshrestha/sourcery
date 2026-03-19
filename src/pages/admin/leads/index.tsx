@@ -580,11 +580,11 @@ export default function AdminLeadsPage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="cursor-pointer">Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="cursor-pointer rounded-lg">Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               disabled={deleting}
-              className="bg-red-600 hover:bg-red-700 cursor-pointer"
+              className="bg-red-600 hover:bg-red-700 cursor-pointer rounded-lg"
             >
               {deleting ? (
                 <>
