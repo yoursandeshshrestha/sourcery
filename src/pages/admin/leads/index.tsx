@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import type { DansLead } from '@/types/lead';
@@ -44,17 +44,63 @@ interface LeadWithStats extends DansLead {
 
 export default function AdminLeadsPage() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [leads, setLeads] = useState<LeadWithStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingLead, setDeletingLead] = useState<DansLead | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [imageIndices, setImageIndices] = useState<Record<string, number>>({});
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(() => {
+    const pageParam = searchParams.get('page');
+    return pageParam ? parseInt(pageParam, 10) : 1;
+  });
   const [totalCount, setTotalCount] = useState(0);
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
   const [searchQuery, setSearchQuery] = useState('');
-  const [propertyTypeFilter, setPropertyTypeFilter] = useState<string>('all');
+  const [propertyTypeFilter, setPropertyTypeFilter] = useState<string>(() => {
+    return searchParams.get('types') || 'all';
+  });
   const ITEMS_PER_PAGE = 20;
+
+  // Sync all filters from URL params
+  useEffect(() => {
+    const typesParam = searchParams.get('types');
+    const searchParam = searchParams.get('search');
+    const sortParam = searchParams.get('sort');
+    const pageParam = searchParams.get('page');
+
+    setPropertyTypeFilter(typesParam || 'all');
+    setSearchQuery(searchParam || '');
+    setSortOrder((sortParam as 'newest' | 'oldest') || 'newest');
+    setCurrentPage(pageParam ? parseInt(pageParam, 10) : 1);
+  }, [searchParams]);
+
+  // Set initial URL params if not present
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams);
+    let updated = false;
+
+    if (!searchParams.has('types')) {
+      params.set('types', 'all');
+      updated = true;
+    }
+    if (!searchParams.has('search')) {
+      params.set('search', '');
+      updated = true;
+    }
+    if (!searchParams.has('sort')) {
+      params.set('sort', 'newest');
+      updated = true;
+    }
+    if (!searchParams.has('page')) {
+      params.set('page', '1');
+      updated = true;
+    }
+
+    if (updated) {
+      setSearchParams(params, { replace: true });
+    }
+  }, []);
 
   useEffect(() => {
     fetchLeads();
@@ -220,106 +266,126 @@ export default function AdminLeadsPage() {
   const endItem = Math.min(currentPage * ITEMS_PER_PAGE, totalCount);
 
   return (
-    <div className="px-6 pt-6 pb-8 w-full bg-[#F9F7F4]">
+    <div className="p-6 space-y-6">
       {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold tracking-tight">Dan's Leads Management</h1>
-              <span className="text-xl text-muted-foreground">({totalCount})</span>
-            </div>
-            <p className="text-muted-foreground mt-2">
-              Create and manage motivated seller leads
-            </p>
-          </div>
-          <Button onClick={() => navigate('/dashboard/admin/leads/create')} className="cursor-pointer rounded-xl">
-            <Plus className="h-4 w-4 mr-2" />
-            Create Lead
-          </Button>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold mb-2">Dan's Leads Management</h1>
+          <p className="text-muted-foreground">
+            Create and manage motivated seller leads ({totalCount})
+          </p>
         </div>
+        <Button onClick={() => navigate('/dashboard/admin/leads/create')} className="cursor-pointer rounded-lg">
+          <Plus className="h-4 w-4 mr-2" />
+          Create Lead
+        </Button>
+      </div>
 
-        {/* Search and Filters */}
-        <div className="flex items-center gap-3">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search by title or location..."
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="pl-9 rounded-xl"
-            />
-          </div>
-          <Select
-            value={propertyTypeFilter}
-            onValueChange={(value) => {
-              setPropertyTypeFilter(value);
+      {/* Search and Filters */}
+      <div className="flex items-center gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search by title or location..."
+            value={searchQuery}
+            onChange={(e) => {
+              const value = e.target.value;
+              setSearchQuery(value);
               setCurrentPage(1);
+
+              // Update URL
+              const params = new URLSearchParams(searchParams);
+              params.set('search', value);
+              params.set('page', '1');
+              setSearchParams(params);
             }}
-          >
-            <SelectTrigger className="w-[160px] cursor-pointer rounded-xl">
-              <SelectValue placeholder="Property Type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all" className="cursor-pointer">All Types</SelectItem>
-              <SelectItem value="House" className="cursor-pointer">House</SelectItem>
-              <SelectItem value="Flat" className="cursor-pointer">Flat</SelectItem>
-              <SelectItem value="Bungalow" className="cursor-pointer">Bungalow</SelectItem>
-              <SelectItem value="Land" className="cursor-pointer">Land</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select
-            value={sortOrder}
-            onValueChange={(value) => {
-              setSortOrder(value as 'newest' | 'oldest');
-              setCurrentPage(1);
-            }}
-          >
-            <SelectTrigger className="w-[140px] cursor-pointer rounded-xl">
-              <SelectValue placeholder="Sort by" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="newest" className="cursor-pointer">Newest</SelectItem>
-              <SelectItem value="oldest" className="cursor-pointer">Oldest</SelectItem>
-            </SelectContent>
-          </Select>
-          {(searchQuery || propertyTypeFilter !== 'all') && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setSearchQuery('');
-                setPropertyTypeFilter('all');
-                setCurrentPage(1);
-              }}
-              className="cursor-pointer whitespace-nowrap rounded-xl"
-            >
-              Clear filters
-            </Button>
-          )}
+            className="pl-9 rounded-lg"
+          />
         </div>
+        <Select
+          value={propertyTypeFilter}
+          onValueChange={(value) => {
+            setPropertyTypeFilter(value);
+            setCurrentPage(1);
+
+            // Update URL
+            const params = new URLSearchParams(searchParams);
+            params.set('types', value);
+            params.set('page', '1');
+            setSearchParams(params);
+          }}
+        >
+          <SelectTrigger className="w-[160px] cursor-pointer rounded-lg">
+            <SelectValue placeholder="Property Type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all" className="cursor-pointer">All Types</SelectItem>
+            <SelectItem value="House" className="cursor-pointer">House</SelectItem>
+            <SelectItem value="Flat" className="cursor-pointer">Flat</SelectItem>
+            <SelectItem value="Bungalow" className="cursor-pointer">Bungalow</SelectItem>
+            <SelectItem value="Land" className="cursor-pointer">Land</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select
+          value={sortOrder}
+          onValueChange={(value) => {
+            setSortOrder(value as 'newest' | 'oldest');
+            setCurrentPage(1);
+
+            // Update URL
+            const params = new URLSearchParams(searchParams);
+            params.set('sort', value);
+            params.set('page', '1');
+            setSearchParams(params);
+          }}
+        >
+          <SelectTrigger className="w-[140px] cursor-pointer rounded-lg">
+            <SelectValue placeholder="Sort by" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="newest" className="cursor-pointer">Newest</SelectItem>
+            <SelectItem value="oldest" className="cursor-pointer">Oldest</SelectItem>
+          </SelectContent>
+        </Select>
+        {(searchQuery || propertyTypeFilter !== 'all') && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setSearchQuery('');
+              setPropertyTypeFilter('all');
+              setCurrentPage(1);
+
+              // Reset URL params to defaults
+              const params = new URLSearchParams();
+              params.set('types', 'all');
+              params.set('search', '');
+              params.set('sort', 'newest');
+              params.set('page', '1');
+              setSearchParams(params);
+            }}
+            className="cursor-pointer whitespace-nowrap rounded-lg"
+          >
+            Clear filters
+          </Button>
+        )}
       </div>
 
       {/* Leads List */}
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[1, 2, 3, 4].map((i) => (
-            <Card key={i} className="overflow-hidden rounded-2xl border border-border/50 shadow-sm">
+            <Card key={i} className="overflow-hidden bg-white border border-border rounded-xl">
               <Skeleton className="w-full aspect-16/10" />
-              <div className="p-5 space-y-4">
-                <Skeleton className="h-6 w-3/4" />
-                <Skeleton className="h-4 w-full" />
-                <div className="flex gap-3">
-                  <Skeleton className="h-4 w-16" />
-                  <Skeleton className="h-4 w-16" />
-                  <Skeleton className="h-4 w-16" />
+              <div className="p-4 space-y-3">
+                <div className="space-y-1">
+                  <Skeleton className="h-5 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
                 </div>
-                <div className="flex justify-between pt-2">
-                  <Skeleton className="h-8 w-32" />
-                  <Skeleton className="h-6 w-20 rounded-md" />
+                <Skeleton className="h-4 w-2/3" />
+                <div className="flex gap-2 pt-2">
+                  <Skeleton className="h-8 flex-1" />
+                  <Skeleton className="h-8 w-8" />
                 </div>
               </div>
             </Card>
@@ -327,21 +393,24 @@ export default function AdminLeadsPage() {
         </div>
       ) : leads.length === 0 ? (
         <div className="text-center py-20">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 mb-6">
-            <Home className="h-10 w-10 text-primary" />
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-4">
+            <Home className="h-8 w-8 text-muted-foreground" />
           </div>
-          <h3 className="text-2xl font-bold mb-3">No leads created yet</h3>
-          <p className="text-muted-foreground text-lg mb-8 max-w-md mx-auto">
-            Create your first lead to start selling motivated seller contacts
+          <h3 className="text-lg font-semibold mb-2">No leads found</h3>
+          <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+            {searchQuery || propertyTypeFilter !== 'all'
+              ? 'Try adjusting your filters to find what you\'re looking for.'
+              : 'Create your first lead to start selling motivated seller contacts.'}
           </p>
-          <Button
-            onClick={() => navigate('/dashboard/admin/leads/create')}
-            size="lg"
-            className="cursor-pointer rounded-xl"
-          >
-            <Plus className="h-5 w-5 mr-2" />
-            Create First Lead
-          </Button>
+          {!searchQuery && propertyTypeFilter === 'all' && (
+            <Button
+              onClick={() => navigate('/dashboard/admin/leads/create')}
+              className="cursor-pointer rounded-lg"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Create Lead
+            </Button>
+          )}
         </div>
       ) : (
         <div>
@@ -354,7 +423,7 @@ export default function AdminLeadsPage() {
               return (
                 <Card
                   key={lead.id}
-                  className="overflow-hidden bg-white border border-border hover:border-gray-300 transition-colors rounded-2xl"
+                  className="overflow-hidden bg-white border hover:border-gray-300 transition-colors rounded-xl"
                 >
                   {/* Image Slider */}
                   <div className="relative aspect-16/10 overflow-hidden bg-gray-50 group">
@@ -453,29 +522,45 @@ export default function AdminLeadsPage() {
 
           {/* Pagination */}
           {totalCount > ITEMS_PER_PAGE && (
-            <div className="flex items-center justify-between mt-8 pt-6 border-t border-border">
-              <p className="text-sm text-gray-600">
-                {startItem}-{endItem} of {totalCount} properties
+            <div className="flex items-center justify-between pt-6">
+              <p className="text-sm text-muted-foreground">
+                Showing {startItem}-{endItem} of {totalCount} leads
               </p>
               <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  onClick={() => {
+                    const newPage = Math.max(1, currentPage - 1);
+                    setCurrentPage(newPage);
+
+                    // Update URL
+                    const params = new URLSearchParams(searchParams);
+                    params.set('page', newPage.toString());
+                    setSearchParams(params);
+                  }}
                   disabled={currentPage === 1}
-                  className="cursor-pointer"
+                  className="cursor-pointer rounded-lg"
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-muted-foreground">
                   Page {currentPage} of {totalPages}
                 </span>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  onClick={() => {
+                    const newPage = Math.min(totalPages, currentPage + 1);
+                    setCurrentPage(newPage);
+
+                    // Update URL
+                    const params = new URLSearchParams(searchParams);
+                    params.set('page', newPage.toString());
+                    setSearchParams(params);
+                  }}
                   disabled={currentPage === totalPages}
-                  className="cursor-pointer"
+                  className="cursor-pointer rounded-lg"
                 >
                   <ChevronRight className="h-4 w-4" />
                 </Button>
