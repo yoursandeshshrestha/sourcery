@@ -62,15 +62,22 @@ export default function UsersPage() {
   const [updatingUserId, setUpdatingUserId] = useState<string | null>(null);
   const ITEMS_PER_PAGE = 20;
 
-  // Sync all filters from URL params
+  // Sync all filters from URL params (only when values actually change)
   useEffect(() => {
-    const roleParam = searchParams.get('role');
-    const searchParam = searchParams.get('search');
+    const roleParam = searchParams.get('role') || 'all';
+    const searchParam = searchParams.get('search') || '';
     const pageParam = searchParams.get('page');
+    const page = pageParam ? parseInt(pageParam, 10) : 1;
 
-    setRoleFilter(roleParam || 'all');
-    setSearchQuery(searchParam || '');
-    setCurrentPage(pageParam ? parseInt(pageParam, 10) : 1);
+    if (roleParam !== roleFilter) {
+      setRoleFilter(roleParam);
+    }
+    if (searchParam !== searchQuery) {
+      setSearchQuery(searchParam);
+    }
+    if (page !== currentPage) {
+      setCurrentPage(page);
+    }
   }, [searchParams]);
 
   // Set initial URL params if not present
