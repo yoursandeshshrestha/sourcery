@@ -36,3 +36,23 @@ export function formatCurrency(amount: number, currency: string = 'INR'): string
     maximumFractionDigits: 2,
   }).format(amount);
 }
+
+/**
+ * Global debounce function for delayed execution
+ * @param func - The function to debounce
+ * @param delay - Delay in milliseconds (default: 500ms)
+ * @returns Debounced function
+ */
+export function debounce<T extends (...args: unknown[]) => void>(
+  func: T,
+  delay: number = 500
+): (...args: Parameters<T>) => void {
+  let timeoutId: NodeJS.Timeout;
+
+  return function (...args: Parameters<T>) {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      func(...args);
+    }, delay);
+  };
+}
