@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { AuthProvider } from '@/contexts/AuthContext';
@@ -32,6 +33,7 @@ import EditDealPage from '@/pages/deals/edit';
 import MyDealsPage from '@/pages/deals/my-deals';
 import MyReservationsPage from '@/pages/reservations/my-reservations';
 import DealReservationsPage from '@/pages/reservations/deal-reservations';
+import ReservationDetailPage from '@/pages/reservations/detail';
 import PipelinePage from '@/pages/pipeline';
 import PipelineDetailPage from '@/pages/pipeline/detail';
 import InvestorPipelinePage from '@/pages/account/InvestorPipelinePage';
@@ -43,6 +45,21 @@ import CreateLeadPage from '@/pages/admin/leads/create';
 import EditLeadPage from '@/pages/admin/leads/edit';
 
 function App() {
+  // Initialize theme from localStorage on app load
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else if (savedTheme === 'light') {
+      document.documentElement.classList.remove('dark');
+    } else {
+      // If no theme is saved, check system preference
+      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.documentElement.classList.add('dark');
+      }
+    }
+  }, []);
+
   return (
     <ErrorBoundary>
       <Router>
@@ -268,6 +285,20 @@ function App() {
           />
 
           {/* Reservation routes */}
+          <Route
+            path="/dashboard/reservations/:id"
+            element={
+              <ProtectedRoute>
+                <SourcerRoute>
+                  <Layout>
+                    <PageErrorBoundary>
+                      <ReservationDetailPage />
+                    </PageErrorBoundary>
+                  </Layout>
+                </SourcerRoute>
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/dashboard/reservations/deals"
             element={

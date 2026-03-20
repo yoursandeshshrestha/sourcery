@@ -3,15 +3,28 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
+import { User, Settings, LogOut, Moon, Sun, MoreVertical } from 'lucide-react';
 
 interface NavItem {
   title: string;
@@ -54,6 +67,11 @@ const baseNavGroups: NavGroup[] = [
         title: "Dan's Leads",
         href: '/dashboard/leads',
         iconSrc: '/icons/add-ons.svg',
+      },
+      {
+        title: 'Purchased Leads',
+        href: '/dashboard/leads/purchased',
+        iconSrc: '/icons/booking.svg',
       },
     ],
   },
@@ -146,11 +164,39 @@ export function Sidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { isCollapsed } = useSidebar();
-  const { profile, signOut } = useAuth();
+  const { profile, user, signOut } = useAuth();
   const [showSignOutDialog, setShowSignOutDialog] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return document.documentElement.classList.contains('dark');
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    // Sync with system preference on mount
+    const isDark = document.documentElement.classList.contains('dark');
+    setIsDarkMode(isDark);
+  }, []);
+
+  const toggleTheme = () => {
+    const newTheme = !isDarkMode;
+    setIsDarkMode(newTheme);
+
+    if (newTheme) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  };
 
   const isAdmin = profile?.role === 'ADMIN';
   const isSourcer = profile?.role === 'SOURCER';
+
+  // Determine dashboard label based on role
+  const dashboardLabel = isSourcer ? 'Sourcer Dashboard' : 'Admin Dashboard';
 
   // Build navigation config based on role
   let navGroups: NavGroup[] = [];
@@ -184,11 +230,12 @@ export function Sidebar() {
   };
 
   return (
-    <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground">
+    <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground dark:border-r dark:border-border">
       {/* Logo/Header */}
       <div className="flex flex-col gap-2 p-2 pb-0">
         <div
-          className={`flex w-full items-center rounded-lg px-2 ${isCollapsed ? 'justify-center h-12' : 'gap-3 h-14'}`}
+          onClick={() => navigate('/')}
+          className={`flex w-full items-center rounded-lg px-2 cursor-pointer hover:bg-sidebar-accent/50 transition-colors ${isCollapsed ? 'justify-center h-12' : 'gap-3 h-14'}`}
         >
           {/* Logo Icon */}
           <div className="shrink-0">
@@ -206,7 +253,7 @@ export function Sidebar() {
                 Sourcery
               </span>
               <span className="truncate text-[11px] leading-tight text-sidebar-foreground/60">
-                Admin Dashboard
+                {dashboardLabel}
               </span>
             </div>
           )}
@@ -234,7 +281,7 @@ export function Sidebar() {
                       key={item.href}
                       to={item.href}
                       className={cn(
-                        'group flex w-full items-center gap-2 overflow-hidden rounded-md p-1.5 text-left transition-colors h-8 text-[13px] font-[450] cursor-pointer',
+                        'group flex w-full items-center gap-2 overflow-hidden rounded-lg p-1.5 text-left transition-colors h-8 text-[13px] font-[450] cursor-pointer',
                         isActive
                           ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
                           : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground',
@@ -243,7 +290,7 @@ export function Sidebar() {
                     >
                       <div className="shrink-0 relative">
                         {item.iconSrc && (
-                          <img src={item.iconSrc} alt={item.title} className="size-4" />
+                          <img src={item.iconSrc} alt={item.title} className="size-4 dark:invert" />
                         )}
                         {isCollapsed && badge && (
                           <span className="absolute -top-1 -right-1 inline-flex items-center justify-center rounded-full bg-red-500 text-white w-4 h-4 text-[10px] font-bold">
@@ -272,54 +319,127 @@ export function Sidebar() {
         </div>
       </div>
 
-      {/* Footer - Actions */}
-      {!isCollapsed && (
-        <div className="mt-auto shrink-0 p-2">
-          <div className="flex items-center justify-center gap-3 text-xs text-sidebar-foreground/70">
-            <Link
-              to="/"
-              className="hover:text-sidebar-accent-foreground transition-colors cursor-pointer"
-            >
-              Home
-            </Link>
-            <span className="text-sidebar-border">|</span>
+      {/* Footer - Profile Menu */}
+      <div className="mt-auto shrink-0 p-2">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
             <button
-              onClick={() => setShowSignOutDialog(true)}
-              className="hover:text-sidebar-accent-foreground transition-colors cursor-pointer"
+              className={cn(
+                "w-full flex items-center gap-3 rounded-lg p-3 border border-border hover:bg-sidebar-accent/50 transition-colors cursor-pointer",
+                isCollapsed ? "justify-center" : ""
+              )}
             >
-              Sign out
+              <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                <span className="text-sm font-semibold text-primary">
+                  {profile?.first_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
+                </span>
+              </div>
+              {!isCollapsed && (
+                <>
+                  <div className="flex flex-col gap-0.5 min-w-0 flex-1 text-left">
+                    <div className="text-sm font-semibold leading-tight truncate">
+                      {profile?.first_name && profile?.last_name
+                        ? `${profile.first_name} ${profile.last_name}`
+                        : user?.email?.split('@')[0] || 'User'}
+                    </div>
+                    <div className="text-xs text-muted-foreground leading-tight truncate">
+                      {user?.email || 'user@example.com'}
+                    </div>
+                  </div>
+                  <MoreVertical className="size-4 text-muted-foreground shrink-0" />
+                </>
+              )}
             </button>
-          </div>
-        </div>
-      )}
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" side="right" sideOffset={8} className="w-80 rounded-2xl p-2 mb-2">
+            <div className="px-3 py-3 bg-muted/50 border border-border rounded-xl mb-1">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                  <span className="text-xl font-semibold text-primary">
+                    {profile?.first_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
+                  </span>
+                </div>
+                <div className="flex flex-col gap-0.5 min-w-0 flex-1">
+                  <div className="text-sm font-semibold leading-tight truncate">
+                    {profile?.first_name && profile?.last_name
+                      ? `${profile.first_name} ${profile.last_name}`
+                      : user?.email?.split('@')[0] || 'User'}
+                  </div>
+                  <div className="text-xs text-muted-foreground leading-tight truncate">
+                    {user?.email || 'user@example.com'}
+                  </div>
+                  <Badge variant="secondary" className="mt-1 text-xs self-start">
+                    {profile?.role || 'User'}
+                  </Badge>
+                </div>
+              </div>
+            </div>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              className="cursor-pointer rounded-xl"
+              onClick={() => navigate('/dashboard/profile')}
+            >
+              <User className="mr-2 size-4" />
+              <span>Profile</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="cursor-pointer rounded-xl"
+              onClick={() => navigate('/dashboard/settings')}
+            >
+              <Settings className="mr-2 size-4" />
+              <span>Settings</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              className="cursor-pointer rounded-xl"
+              onClick={(e) => {
+                e.preventDefault();
+                toggleTheme();
+              }}
+            >
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-2">
+                  {isDarkMode ? <Moon className="size-4" /> : <Sun className="size-4" />}
+                  <span>Dark Mode</span>
+                </div>
+                <Switch checked={isDarkMode} onCheckedChange={toggleTheme} className="cursor-pointer" />
+              </div>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              className="cursor-pointer text-red-600 focus:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-xl"
+              onClick={() => setShowSignOutDialog(true)}
+            >
+              <LogOut className="mr-2 size-4" />
+              <span>Sign out</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
 
       {/* Sign Out Confirmation Dialog */}
-      <Dialog open={showSignOutDialog} onOpenChange={setShowSignOutDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Sign out</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to sign out of your account?
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setShowSignOutDialog(false)}
-              className="cursor-pointer"
-            >
+      <AlertDialog open={showSignOutDialog} onOpenChange={setShowSignOutDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure you want to sign out?</AlertDialogTitle>
+            <AlertDialogDescription>
+              You will be redirected to the login page and will need to sign in again to access
+              the dashboard.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setShowSignOutDialog(false)} className="cursor-pointer rounded-lg">
               Cancel
-            </Button>
-            <Button
-              variant="destructive"
+            </AlertDialogCancel>
+            <AlertDialogAction
               onClick={handleSignOut}
-              className="cursor-pointer"
+              className="cursor-pointer bg-red-600 hover:bg-red-700 rounded-lg"
             >
               Sign out
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
