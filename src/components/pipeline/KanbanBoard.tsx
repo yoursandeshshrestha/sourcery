@@ -11,7 +11,8 @@ import { DndContext, DragOverlay } from '@dnd-kit/core';
 import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 import { KanbanColumn } from './KanbanColumn';
 import { DealCard } from './DealCard';
-import { Loader2 } from 'lucide-react';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { GitBranch } from 'lucide-react';
 
 export function KanbanBoard() {
   useAuth();
@@ -193,18 +194,21 @@ export function KanbanBoard() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      <div className="flex-1 flex items-center justify-center">
+        <LoadingSpinner message="Loading pipeline..." />
       </div>
     );
   }
 
   if (pipelines.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-96 space-y-4">
+      <div className="flex-1 flex items-center justify-center">
         <div className="text-center">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-4">
+            <GitBranch className="h-8 w-8 text-muted-foreground" />
+          </div>
           <h3 className="text-lg font-semibold mb-2">No Deals in Pipeline</h3>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground max-w-md mx-auto">
             Reserved deals will appear here once investors confirm their reservations.
           </p>
         </div>
@@ -213,17 +217,14 @@ export function KanbanBoard() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Deal Pipeline</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Track your deals through each stage. Drag cards to update progress.
+          <h1 className="text-2xl font-semibold mb-2">Deal Pipeline</h1>
+          <p className="text-muted-foreground">
+            Track your deals through each stage ({pipelines.length})
           </p>
-        </div>
-        <div className="text-sm text-muted-foreground">
-          <span className="font-medium">{pipelines.length}</span> active deal{pipelines.length !== 1 ? 's' : ''}
         </div>
       </div>
 
@@ -247,12 +248,6 @@ export function KanbanBoard() {
           ) : null}
         </DragOverlay>
       </DndContext>
-
-      {/* Realtime Status Indicator */}
-      <div className="fixed bottom-4 right-4 flex items-center gap-2 bg-card border border-border rounded-full px-4 py-2 text-xs shadow-lg">
-        <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse" />
-        <span className="text-muted-foreground">Live updates enabled</span>
-      </div>
     </div>
   );
 }

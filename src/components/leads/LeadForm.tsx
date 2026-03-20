@@ -240,7 +240,7 @@ export function LeadForm({ lead, mode }: LeadFormProps) {
       <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="space-y-6">
       {/* Help Banner & Test Data Button */}
       {mode === 'create' && (
-        <div className="flex items-center justify-between gap-4 rounded-md border border-border bg-muted/50 p-4">
+        <div className="flex items-center justify-between gap-4 rounded-lg border border-border bg-muted/50 p-4">
           <div className="flex-1">
             <p className="text-sm font-medium mb-1">💡 Creating a new lead</p>
             <p className="text-xs text-muted-foreground">
@@ -253,7 +253,7 @@ export function LeadForm({ lead, mode }: LeadFormProps) {
               variant="outline"
               size="sm"
               onClick={fillTestData}
-              className="cursor-pointer shrink-0"
+              className="cursor-pointer shrink-0 rounded-lg"
             >
               <Zap className="h-4 w-4 mr-2" />
               Fill Test Data
@@ -263,7 +263,7 @@ export function LeadForm({ lead, mode }: LeadFormProps) {
       )}
 
       {/* Public Information Section */}
-      <div className="rounded-md border border-border bg-card p-6">
+      <div className="rounded-lg border border-border bg-card p-6">
         <div className="flex items-start gap-3 mb-6">
           <div className="p-2 rounded-lg bg-primary/10">
             <Home className="h-5 w-5 text-primary" />
@@ -375,13 +375,13 @@ export function LeadForm({ lead, mode }: LeadFormProps) {
       </div>
 
       {/* Property Images (Optional) */}
-      <div className="rounded-md border border-border bg-card p-6">
+      <div className="rounded-lg border border-border bg-card p-6">
         <h2 className="text-lg font-semibold mb-4">Property Images (Optional)</h2>
 
         {/* Upload Button */}
         <div className="mb-4">
           <Label htmlFor="image-upload" className={mediaUrls.length >= 3 ? 'cursor-not-allowed' : 'cursor-pointer'}>
-            <div className={`flex items-center justify-center border-2 border-dashed border-border rounded-md p-8 transition-colors ${
+            <div className={`flex items-center justify-center border-2 border-dashed border-border rounded-lg p-8 transition-colors ${
               mediaUrls.length >= 3 ? 'opacity-50 cursor-not-allowed' : 'hover:border-primary/50 cursor-pointer'
             }`}>
               {uploadingImages ? (
@@ -419,7 +419,7 @@ export function LeadForm({ lead, mode }: LeadFormProps) {
         {mediaUrls.length > 0 && (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {mediaUrls.map((url, index) => (
-              <div key={index} className="relative group rounded-md overflow-hidden border border-border aspect-video">
+              <div key={index} className="relative group rounded-lg overflow-hidden border border-border aspect-video">
                 <img
                   src={url}
                   alt={`Property ${index + 1}`}
@@ -439,7 +439,7 @@ export function LeadForm({ lead, mode }: LeadFormProps) {
                       size="sm"
                       variant="secondary"
                       onClick={() => setAsThumbnail(url)}
-                      className="cursor-pointer"
+                      className="cursor-pointer rounded-lg"
                     >
                       <ImageIcon className="h-4 w-4 mr-1" />
                       Set as Thumbnail
@@ -450,7 +450,7 @@ export function LeadForm({ lead, mode }: LeadFormProps) {
                     size="sm"
                     variant="destructive"
                     onClick={() => removeImage(url)}
-                    className="cursor-pointer"
+                    className="cursor-pointer rounded-lg"
                   >
                     <X className="h-4 w-4" />
                   </Button>
@@ -468,7 +468,7 @@ export function LeadForm({ lead, mode }: LeadFormProps) {
       </div>
 
       {/* Private Information Section */}
-      <div className="rounded-md border-2 border-amber-200 bg-amber-50/30 dark:border-amber-900 dark:bg-amber-950/20 p-6">
+      <div className="rounded-lg border-2 border-amber-200 bg-amber-50/30 dark:border-amber-900 dark:bg-amber-950/20 p-6">
         <div className="flex items-start gap-3 mb-6">
           <div className="p-2 rounded-lg bg-amber-100 dark:bg-amber-900/50">
             <Lock className="h-5 w-5 text-amber-700 dark:text-amber-400" />
@@ -578,7 +578,7 @@ export function LeadForm({ lead, mode }: LeadFormProps) {
             size="lg"
             onClick={() => navigate('/dashboard/admin/leads')}
             disabled={saving}
-            className="cursor-pointer"
+            className="cursor-pointer rounded-lg"
           >
             Cancel
           </Button>
@@ -587,7 +587,7 @@ export function LeadForm({ lead, mode }: LeadFormProps) {
             type="button"
             size="lg"
             disabled={saving}
-            className="cursor-pointer"
+            className="cursor-pointer rounded-lg"
             onClick={handleSave}
           >
             {saving ? (

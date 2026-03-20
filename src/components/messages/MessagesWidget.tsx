@@ -29,7 +29,7 @@ interface MessageThread {
 }
 
 export function MessagesWidget() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { client } = useStreamChat();
   const { isOpen, closeWidget, activeThread, openThread, closeThread } = useMessages();
   const [threads, setThreads] = useState<MessageThread[]>([]);
@@ -168,7 +168,7 @@ export function MessagesWidget() {
     return `${firstName?.[0] || ''}${lastName?.[0] || ''}`.toUpperCase();
   };
 
-  if (!isOpen) {
+  if (!isOpen || !profile) {
     return null;
   }
 
@@ -176,13 +176,13 @@ export function MessagesWidget() {
     <>
       {/* Backdrop for mobile */}
       <div
-        className="fixed inset-0 bg-black/10 z-40 lg:hidden animate-in fade-in duration-200"
+        className="fixed inset-0 bg-black/10 dark:bg-black/30 z-40 lg:hidden animate-in fade-in duration-200"
         onClick={closeWidget}
       />
 
-      <div className="fixed bottom-0 right-0 lg:bottom-6 lg:right-6 z-50 w-full lg:w-[420px] h-dvh lg:h-[640px] flex flex-col lg:rounded-xl border-t lg:border border-[#E5E7EB] overflow-hidden animate-in slide-in-from-bottom-4 lg:slide-in-from-right-4 duration-300 bg-linear-to-b from-[#F8FAFC] via-white to-[#F8FAFC]">
+      <div className="fixed bottom-0 right-0 lg:bottom-6 lg:right-6 z-50 w-full lg:w-[420px] h-dvh lg:h-[640px] flex flex-col lg:rounded-xl border-t lg:border border-[#E5E7EB] dark:border-border overflow-hidden animate-in slide-in-from-bottom-4 lg:slide-in-from-right-4 duration-300 bg-white dark:bg-card">
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-[#E5E7EB]/50">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-[#E5E7EB] dark:border-border">
         <div className="flex items-center gap-3 flex-1 min-w-0">
           {activeThread && (
             <button
@@ -191,12 +191,12 @@ export function MessagesWidget() {
                 // Refresh threads to update unread counts
                 fetchThreads();
               }}
-              className="p-1.5 hover:bg-black/5 rounded-lg transition-colors cursor-pointer shrink-0"
+              className="p-1.5 hover:bg-black/5 dark:hover:bg-gray-700 rounded-lg transition-colors cursor-pointer shrink-0"
             >
-              <ArrowLeft className="h-4 w-4 text-slate-700" />
+              <ArrowLeft className="h-4 w-4 text-slate-700 dark:text-gray-300" />
             </button>
           )}
-          <h2 className="font-semibold text-slate-900 text-[15px] truncate">
+          <h2 className="font-semibold text-slate-900 dark:text-gray-100 text-[15px] truncate">
             {activeThread
               ? `Chat with ${activeThread.otherParticipant.role === 'INVESTOR' ? 'Investor' : 'Sourcer'}`
               : 'Messages'}
@@ -204,9 +204,9 @@ export function MessagesWidget() {
         </div>
         <button
           onClick={closeWidget}
-          className="p-1.5 hover:bg-black/5 rounded-lg transition-colors cursor-pointer shrink-0"
+          className="p-1.5 hover:bg-black/5 dark:hover:bg-gray-700 rounded-lg transition-colors cursor-pointer shrink-0"
         >
-          <X className="h-4 w-4 text-slate-700" />
+          <X className="h-4 w-4 text-slate-700 dark:text-gray-300" />
         </button>
       </div>
 
@@ -223,7 +223,7 @@ export function MessagesWidget() {
                 />
               </Chat>
             ) : (
-              <div className="h-full flex flex-col bg-[#F8FAFC]">
+              <div className="h-full flex flex-col bg-[#F8FAFC] dark:bg-gray-900">
                 <div className="flex-1 p-4 space-y-4">
                   {/* Incoming message skeleton */}
                   <div className="flex items-start gap-2">
@@ -261,7 +261,7 @@ export function MessagesWidget() {
                 </div>
 
                 {/* Input skeleton */}
-                <div className="p-4 border-t border-[#E5E7EB] bg-white">
+                <div className="p-4 border-t border-[#E5E7EB] dark:border-border bg-white dark:bg-card">
                   <Skeleton className="h-12 w-full rounded-full" />
                 </div>
               </div>
@@ -285,11 +285,11 @@ export function MessagesWidget() {
               </div>
             ) : threads.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full p-6 text-center">
-                <div className="h-16 w-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
-                  <MessageSquare className="h-7 w-7 text-slate-500" />
+                <div className="h-16 w-16 rounded-full bg-slate-100 dark:bg-gray-700 flex items-center justify-center mb-4">
+                  <MessageSquare className="h-7 w-7 text-slate-500 dark:text-gray-500" />
                 </div>
-                <h3 className="font-semibold text-slate-900 mb-2">No conversations yet</h3>
-                <p className="text-sm text-slate-600 max-w-[280px]">
+                <h3 className="font-semibold text-slate-900 dark:text-gray-100 mb-2">No conversations yet</h3>
+                <p className="text-sm text-slate-600 dark:text-gray-400 max-w-[280px]">
                   Messages will appear here when you have active deals with reservations
                 </p>
               </div>
@@ -298,8 +298,8 @@ export function MessagesWidget() {
                 {threads.map((thread, index) => (
                   <div
                     key={thread.reservation_id}
-                    className={`px-4 py-3.5 hover:bg-slate-50 transition-colors cursor-pointer ${
-                      index !== threads.length - 1 ? 'border-b border-slate-100' : ''
+                    className={`px-4 py-3.5 hover:bg-slate-50 dark:bg-gray-800 transition-colors cursor-pointer ${
+                      index !== threads.length - 1 ? 'border-b border-slate-100 dark:border-gray-700' : ''
                     }`}
                     onClick={() => {
                       if (!thread.other_participant) return;
@@ -312,9 +312,9 @@ export function MessagesWidget() {
                   >
                     <div className="flex items-start gap-3">
                       <div className="relative shrink-0">
-                        <Avatar className="h-11 w-11 border border-slate-200">
+                        <Avatar className="h-11 w-11 border border-slate-200 dark:border-gray-600">
                           <AvatarImage src={thread.other_participant?.avatar_url || undefined} />
-                          <AvatarFallback className="bg-slate-100 text-slate-700 text-sm font-medium">
+                          <AvatarFallback className="bg-slate-100 dark:bg-gray-700 text-slate-700 dark:text-gray-300 text-sm font-medium">
                             {thread.other_participant
                               ? getInitials(
                                   thread.other_participant.first_name,
@@ -332,22 +332,22 @@ export function MessagesWidget() {
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-baseline justify-between gap-2 mb-0.5">
-                          <h3 className="font-semibold text-slate-900 text-[14px] truncate">
+                          <h3 className="font-semibold text-slate-900 dark:text-gray-100 text-[14px] truncate">
                             {thread.other_participant
                               ? `${thread.other_participant.first_name} ${thread.other_participant.last_name}`
                               : 'Unknown User'}
                           </h3>
                         </div>
-                        <p className="text-xs text-slate-600 truncate mb-1.5 font-medium">
+                        <p className="text-xs text-slate-600 dark:text-gray-400 truncate mb-1.5 font-medium">
                           {thread.deal_headline}
                         </p>
 
                         {thread.last_message && (
                           <p className={`text-xs truncate ${
-                            thread.unread_count > 0 ? 'text-slate-900 font-medium' : 'text-slate-500'
+                            thread.unread_count > 0 ? 'text-slate-900 dark:text-gray-100 font-medium' : 'text-slate-500 dark:text-gray-500'
                           }`}>
                             {thread.last_message.sender_id === user?.id && (
-                              <span className="text-slate-500">You: </span>
+                              <span className="text-slate-500 dark:text-gray-500">You: </span>
                             )}
                             {thread.last_message.content}
                           </p>
@@ -535,8 +535,8 @@ export function MessagesWidgetButton() {
     }
   };
 
-  // Don't show widget button if user is not logged in, widget is open, or user is admin
-  if (!user || isOpen || profile?.role === 'ADMIN') {
+  // Don't show widget button if user is not logged in, profile not loaded, widget is open, or user is admin
+  if (!user || !profile || isOpen || profile.role === 'ADMIN') {
     return null;
   }
 
@@ -551,7 +551,7 @@ export function MessagesWidgetButton() {
         left: `${position.x}px`,
         top: `${position.y}px`,
       }}
-      className={`fixed z-50 h-12 px-5 bg-white hover:bg-slate-50 text-slate-900 border border-slate-200 rounded-full transition-colors duration-200 ${
+      className={`fixed z-50 h-12 px-5 bg-white dark:bg-card hover:bg-slate-50 dark:hover:bg-gray-700 text-slate-900 dark:text-gray-100 border border-slate-200 dark:border-gray-600 rounded-full transition-colors duration-200 ${
         isDragging ? 'cursor-grabbing shadow-lg' : 'cursor-grab'
       } flex items-center justify-center gap-2 group select-none`}
     >

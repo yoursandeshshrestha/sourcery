@@ -339,7 +339,7 @@ export function DealForm({ deal, mode }: DealFormProps) {
       <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-6">
       {/* Help Banner & Test Data Button */}
       {mode === 'create' && (
-        <div className="flex items-center justify-between gap-4 rounded-md border border-border bg-muted/50 p-4">
+        <div className="flex items-center justify-between gap-4 rounded-lg border border-border bg-muted/50 p-4">
           <div className="flex-1">
             <p className="text-sm font-medium mb-1">💡 Tip: Save your progress</p>
             <p className="text-xs text-muted-foreground">
@@ -353,7 +353,7 @@ export function DealForm({ deal, mode }: DealFormProps) {
               variant="outline"
               size="sm"
               onClick={fillTestData}
-              className="cursor-pointer shrink-0"
+              className="cursor-pointer shrink-0 rounded-lg"
             >
               <Zap className="h-4 w-4 mr-2" />
               Fill Test Data
@@ -363,7 +363,7 @@ export function DealForm({ deal, mode }: DealFormProps) {
       )}
 
       {/* Basic Information */}
-      <div className="rounded-md border border-border bg-card p-6">
+      <div className="rounded-lg border border-border bg-card p-6">
         <h2 className="text-lg font-semibold mb-4">Basic Information</h2>
         <div className="space-y-4">
           <div>
@@ -398,7 +398,7 @@ export function DealForm({ deal, mode }: DealFormProps) {
               Strategy Type <span className="text-destructive">*</span>
             </Label>
             <Select value={strategyType} onValueChange={(value) => setStrategyType(value as StrategyType)}>
-              <SelectTrigger id="strategy" className="cursor-pointer">
+              <SelectTrigger id="strategy" className="cursor-pointer rounded-lg">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -417,7 +417,7 @@ export function DealForm({ deal, mode }: DealFormProps) {
                 Status <span className="text-destructive">*</span>
               </Label>
               <Select value={status} onValueChange={(value) => setStatus(value as DealStatus)}>
-                <SelectTrigger id="status" className="cursor-pointer">
+                <SelectTrigger id="status" className="cursor-pointer rounded-lg">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -467,7 +467,7 @@ export function DealForm({ deal, mode }: DealFormProps) {
       </div>
 
       {/* Financial Metrics */}
-      <div className="rounded-md border border-border bg-card p-6">
+      <div className="rounded-lg border border-border bg-card p-6">
         <h2 className="text-lg font-semibold mb-4">Financial Details</h2>
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -547,7 +547,7 @@ export function DealForm({ deal, mode }: DealFormProps) {
           {/* Calculated Values */}
           <div className="pt-4 border-t border-border">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="rounded-md bg-muted p-4">
+              <div className="rounded-lg bg-muted p-4">
                 <p className="text-sm text-muted-foreground mb-1">Total Investment</p>
                 <p className="text-xl font-bold">
                   £{totalInvestment.toLocaleString('en-GB', { maximumFractionDigits: 0 })}
@@ -557,7 +557,7 @@ export function DealForm({ deal, mode }: DealFormProps) {
                 </p>
               </div>
 
-              <div className="rounded-md bg-muted p-4">
+              <div className="rounded-lg bg-muted p-4">
                 <p className="text-sm text-muted-foreground mb-1">Capital Required</p>
                 <p className="text-xl font-bold">
                   £{capitalRequired.toLocaleString('en-GB', { maximumFractionDigits: 0 })}
@@ -575,7 +575,7 @@ export function DealForm({ deal, mode }: DealFormProps) {
                 onClick={calculateMetrics}
                 variant="outline"
                 disabled={!canCalculateMetrics()}
-                className={`w-full ${canCalculateMetrics() ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                className={`w-full rounded-lg ${canCalculateMetrics() ? 'cursor-pointer' : 'cursor-not-allowed'}`}
               >
                 <Zap className="h-4 w-4 mr-2" />
                 Calculate ROI, Yield, and ROCE
@@ -591,7 +591,7 @@ export function DealForm({ deal, mode }: DealFormProps) {
             {(previewROI !== null || previewYield !== null || previewROCE !== null) && (
               <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
                 {previewROI !== null && (
-                  <div className="rounded-md bg-primary/10 border border-primary/20 p-4">
+                  <div className="rounded-lg bg-primary/10 border border-primary/20 p-4">
                     <p className="text-xs text-muted-foreground mb-1">ROI (Preview)</p>
                     <p className="text-2xl font-bold text-primary">
                       {previewROI.toFixed(2)}%
@@ -599,7 +599,7 @@ export function DealForm({ deal, mode }: DealFormProps) {
                   </div>
                 )}
                 {previewYield !== null && (
-                  <div className="rounded-md bg-primary/10 border border-primary/20 p-4">
+                  <div className="rounded-lg bg-primary/10 border border-primary/20 p-4">
                     <p className="text-xs text-muted-foreground mb-1">Yield (Preview)</p>
                     <p className="text-2xl font-bold text-primary">
                       {previewYield.toFixed(2)}%
@@ -607,7 +607,7 @@ export function DealForm({ deal, mode }: DealFormProps) {
                   </div>
                 )}
                 {previewROCE !== null && (
-                  <div className="rounded-md bg-primary/10 border border-primary/20 p-4">
+                  <div className="rounded-lg bg-primary/10 border border-primary/20 p-4">
                     <p className="text-xs text-muted-foreground mb-1">ROCE (Preview)</p>
                     <p className="text-2xl font-bold text-primary">
                       {previewROCE.toFixed(2)}%
@@ -618,7 +618,7 @@ export function DealForm({ deal, mode }: DealFormProps) {
             )}
 
             {/* Security Notice */}
-            <div className="mt-4 rounded-md bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 p-3">
+            <div className="mt-4 rounded-lg bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 p-3">
               <p className="text-xs text-blue-900 dark:text-blue-100">
                 <strong>🔒 Secure Calculations:</strong> ROI, Yield, and ROCE are calculated automatically by our server when you save.
                 This ensures accurate financial metrics that cannot be manipulated. The button above shows preview values only.
@@ -629,7 +629,7 @@ export function DealForm({ deal, mode }: DealFormProps) {
       </div>
 
       {/* Fees */}
-      <div className="rounded-md border border-border bg-card p-6">
+      <div className="rounded-lg border border-border bg-card p-6">
         <h2 className="text-lg font-semibold mb-4">Fees & Charges</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -671,13 +671,13 @@ export function DealForm({ deal, mode }: DealFormProps) {
       </div>
 
       {/* Property Images */}
-      <div className="rounded-md border border-border bg-card p-6">
+      <div className="rounded-lg border border-border bg-card p-6">
         <h2 className="text-lg font-semibold mb-4">Property Images</h2>
 
         {/* Upload Button */}
         <div className="mb-4">
           <Label htmlFor="image-upload" className={mediaUrls.length >= 3 ? 'cursor-not-allowed' : 'cursor-pointer'}>
-            <div className={`flex items-center justify-center border-2 border-dashed border-border rounded-md p-8 transition-colors ${
+            <div className={`flex items-center justify-center border-2 border-dashed border-border rounded-lg p-8 transition-colors ${
               mediaUrls.length >= 3 ? 'opacity-50 cursor-not-allowed' : 'hover:border-primary/50 cursor-pointer'
             }`}>
               {uploadingImages ? (
@@ -715,7 +715,7 @@ export function DealForm({ deal, mode }: DealFormProps) {
         {mediaUrls.length > 0 && (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {mediaUrls.map((url, index) => (
-              <div key={index} className="relative group rounded-md overflow-hidden border border-border aspect-video">
+              <div key={index} className="relative group rounded-lg overflow-hidden border border-border aspect-video">
                 <img
                   src={url}
                   alt={`Property ${index + 1}`}
@@ -735,7 +735,7 @@ export function DealForm({ deal, mode }: DealFormProps) {
                       size="sm"
                       variant="secondary"
                       onClick={() => setAsThumbnail(url)}
-                      className="cursor-pointer"
+                      className="cursor-pointer rounded-lg"
                     >
                       <ImageIcon className="h-4 w-4 mr-1" />
                       Set as Thumbnail
@@ -746,7 +746,7 @@ export function DealForm({ deal, mode }: DealFormProps) {
                     size="sm"
                     variant="destructive"
                     onClick={() => removeImage(url)}
-                    className="cursor-pointer"
+                    className="cursor-pointer rounded-lg"
                   >
                     <X className="h-4 w-4" />
                   </Button>
@@ -777,7 +777,7 @@ export function DealForm({ deal, mode }: DealFormProps) {
             size="lg"
             onClick={() => navigate('/dashboard/my-deals')}
             disabled={loading}
-            className="cursor-pointer"
+            className="cursor-pointer rounded-lg"
           >
             Cancel
           </Button>
@@ -789,7 +789,7 @@ export function DealForm({ deal, mode }: DealFormProps) {
                 variant="outline"
                 size="lg"
                 disabled={loading}
-                className="cursor-pointer"
+                className="cursor-pointer rounded-lg"
                 onClick={() => handleSubmit(true)}
               >
                 {loading ? (
@@ -808,7 +808,7 @@ export function DealForm({ deal, mode }: DealFormProps) {
                 type="button"
                 size="lg"
                 disabled={loading}
-                className="cursor-pointer"
+                className="cursor-pointer rounded-lg"
                 onClick={() => handleSubmit(false)}
               >
                 {loading ? (
@@ -829,7 +829,7 @@ export function DealForm({ deal, mode }: DealFormProps) {
               type="button"
               size="lg"
               disabled={loading}
-              className="cursor-pointer"
+              className="cursor-pointer rounded-lg"
               onClick={() => handleSubmit(false)}
             >
               {loading ? (

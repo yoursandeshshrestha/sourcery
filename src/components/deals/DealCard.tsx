@@ -22,10 +22,10 @@ export function DealCard({ deal }: DealCardProps) {
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-[#E9E6DF] overflow-hidden cursor-pointer group">
+    <div className="bg-white dark:bg-card rounded-2xl border border-[#E9E6DF] dark:border-border overflow-hidden cursor-pointer group">
       <Link to={`/deals/${deal.id}`} className="block">
         {/* Image */}
-        <div className="aspect-video bg-[#F9F7F4] relative overflow-hidden">
+        <div className="aspect-video bg-[#F9F7F4] dark:bg-gray-800 relative overflow-hidden">
           {deal.thumbnail_url ? (
             <img
               src={deal.thumbnail_url}
@@ -34,12 +34,12 @@ export function DealCard({ deal }: DealCardProps) {
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <Building2 className="h-12 w-12 text-[#C5C0B8]" />
+              <Building2 className="h-12 w-12 text-[#C5C0B8] dark:text-gray-500" />
             </div>
           )}
           {/* Strategy Badge */}
           <div className="absolute top-3 left-3">
-            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-white text-[#1A1A1A] shadow-sm">
+            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-white dark:bg-card text-[#1A1A1A] dark:text-gray-100 shadow-sm border border-transparent dark:border-border">
               {STRATEGY_LABELS[deal.strategy_type]}
             </span>
           </div>
@@ -48,33 +48,33 @@ export function DealCard({ deal }: DealCardProps) {
         {/* Content */}
         <div className="p-4">
           {/* Title */}
-          <h3 className="font-semibold text-[15px] leading-snug line-clamp-1 text-[#1A1A1A] mb-2">
+          <h3 className="font-semibold text-[15px] leading-snug line-clamp-1 text-[#1A1A1A] dark:text-gray-100 mb-2">
             {deal.headline}
           </h3>
 
           {/* Location */}
           <div className="flex items-center gap-1.5 mb-3">
-            <MapPin className="h-4 w-4 text-[#6B6B6B] shrink-0" />
-            <p className="text-sm text-[#6B6B6B] line-clamp-1">{deal.approximate_location}</p>
+            <MapPin className="h-4 w-4 text-[#6B6B6B] dark:text-gray-400 shrink-0" />
+            <p className="text-sm text-[#6B6B6B] dark:text-gray-400 line-clamp-1">{deal.approximate_location}</p>
           </div>
 
           {/* Metrics */}
           <div className="space-y-2 mb-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-[#6B6B6B]">Capital Required</span>
-              <span className="font-semibold text-sm text-[#1A1A1A]">{formatCurrency(deal.capital_required)}</span>
+              <span className="text-sm text-[#6B6B6B] dark:text-gray-400">Capital Required</span>
+              <span className="font-semibold text-sm text-[#1A1A1A] dark:text-gray-100">{formatCurrency(deal.capital_required)}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-[#6B6B6B]">ROI</span>
+              <span className="text-sm text-[#6B6B6B] dark:text-gray-400">ROI</span>
               <span className="font-semibold text-sm text-emerald-600">{formatPercentage(deal.calculated_roi)}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-[#6B6B6B]">Yield</span>
-              <span className="font-semibold text-sm text-[#1A1A1A]">{formatPercentage(deal.calculated_yield)}</span>
+              <span className="text-sm text-[#6B6B6B] dark:text-gray-400">Yield</span>
+              <span className="font-semibold text-sm text-[#1A1A1A] dark:text-gray-100">{formatPercentage(deal.calculated_yield)}</span>
             </div>
-            <div className="flex items-center justify-between pt-2 border-t border-[#E9E6DF]">
-              <span className="text-sm text-[#6B6B6B]">Sourcing Fee</span>
-              <span className="font-semibold text-sm text-[#1A1A1A]">{formatCurrency(deal.sourcing_fee)}</span>
+            <div className="flex items-center justify-between pt-2 border-t border-[#E9E6DF] dark:border-border">
+              <span className="text-sm text-[#6B6B6B] dark:text-gray-400">Sourcing Fee</span>
+              <span className="font-semibold text-sm text-[#1A1A1A] dark:text-gray-100">{formatCurrency(deal.sourcing_fee)}</span>
             </div>
           </div>
 

@@ -31,7 +31,7 @@ export function KanbanColumn({ stage, pipelines }: KanbanColumnProps) {
       {/* Droppable Area */}
       <div
         ref={setNodeRef}
-        className={`min-h-[500px] rounded-md border-2 border-dashed p-2 transition-colors ${
+        className={`min-h-[500px] rounded-lg border-2 border-dashed p-2 transition-colors ${
           isOver
             ? 'border-primary bg-primary/5'
             : 'border-border bg-muted/20'
