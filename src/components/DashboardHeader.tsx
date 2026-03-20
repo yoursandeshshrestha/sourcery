@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,7 +23,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Moon, Sun, User, Settings, LogOut } from 'lucide-react';
 
 interface BreadcrumbItem {
   label: string;
@@ -36,6 +37,31 @@ export function DashboardHeader() {
   const navigate = useNavigate();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [signOutDialogOpen, setSignOutDialogOpen] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return document.documentElement.classList.contains('dark');
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    // Sync with system preference on mount
+    const isDark = document.documentElement.classList.contains('dark');
+    setIsDarkMode(isDark);
+  }, []);
+
+  const toggleTheme = () => {
+    const newTheme = !isDarkMode;
+    setIsDarkMode(newTheme);
+
+    if (newTheme) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  };
 
   const handleSignOut = async () => {
     await signOut();
@@ -77,7 +103,7 @@ export function DashboardHeader() {
           variant="ghost"
           size="icon"
           onClick={toggleSidebar}
-          className="cursor-pointer shrink-0"
+          className="cursor-pointer shrink-0 rounded-lg"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -121,8 +147,8 @@ export function DashboardHeader() {
         {/* Notifications */}
         <DropdownMenu open={notificationsOpen} onOpenChange={setNotificationsOpen}>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="cursor-pointer relative">
-              <img src="/icons/bell.svg" alt="Notifications" className="size-5" />
+            <Button variant="ghost" size="icon" className="cursor-pointer relative rounded-lg">
+              <img src="/icons/bell.svg" alt="Notifications" className="size-5 dark:invert" />
               {notifications.unreadCount > 0 && (
                 <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-semibold text-white">
                   {notifications.unreadCount > 9 ? '9+' : notifications.unreadCount}
@@ -130,7 +156,7 @@ export function DashboardHeader() {
               )}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-80">
+          <DropdownMenuContent align="end" className="w-80 rounded-2xl p-2">
             <DropdownMenuLabel className="flex items-center justify-between">
               <span>Notifications</span>
               {notifications.unreadCount > 0 && (
@@ -143,7 +169,7 @@ export function DashboardHeader() {
 
             {notifications.unreadCount === 0 && (
               <div className="py-8 text-center">
-                <img src="/icons/bell.svg" alt="Bell" className="mx-auto size-8 mb-2 opacity-50" />
+                <img src="/icons/bell.svg" alt="Bell" className="mx-auto size-8 mb-2 opacity-50 dark:invert" />
                 <p className="text-sm text-muted-foreground">No new notifications</p>
               </div>
             )}
@@ -153,50 +179,78 @@ export function DashboardHeader() {
         {/* User Menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="cursor-pointer">
-              <img src="/icons/profile.svg" alt="Profile" className="size-5" />
+            <Button variant="ghost" size="icon" className="cursor-pointer rounded-lg">
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                <span className="text-sm font-semibold text-primary">
+                  {profile?.first_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
+                </span>
+              </div>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-72">
+          <DropdownMenuContent align="end" className="w-80 rounded-2xl p-2">
             <DropdownMenuLabel className="font-normal">
-              <div className="flex flex-col gap-1">
-                <p className="text-sm font-semibold leading-tight break-all">
-                  {user?.email || 'user@example.com'}
-                </p>
-                <Badge variant="secondary" className="mt-1 w-fit text-xs">
-                  {profile?.role || 'User'}
-                </Badge>
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-center">
+                  <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+                    <span className="text-2xl font-semibold text-primary">
+                      {profile?.first_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-1 text-center">
+                  <p className="text-sm font-semibold leading-tight">
+                    {profile?.first_name && profile?.last_name
+                      ? `${profile.first_name} ${profile.last_name}`
+                      : user?.email?.split('@')[0] || 'User'}
+                  </p>
+                  <p className="text-xs text-muted-foreground leading-tight truncate">
+                    {user?.email || 'user@example.com'}
+                  </p>
+                  <div className="flex justify-center mt-1">
+                    <Badge variant="secondary" className="text-xs">
+                      {profile?.role || 'User'}
+                    </Badge>
+                  </div>
+                </div>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              className="cursor-pointer"
-              onClick={() => navigate('/dashboard/settings')}
-            >
-              <img src="/icons/platform-configration.svg" alt="Settings" className="mr-2 size-4" />
-              <span>Platform Settings</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="cursor-pointer"
+              className="cursor-pointer rounded-xl"
               onClick={() => navigate('/dashboard/profile')}
             >
-              <img src="/icons/profile.svg" alt="Account" className="mr-2 size-4" />
-              <span>Account</span>
+              <User className="mr-2 size-4" />
+              <span>Profile</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="cursor-pointer rounded-xl"
+              onClick={() => navigate('/dashboard/settings')}
+            >
+              <Settings className="mr-2 size-4" />
+              <span>Settings</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              className="cursor-pointer text-red-600 focus:text-red-600 hover:bg-red-50"
+              className="cursor-pointer rounded-xl"
+              onClick={(e) => {
+                e.preventDefault();
+                toggleTheme();
+              }}
+            >
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-2">
+                  {isDarkMode ? <Moon className="size-4" /> : <Sun className="size-4" />}
+                  <span>Dark Mode</span>
+                </div>
+                <Switch checked={isDarkMode} onCheckedChange={toggleTheme} className="cursor-pointer" />
+              </div>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              className="cursor-pointer text-red-600 focus:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-xl"
               onClick={() => setSignOutDialogOpen(true)}
             >
-              <img
-                src="/icons/logout.svg"
-                alt="Logout"
-                className="mr-2 size-4"
-                style={{
-                  filter:
-                    'invert(28%) sepia(90%) saturate(4584%) hue-rotate(353deg) brightness(94%) contrast(101%)',
-                }}
-              />
+              <LogOut className="mr-2 size-4" />
               <span>Sign out</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -213,13 +267,12 @@ export function DashboardHeader() {
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel onClick={() => setSignOutDialogOpen(false)}>
+              <AlertDialogCancel onClick={() => setSignOutDialogOpen(false)} className="cursor-pointer rounded-lg">
                 Cancel
               </AlertDialogCancel>
               <AlertDialogAction
-                variant="destructive"
                 onClick={handleSignOut}
-                className="cursor-pointer"
+                className="cursor-pointer bg-red-600 hover:bg-red-700 rounded-lg"
               >
                 Sign out
               </AlertDialogAction>

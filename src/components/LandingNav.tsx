@@ -12,7 +12,7 @@ function NavLink({ href, children }: NavLinkProps) {
   return (
     <a
       href={href}
-      className="px-3 py-2 text-[15px] font-medium text-[#5C5C49] hover:text-[#1287ff] rounded-lg transition-colors cursor-pointer whitespace-nowrap tracking-[0.01em] leading-[1.5em]"
+      className="px-3 py-2 text-[15px] font-medium text-[#5C5C49] dark:text-gray-400 hover:text-[#1287ff] dark:hover:text-[#1287ff] rounded-lg transition-colors cursor-pointer whitespace-nowrap tracking-[0.01em] leading-[1.5em]"
     >
       {children}
     </a>
@@ -29,7 +29,7 @@ export default function LandingNav() {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-6 lg:px-8 py-4">
       <Container size="xl">
-        <div className="bg-white border border-[#E9E6DF] rounded-full">
+        <div className="bg-white dark:bg-card border border-[#E9E6DF] dark:border-border rounded-full">
           <div className="grid grid-cols-3 items-center px-6 py-3">
             <div className="flex items-center justify-start">
               <Link to="/" className="flex items-center cursor-pointer">
@@ -40,16 +40,16 @@ export default function LandingNav() {
             <div className="hidden lg:flex items-center justify-center gap-1">
               {isInvestor ? (
                 <>
-                  <Link to="/deals" className="px-3 py-2 text-[15px] font-medium text-[#5C5C49] hover:text-[#1287ff] rounded-lg transition-colors cursor-pointer whitespace-nowrap tracking-[0.01em] leading-[1.5em]">
+                  <Link to="/deals" className="px-3 py-2 text-[15px] font-medium text-[#5C5C49] dark:text-gray-400 hover:text-[#1287ff] dark:hover:text-[#1287ff] rounded-lg transition-colors cursor-pointer whitespace-nowrap tracking-[0.01em] leading-[1.5em]">
                     Browse Deals
                   </Link>
-                  <Link to="/account/reservations" className="px-3 py-2 text-[15px] font-medium text-[#5C5C49] hover:text-[#1287ff] rounded-lg transition-colors cursor-pointer whitespace-nowrap tracking-[0.01em] leading-[1.5em]">
+                  <Link to="/account/reservations" className="px-3 py-2 text-[15px] font-medium text-[#5C5C49] dark:text-gray-400 hover:text-[#1287ff] dark:hover:text-[#1287ff] rounded-lg transition-colors cursor-pointer whitespace-nowrap tracking-[0.01em] leading-[1.5em]">
                     My Reservations
                   </Link>
                 </>
               ) : (
                 <>
-                  <Link to="/deals" className="px-3 py-2 text-[15px] font-medium text-[#5C5C49] hover:text-[#1287ff] rounded-lg transition-colors cursor-pointer whitespace-nowrap tracking-[0.01em] leading-[1.5em]">
+                  <Link to="/deals" className="px-3 py-2 text-[15px] font-medium text-[#5C5C49] dark:text-gray-400 hover:text-[#1287ff] dark:hover:text-[#1287ff] rounded-lg transition-colors cursor-pointer whitespace-nowrap tracking-[0.01em] leading-[1.5em]">
                     Browse Deals
                   </Link>
                   <NavLink href="#how-it-works">How It Works</NavLink>
@@ -62,21 +62,21 @@ export default function LandingNav() {
               {isDashboardUser ? (
                 <Link
                   to="/dashboard/overview"
-                  className="px-5 py-2 text-[15px] font-medium text-[#5C5C49] hover:text-[#1287ff] rounded-lg transition-colors cursor-pointer whitespace-nowrap tracking-[0.01em] leading-[1.5em]"
+                  className="px-8 py-2 text-base font-medium bg-white dark:bg-gray-800 hover:opacity-80 text-[#1287ff] border border-[#E9E6DF] dark:border-border rounded-full transition-colors cursor-pointer whitespace-nowrap"
                 >
                   Go to Dashboard
                 </Link>
               ) : isInvestor ? (
                 <Link
                   to="/account/profile"
-                  className="px-5 py-2 text-[15px] font-medium text-[#5C5C49] hover:text-[#1287ff] rounded-lg transition-colors cursor-pointer whitespace-nowrap tracking-[0.01em] leading-[1.5em]"
+                  className="px-8 py-2 text-base font-medium bg-white dark:bg-gray-800 hover:opacity-80 text-[#1287ff] border border-[#E9E6DF] dark:border-border rounded-full transition-colors cursor-pointer whitespace-nowrap"
                 >
                   Account
                 </Link>
               ) : (
                 <button
                   onClick={openAuthModal}
-                  className="px-8 py-2 text-base font-medium bg-white hover:opacity-80 text-[#1287ff] border border-[#E9E6DF] rounded-full transition-colors cursor-pointer whitespace-nowrap"
+                  className="px-8 py-2 text-base font-medium bg-white dark:bg-gray-800 hover:opacity-80 text-[#1287ff] border border-[#E9E6DF] dark:border-border rounded-full transition-colors cursor-pointer whitespace-nowrap"
                 >
                   Get Started
                 </button>

@@ -8,7 +8,7 @@ interface InvestorLayoutProps {
 
 export default function InvestorLayout({ children }: InvestorLayoutProps) {
   return (
-    <div className="min-h-screen bg-[#F9F7F4] flex flex-col">
+    <div className="min-h-screen bg-[#F9F7F4] dark:bg-background flex flex-col">
       <LandingNav />
       <main className="flex-1 pt-24">
         {children}
