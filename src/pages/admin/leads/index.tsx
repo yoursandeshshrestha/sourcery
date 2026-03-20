@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
@@ -6,7 +6,6 @@ import type { DansLead } from '@/types/lead';
 import { formatDateTime } from '@/lib/date';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import {
   AlertDialog,
@@ -37,6 +36,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { debounce } from '@/lib/utils';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 interface LeadWithStats extends DansLead {
   purchase_count?: number;
@@ -55,12 +56,32 @@ export default function AdminLeadsPage() {
     return pageParam ? parseInt(pageParam, 10) : 1;
   });
   const [totalCount, setTotalCount] = useState(0);
-  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>(() => {
+    return (searchParams.get('sort') as 'newest' | 'oldest') || 'newest';
+  });
+  const [searchQuery, setSearchQuery] = useState(() => {
+    return searchParams.get('search') || '';
+  });
+  const [debouncedSearch, setDebouncedSearch] = useState(() => {
+    return searchParams.get('search') || '';
+  });
   const [propertyTypeFilter, setPropertyTypeFilter] = useState<string>(() => {
     return searchParams.get('types') || 'all';
   });
   const ITEMS_PER_PAGE = 20;
+
+  // Debounced search function
+  const debouncedSearchRef = useRef(
+    debounce((value: string) => {
+      setDebouncedSearch(value);
+    }, 500)
+  );
+
+  useEffect(() => {
+    debouncedSearchRef.current = debounce((value: string) => {
+      setDebouncedSearch(value);
+    }, 500);
+  }, []);
 
   // Sync all filters from URL params
   useEffect(() => {
@@ -71,6 +92,7 @@ export default function AdminLeadsPage() {
 
     setPropertyTypeFilter(typesParam || 'all');
     setSearchQuery(searchParam || '');
+    setDebouncedSearch(searchParam || '');
     setSortOrder((sortParam as 'newest' | 'oldest') || 'newest');
     setCurrentPage(pageParam ? parseInt(pageParam, 10) : 1);
   }, [searchParams]);
@@ -105,7 +127,7 @@ export default function AdminLeadsPage() {
   useEffect(() => {
     fetchLeads();
     fetchStats();
-  }, [currentPage, sortOrder, searchQuery, propertyTypeFilter]);
+  }, [currentPage, sortOrder, debouncedSearch, propertyTypeFilter]);
 
   const fetchStats = async () => {
     try {
@@ -118,8 +140,8 @@ export default function AdminLeadsPage() {
         query = query.eq('property_type', propertyTypeFilter);
       }
 
-      if (searchQuery) {
-        query = query.or(`title.ilike.%${searchQuery}%,location.ilike.%${searchQuery}%`);
+      if (debouncedSearch) {
+        query = query.or(`title.ilike.%${debouncedSearch}%,location.ilike.%${debouncedSearch}%`);
       }
 
       const { count, error } = await query;
@@ -149,8 +171,8 @@ export default function AdminLeadsPage() {
         query = query.eq('property_type', propertyTypeFilter);
       }
 
-      if (searchQuery) {
-        query = query.or(`title.ilike.%${searchQuery}%,location.ilike.%${searchQuery}%`);
+      if (debouncedSearch) {
+        query = query.or(`title.ilike.%${debouncedSearch}%,location.ilike.%${debouncedSearch}%`);
       }
 
       query = query
@@ -299,7 +321,10 @@ export default function AdminLeadsPage() {
               setSearchQuery(value);
               setCurrentPage(1);
 
-              // Update URL
+              // Debounce the actual search
+              debouncedSearchRef.current(value);
+
+              // Update URL immediately for UX
               const params = new URLSearchParams(searchParams);
               params.set('search', value);
               params.set('page', '1');
@@ -356,9 +381,9 @@ export default function AdminLeadsPage() {
         {(searchQuery || propertyTypeFilter !== 'all') && (
           <Button
             variant="outline"
-            size="sm"
             onClick={() => {
               setSearchQuery('');
+              setDebouncedSearch('');
               setPropertyTypeFilter('all');
               setCurrentPage(1);
 
@@ -379,44 +404,31 @@ export default function AdminLeadsPage() {
 
       {/* Leads List */}
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[1, 2, 3, 4].map((i) => (
-            <Card key={i} className="overflow-hidden bg-white border border-border rounded-xl">
-              <Skeleton className="w-full aspect-16/10" />
-              <div className="p-4 space-y-3">
-                <div className="space-y-1">
-                  <Skeleton className="h-5 w-3/4" />
-                  <Skeleton className="h-4 w-1/2" />
-                </div>
-                <Skeleton className="h-4 w-2/3" />
-                <div className="flex gap-2 pt-2">
-                  <Skeleton className="h-8 flex-1" />
-                  <Skeleton className="h-8 w-8" />
-                </div>
-              </div>
-            </Card>
-          ))}
+        <div className="min-h-[60vh] flex items-center justify-center">
+          <LoadingSpinner message="Loading leads..." />
         </div>
       ) : leads.length === 0 ? (
-        <div className="text-center py-20">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-4">
-            <Home className="h-8 w-8 text-muted-foreground" />
+        <div className="min-h-[60vh] flex items-center justify-center">
+          <div className="text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-4">
+              <Home className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <h3 className="text-lg font-semibold mb-2">No leads found</h3>
+            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+              {searchQuery || propertyTypeFilter !== 'all'
+                ? 'Try adjusting your filters to find what you\'re looking for.'
+                : 'Create your first lead to start selling motivated seller contacts.'}
+            </p>
+            {!searchQuery && propertyTypeFilter === 'all' && (
+              <Button
+                onClick={() => navigate('/dashboard/admin/leads/create')}
+                className="cursor-pointer rounded-lg"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Create Lead
+              </Button>
+            )}
           </div>
-          <h3 className="text-lg font-semibold mb-2">No leads found</h3>
-          <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-            {searchQuery || propertyTypeFilter !== 'all'
-              ? 'Try adjusting your filters to find what you\'re looking for.'
-              : 'Create your first lead to start selling motivated seller contacts.'}
-          </p>
-          {!searchQuery && propertyTypeFilter === 'all' && (
-            <Button
-              onClick={() => navigate('/dashboard/admin/leads/create')}
-              className="cursor-pointer rounded-lg"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Create Lead
-            </Button>
-          )}
         </div>
       ) : (
         <div>
@@ -429,7 +441,7 @@ export default function AdminLeadsPage() {
               return (
                 <Card
                   key={lead.id}
-                  className="overflow-hidden bg-white border hover:border-gray-300 transition-colors rounded-xl"
+                  className="overflow-hidden bg-white dark:bg-card border rounded-xl"
                 >
                   {/* Image Slider */}
                   <div className="relative aspect-16/10 overflow-hidden bg-gray-50 group">
@@ -484,19 +496,19 @@ export default function AdminLeadsPage() {
                   <div className="p-4 space-y-3">
                     {/* Title and Location */}
                     <div>
-                      <h3 className="text-base font-semibold text-gray-900 line-clamp-1 mb-1">
+                      <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 line-clamp-1 mb-1">
                         {lead.title}
                       </h3>
-                      <div className="flex items-center gap-1.5 text-gray-500">
+                      <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400">
                         <MapPin className="h-3.5 w-3.5 shrink-0" />
                         <span className="text-sm truncate">{lead.location}</span>
                       </div>
                     </div>
 
                     {/* Stats */}
-                    <div className="flex items-center gap-3 text-sm text-gray-600 pt-1">
+                    <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400 pt-1">
                       <span>{lead.purchase_count || 0} sales</span>
-                      <span className="text-gray-400">•</span>
+                      <span className="text-gray-400 dark:text-gray-500">•</span>
                       <span>£{lead.price.toFixed(0)}</span>
                     </div>
 
@@ -515,9 +527,9 @@ export default function AdminLeadsPage() {
                         onClick={() => setDeletingLead(lead)}
                         variant="outline"
                         size="sm"
-                        className="cursor-pointer h-8 text-sm text-gray-600 hover:text-red-600 hover:border-red-600 rounded-lg"
+                        className="cursor-pointer h-8 text-sm hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg"
                       >
-                        <Trash2 className="h-3.5 w-3.5" />
+                        <Trash2 className="h-3.5 w-3.5 text-red-600" />
                       </Button>
                     </div>
                   </div>

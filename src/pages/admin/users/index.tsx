@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
@@ -30,8 +30,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Loader2, Users, Search, Shield, UserCheck, User, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Users, Search, Shield, UserCheck, User, ChevronLeft, ChevronRight } from 'lucide-react';
 import { formatDate } from '@/lib/date';
+import { debounce } from '@/lib/utils';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 interface Profile {
   id: string;
@@ -47,7 +49,12 @@ export default function UsersPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [users, setUsers] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(() => {
+    return searchParams.get('search') || '';
+  });
+  const [debouncedSearch, setDebouncedSearch] = useState(() => {
+    return searchParams.get('search') || '';
+  });
   const [roleFilter, setRoleFilter] = useState<string>(() => {
     return searchParams.get('role') || 'all';
   });
@@ -62,6 +69,19 @@ export default function UsersPage() {
   const [updatingUserId, setUpdatingUserId] = useState<string | null>(null);
   const ITEMS_PER_PAGE = 20;
 
+  // Debounced search function
+  const debouncedSearchRef = useRef(
+    debounce((value: string) => {
+      setDebouncedSearch(value);
+    }, 500)
+  );
+
+  useEffect(() => {
+    debouncedSearchRef.current = debounce((value: string) => {
+      setDebouncedSearch(value);
+    }, 500);
+  }, []);
+
   // Sync all filters from URL params
   useEffect(() => {
     const roleParam = searchParams.get('role');
@@ -70,6 +90,7 @@ export default function UsersPage() {
 
     setRoleFilter(roleParam || 'all');
     setSearchQuery(searchParam || '');
+    setDebouncedSearch(searchParam || '');
     setCurrentPage(pageParam ? parseInt(pageParam, 10) : 1);
   }, [searchParams]);
 
@@ -100,7 +121,7 @@ export default function UsersPage() {
     fetchUsers();
     fetchStats();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, searchQuery, roleFilter]);
+  }, [currentPage, debouncedSearch, roleFilter]);
 
   const fetchStats = async () => {
     try {
@@ -113,8 +134,8 @@ export default function UsersPage() {
         query = query.eq('role', roleFilter);
       }
 
-      if (searchQuery) {
-        query = query.or(`first_name.ilike.%${searchQuery}%,last_name.ilike.%${searchQuery}%,email.ilike.%${searchQuery}%`);
+      if (debouncedSearch) {
+        query = query.or(`first_name.ilike.%${debouncedSearch}%,last_name.ilike.%${debouncedSearch}%,email.ilike.%${debouncedSearch}%`);
       }
 
       const { count, error } = await query;
@@ -144,8 +165,8 @@ export default function UsersPage() {
         query = query.eq('role', roleFilter);
       }
 
-      if (searchQuery) {
-        query = query.or(`first_name.ilike.%${searchQuery}%,last_name.ilike.%${searchQuery}%,email.ilike.%${searchQuery}%`);
+      if (debouncedSearch) {
+        query = query.or(`first_name.ilike.%${debouncedSearch}%,last_name.ilike.%${debouncedSearch}%,email.ilike.%${debouncedSearch}%`);
       }
 
       query = query
@@ -190,8 +211,12 @@ export default function UsersPage() {
         `${selectedUser.first_name} ${selectedUser.last_name}'s role changed to ${newRole}`
       );
 
-      // Refresh the list
-      await fetchUsers();
+      // Update local state instead of refetching
+      setUsers(prevUsers =>
+        prevUsers.map(user =>
+          user.id === selectedUser.id ? { ...user, role: newRole } : user
+        )
+      );
     } catch (error) {
       if (import.meta.env.DEV) {
         console.error('Error updating user role:', error);
@@ -209,21 +234,21 @@ export default function UsersPage() {
     switch (role) {
       case 'ADMIN':
         return (
-          <Badge className="bg-purple-500/10 text-purple-700 border-purple-200 hover:bg-purple-500/20">
+          <Badge className="bg-purple-500/10 text-purple-700 border-purple-200 dark:bg-purple-500/20 dark:text-purple-400 dark:border-purple-800">
             <Shield className="h-3 w-3 mr-1" />
             Admin
           </Badge>
         );
       case 'SOURCER':
         return (
-          <Badge className="bg-blue-500/10 text-blue-700 border-blue-200 hover:bg-blue-500/20">
+          <Badge className="bg-blue-500/10 text-blue-700 border-blue-200 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-800">
             <UserCheck className="h-3 w-3 mr-1" />
             Sourcer
           </Badge>
         );
       case 'INVESTOR':
         return (
-          <Badge className="bg-green-500/10 text-green-700 border-green-200 hover:bg-green-500/20">
+          <Badge className="bg-green-500/10 text-green-700 border-green-200 dark:bg-green-500/20 dark:text-green-400 dark:border-green-800">
             <User className="h-3 w-3 mr-1" />
             Investor
           </Badge>
@@ -239,10 +264,10 @@ export default function UsersPage() {
     }
 
     const variants: Record<string, { label: string; className: string }> = {
-      PENDING: { label: 'Pending', className: 'bg-yellow-500/10 text-yellow-700 border-yellow-200 hover:bg-yellow-500/20' },
-      VERIFIED: { label: 'Verified', className: 'bg-green-500/10 text-green-700 border-green-200 hover:bg-green-500/20' },
-      REJECTED: { label: 'Rejected', className: 'bg-red-500/10 text-red-700 border-red-200 hover:bg-red-500/20' },
-      CANCELLED: { label: 'Cancelled', className: 'bg-gray-500/10 text-gray-700 border-gray-200 hover:bg-gray-500/20' },
+      PENDING: { label: 'Pending', className: 'bg-yellow-500/10 text-yellow-700 border-yellow-200 dark:bg-yellow-500/20 dark:text-yellow-400 dark:border-yellow-800' },
+      VERIFIED: { label: 'Verified', className: 'bg-green-500/10 text-green-700 border-green-200 dark:bg-green-500/20 dark:text-green-400 dark:border-green-800' },
+      REJECTED: { label: 'Rejected', className: 'bg-red-500/10 text-red-700 border-red-200 dark:bg-red-500/20 dark:text-red-400 dark:border-red-800' },
+      CANCELLED: { label: 'Cancelled', className: 'bg-gray-500/10 text-gray-700 border-gray-200 dark:bg-gray-500/20 dark:text-gray-400 dark:border-gray-800' },
     };
 
     const config = variants[status];
@@ -255,13 +280,9 @@ export default function UsersPage() {
     );
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
+  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
+  const startItem = totalCount === 0 ? 0 : (currentPage - 1) * ITEMS_PER_PAGE + 1;
+  const endItem = Math.min(currentPage * ITEMS_PER_PAGE, totalCount);
 
   return (
     <div className="p-6 space-y-6">
@@ -288,7 +309,10 @@ export default function UsersPage() {
               setSearchQuery(value);
               setCurrentPage(1);
 
-              // Update URL
+              // Debounce the actual search
+              debouncedSearchRef.current(value);
+
+              // Update URL immediately for UX
               const params = new URLSearchParams(searchParams);
               params.set('search', value);
               params.set('page', '1');
@@ -343,9 +367,9 @@ export default function UsersPage() {
         {(searchQuery || roleFilter !== 'all') && (
           <Button
             variant="outline"
-            size="sm"
             onClick={() => {
               setSearchQuery('');
+              setDebouncedSearch('');
               setRoleFilter('all');
               setCurrentPage(1);
 
@@ -365,6 +389,11 @@ export default function UsersPage() {
 
       {/* Users Table */}
       <div className="border border-border rounded-lg overflow-hidden">
+        {loading ? (
+          <div className="min-h-[60vh] flex items-center justify-center">
+            <LoadingSpinner message="Loading users..." />
+          </div>
+        ) : (
           <Table>
             <TableHeader>
               <TableRow>
@@ -435,13 +464,14 @@ export default function UsersPage() {
               )}
             </TableBody>
           </Table>
-        </div>
+        )}
+      </div>
 
       {/* Pagination */}
       {totalCount > ITEMS_PER_PAGE && (
         <div className="flex items-center justify-between pt-6">
           <p className="text-sm text-muted-foreground">
-            Showing {totalCount === 0 ? 0 : (currentPage - 1) * ITEMS_PER_PAGE + 1}-{Math.min(currentPage * ITEMS_PER_PAGE, totalCount)} of {totalCount} users
+            Showing {startItem}-{endItem} of {totalCount} users
           </p>
           <div className="flex items-center gap-2">
             <Button
@@ -462,13 +492,13 @@ export default function UsersPage() {
               <ChevronLeft className="h-4 w-4" />
             </Button>
             <span className="text-sm text-muted-foreground">
-              Page {currentPage} of {Math.ceil(totalCount / ITEMS_PER_PAGE)}
+              Page {currentPage} of {totalPages}
             </span>
             <Button
               variant="outline"
               size="sm"
               onClick={() => {
-                const newPage = Math.min(Math.ceil(totalCount / ITEMS_PER_PAGE), currentPage + 1);
+                const newPage = Math.min(totalPages, currentPage + 1);
                 setCurrentPage(newPage);
 
                 // Update URL
@@ -476,7 +506,7 @@ export default function UsersPage() {
                 params.set('page', newPage.toString());
                 setSearchParams(params);
               }}
-              disabled={currentPage === Math.ceil(totalCount / ITEMS_PER_PAGE)}
+              disabled={currentPage === totalPages}
               className="cursor-pointer rounded-lg"
             >
               <ChevronRight className="h-4 w-4" />

@@ -17,8 +17,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Loader2, CheckCircle2, XCircle, ExternalLink, FileText, ArrowLeft } from 'lucide-react';
+import { Loader2, CheckCircle2, XCircle, ExternalLink, FileText, ArrowLeft, Clock, Check, X as XIcon, Ban } from 'lucide-react';
 import { formatDateTime } from '@/lib/date';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 interface Application {
   id: string;
@@ -60,7 +61,7 @@ export default function ApplicationDetailPage() {
         .from('profiles')
         .select('*')
         .eq('id', id)
-        .eq('verification_status', 'PENDING')
+        .not('verification_status', 'is', null)
         .single();
 
       if (error) throw error;
@@ -81,6 +82,26 @@ export default function ApplicationDetailPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const getStatusBadge = (status: string) => {
+    const variants: Record<string, { label: string; className: string; icon: typeof Clock }> = {
+      PENDING: { label: 'Pending Review', className: 'bg-yellow-500/10 text-yellow-700 border-yellow-200 dark:bg-yellow-500/20 dark:text-yellow-400 dark:border-yellow-800', icon: Clock },
+      VERIFIED: { label: 'Approved', className: 'bg-green-500/10 text-green-700 border-green-200 dark:bg-green-500/20 dark:text-green-400 dark:border-green-800', icon: Check },
+      REJECTED: { label: 'Rejected', className: 'bg-red-500/10 text-red-700 border-red-200 dark:bg-red-500/20 dark:text-red-400 dark:border-red-800', icon: XIcon },
+      CANCELLED: { label: 'Cancelled', className: 'bg-gray-500/10 text-gray-700 border-gray-200 dark:bg-gray-500/20 dark:text-gray-400 dark:border-gray-800', icon: Ban },
+    };
+
+    const config = variants[status];
+    if (!config) return null;
+
+    const Icon = config.icon;
+    return (
+      <Badge className={config.className}>
+        <Icon className="h-3 w-3 mr-1" />
+        {config.label}
+      </Badge>
+    );
   };
 
   const handleAction = (action: 'approve' | 'reject') => {
@@ -149,8 +170,8 @@ export default function ApplicationDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <LoadingSpinner message="Loading application..." />
       </div>
     );
   }
@@ -159,39 +180,39 @@ export default function ApplicationDetailPage() {
     return null;
   }
 
+  const isPending = application.verification_status === 'PENDING';
+
   return (
     <>
-      <div className="px-6 pt-6 pb-32 w-full">
+      <div className={`p-6 w-full ${isPending ? 'pb-32' : 'pb-6'}`}>
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-6 space-y-4">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => navigate('/dashboard/admin/applications')}
-            className="mb-4 cursor-pointer"
+            className="cursor-pointer rounded-lg"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Applications
           </Button>
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-3xl font-bold tracking-tight mb-2">
+              <h1 className="text-2xl font-semibold mb-2">
                 {application.first_name} {application.last_name}
               </h1>
               <p className="text-muted-foreground">
                 Applied {formatDateTime(application.created_at)}
               </p>
             </div>
-            <Badge className="bg-yellow-500/10 text-yellow-700 border-yellow-200 hover:bg-yellow-500/20">
-              Pending Review
-            </Badge>
+            {getStatusBadge(application.verification_status)}
           </div>
         </div>
 
         {/* Application Details */}
         <div className="space-y-6">
           {/* Contact Information */}
-          <div className="rounded-md border border-border bg-card p-6">
+          <div className="rounded-lg border border-border bg-card p-6">
             <h2 className="text-lg font-semibold mb-4">Contact Information</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -211,18 +232,18 @@ export default function ApplicationDetailPage() {
 
           {/* Bio */}
           {application.bio && (
-            <div className="rounded-md border border-border bg-card p-6">
+            <div className="rounded-lg border border-border bg-card p-6">
               <h2 className="text-lg font-semibold mb-4">Bio</h2>
               <p className="text-sm text-muted-foreground whitespace-pre-wrap">{application.bio}</p>
             </div>
           )}
 
           {/* KYC Documents */}
-          <div className="rounded-md border border-border bg-card p-6">
+          <div className="rounded-lg border border-border bg-card p-6">
             <h2 className="text-lg font-semibold mb-4">KYC Documents</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* ID Document */}
-              <div className="rounded-md border border-border p-4">
+              <div className="rounded-lg border border-border p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <FileText className="h-4 w-4 text-muted-foreground" />
                   <p className="text-sm font-medium">ID Document</p>
@@ -235,7 +256,7 @@ export default function ApplicationDetailPage() {
                     variant="outline"
                     size="sm"
                     asChild
-                    className="w-full cursor-pointer"
+                    className="w-full cursor-pointer rounded-lg"
                   >
                     <a
                       href={application.id_document_url}
@@ -254,7 +275,7 @@ export default function ApplicationDetailPage() {
               </div>
 
               {/* AML Certificate */}
-              <div className="rounded-md border border-border p-4">
+              <div className="rounded-lg border border-border p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <FileText className="h-4 w-4 text-muted-foreground" />
                   <p className="text-sm font-medium">AML Certificate</p>
@@ -267,7 +288,7 @@ export default function ApplicationDetailPage() {
                     variant="outline"
                     size="sm"
                     asChild
-                    className="w-full cursor-pointer"
+                    className="w-full cursor-pointer rounded-lg"
                   >
                     <a
                       href={application.aml_document_url}
@@ -286,7 +307,7 @@ export default function ApplicationDetailPage() {
               </div>
 
               {/* Insurance Certificate */}
-              <div className="rounded-md border border-border p-4">
+              <div className="rounded-lg border border-border p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <FileText className="h-4 w-4 text-muted-foreground" />
                   <p className="text-sm font-medium">Insurance Certificate</p>
@@ -299,7 +320,7 @@ export default function ApplicationDetailPage() {
                     variant="outline"
                     size="sm"
                     asChild
-                    className="w-full cursor-pointer"
+                    className="w-full cursor-pointer rounded-lg"
                   >
                     <a
                       href={application.insurance_document_url}
@@ -321,42 +342,44 @@ export default function ApplicationDetailPage() {
         </div>
       </div>
 
-      {/* Fixed Footer Actions */}
-      <div
-        className="fixed bottom-0 right-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-t border-border z-10 transition-all duration-300"
-        style={{ left: isCollapsed ? '64px' : '256px' }}
-      >
-        <div className="flex gap-3 justify-end px-6 py-4">
-          <Button
-            onClick={() => handleAction('reject')}
-            disabled={processing}
-            variant="destructive"
-            size="lg"
-            className="cursor-pointer"
-          >
-            <XCircle className="h-4 w-4 mr-2" />
-            Reject Application
-          </Button>
-          <Button
-            onClick={() => handleAction('approve')}
-            disabled={processing}
-            size="lg"
-            className="cursor-pointer bg-green-600 hover:bg-green-700"
-          >
-            {processing ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Processing...
-              </>
-            ) : (
-              <>
-                <CheckCircle2 className="h-4 w-4 mr-2" />
-                Approve Application
-              </>
-            )}
-          </Button>
+      {/* Fixed Footer Actions - Only for Pending */}
+      {isPending && (
+        <div
+          className="fixed bottom-0 right-0 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 border-t border-border z-10 transition-all duration-300"
+          style={{ left: isCollapsed ? '64px' : '256px' }}
+        >
+          <div className="flex gap-3 justify-end px-6 py-4">
+            <Button
+              onClick={() => handleAction('reject')}
+              disabled={processing}
+              variant="destructive"
+              size="lg"
+              className="cursor-pointer rounded-lg"
+            >
+              <XCircle className="h-4 w-4 mr-2" />
+              Reject Application
+            </Button>
+            <Button
+              onClick={() => handleAction('approve')}
+              disabled={processing}
+              size="lg"
+              className="cursor-pointer bg-green-600 hover:bg-green-700 rounded-lg"
+            >
+              {processing ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 className="h-4 w-4 mr-2" />
+                  Approve Application
+                </>
+              )}
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Confirmation Dialog */}
       <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -407,15 +430,15 @@ export default function ApplicationDetailPage() {
           )}
 
           <AlertDialogFooter>
-            <AlertDialogCancel className="cursor-pointer" onClick={() => setRejectionReason('')}>
+            <AlertDialogCancel className="cursor-pointer rounded-lg" onClick={() => setRejectionReason('')}>
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmAction}
               className={
                 dialogAction === 'approve'
-                  ? 'bg-green-600 hover:bg-green-700 cursor-pointer'
-                  : 'bg-destructive hover:bg-destructive/90 cursor-pointer'
+                  ? 'bg-green-600 hover:bg-green-700 cursor-pointer rounded-lg'
+                  : 'bg-destructive hover:bg-destructive/90 cursor-pointer rounded-lg'
               }
             >
               {dialogAction === 'approve' ? 'Approve' : 'Reject'}

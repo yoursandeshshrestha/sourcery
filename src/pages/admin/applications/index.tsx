@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import {
   Table,
   TableBody,
@@ -13,6 +15,13 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,8 +32,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Loader2, CheckCircle2, XCircle, FileText } from 'lucide-react';
+import { Loader2, CheckCircle2, XCircle, FileText, Search, ChevronLeft, ChevronRight, Clock, Check, X, Ban } from 'lucide-react';
 import { formatDateTime } from '@/lib/date';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { debounce } from '@/lib/utils';
 
 interface Application {
   id: string;
@@ -43,6 +54,8 @@ interface Application {
 }
 
 export default function ApplicationsPage() {
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
@@ -50,19 +63,129 @@ export default function ApplicationsPage() {
   const [dialogAction, setDialogAction] = useState<'approve' | 'reject' | null>(null);
   const [selectedApp, setSelectedApp] = useState<Application | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
+  const [searchQuery, setSearchQuery] = useState(() => {
+    return searchParams.get('search') || '';
+  });
+  const [debouncedSearch, setDebouncedSearch] = useState(() => {
+    return searchParams.get('search') || '';
+  });
+  const [statusFilter, setStatusFilter] = useState<string>(() => {
+    return searchParams.get('status') || 'PENDING';
+  });
+  const [currentPage, setCurrentPage] = useState(() => {
+    const pageParam = searchParams.get('page');
+    return pageParam ? parseInt(pageParam, 10) : 1;
+  });
+  const [totalCount, setTotalCount] = useState(0);
+  const ITEMS_PER_PAGE = 20;
+
+  // Debounced search function
+  const debouncedSearchRef = useRef(
+    debounce((value: string) => {
+      setDebouncedSearch(value);
+    }, 500)
+  );
+
+  useEffect(() => {
+    debouncedSearchRef.current = debounce((value: string) => {
+      setDebouncedSearch(value);
+    }, 500);
+  }, []);
+
+  // Sync all filters from URL params
+  useEffect(() => {
+    const statusParam = searchParams.get('status');
+    const searchParam = searchParams.get('search');
+    const pageParam = searchParams.get('page');
+
+    setStatusFilter(statusParam || 'PENDING');
+    setSearchQuery(searchParam || '');
+    setDebouncedSearch(searchParam || '');
+    setCurrentPage(pageParam ? parseInt(pageParam, 10) : 1);
+  }, [searchParams]);
+
+  // Set initial URL params if not present
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams);
+    let updated = false;
+
+    if (!searchParams.has('status')) {
+      params.set('status', 'PENDING');
+      updated = true;
+    }
+    if (!searchParams.has('search')) {
+      params.set('search', '');
+      updated = true;
+    }
+    if (!searchParams.has('page')) {
+      params.set('page', '1');
+      updated = true;
+    }
+
+    if (updated) {
+      setSearchParams(params, { replace: true });
+    }
+  }, []);
 
   useEffect(() => {
     fetchApplications();
-  }, []);
+    fetchStats();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, debouncedSearch, statusFilter]);
+
+  const fetchStats = async () => {
+    try {
+      let query = supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true })
+        .not('verification_status', 'is', null);
+
+      // Apply filters
+      if (statusFilter !== 'all') {
+        query = query.eq('verification_status', statusFilter);
+      }
+
+      if (debouncedSearch) {
+        query = query.or(`first_name.ilike.%${debouncedSearch}%,last_name.ilike.%${debouncedSearch}%,email.ilike.%${debouncedSearch}%`);
+      }
+
+      const { count, error } = await query;
+
+      if (error) throw error;
+      setTotalCount(count || 0);
+    } catch (error) {
+      if (import.meta.env.DEV) {
+        console.error('Error fetching stats:', error);
+      }
+    }
+  };
 
   const fetchApplications = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+
+      const from = (currentPage - 1) * ITEMS_PER_PAGE;
+      const to = from + ITEMS_PER_PAGE - 1;
+
+      let query = supabase
         .from('profiles')
         .select('*')
-        .eq('verification_status', 'PENDING')
-        .order('created_at', { ascending: false });
+        .not('verification_status', 'is', null);
+
+      // Apply filters
+      if (statusFilter !== 'all') {
+        query = query.eq('verification_status', statusFilter);
+      }
+
+      if (debouncedSearch) {
+        query = query.or(`first_name.ilike.%${debouncedSearch}%,last_name.ilike.%${debouncedSearch}%,email.ilike.%${debouncedSearch}%`);
+      }
+
+      query = query
+        .order('created_at', { ascending: false })
+        .range(from, to);
+
+      const { data, error } = await query;
 
       if (error) throw error;
 
@@ -127,8 +250,9 @@ export default function ApplicationsPage() {
           : `Application from ${selectedApp.first_name} ${selectedApp.last_name} has been rejected`
       );
 
-      // Refresh the list
-      await fetchApplications();
+      // Remove application from local state instead of refetching
+      setApplications(prevApps => prevApps.filter(app => app.id !== selectedApp.id));
+      setTotalCount(prev => Math.max(0, prev - 1));
     } catch (error) {
       if (import.meta.env.DEV) {
         console.error(`Error ${dialogAction}ing application:`, error);
@@ -143,35 +267,158 @@ export default function ApplicationsPage() {
     }
   };
 
-  if (loading) {
+  const getStatusBadge = (status: string) => {
+    const variants: Record<string, { label: string; className: string; icon: typeof Clock }> = {
+      PENDING: { label: 'Pending Review', className: 'bg-yellow-500/10 text-yellow-700 border-yellow-200 dark:bg-yellow-500/20 dark:text-yellow-400 dark:border-yellow-800', icon: Clock },
+      VERIFIED: { label: 'Approved', className: 'bg-green-500/10 text-green-700 border-green-200 dark:bg-green-500/20 dark:text-green-400 dark:border-green-800', icon: Check },
+      REJECTED: { label: 'Rejected', className: 'bg-red-500/10 text-red-700 border-red-200 dark:bg-red-500/20 dark:text-red-400 dark:border-red-800', icon: X },
+      CANCELLED: { label: 'Cancelled', className: 'bg-gray-500/10 text-gray-700 border-gray-200 dark:bg-gray-500/20 dark:text-gray-400 dark:border-gray-800', icon: Ban },
+    };
+
+    const config = variants[status];
+    if (!config) return null;
+
+    const Icon = config.icon;
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
+      <Badge className={config.className}>
+        <Icon className="h-3 w-3 mr-1" />
+        {config.label}
+      </Badge>
     );
-  }
+  };
+
+  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
+  const startItem = totalCount === 0 ? 0 : (currentPage - 1) * ITEMS_PER_PAGE + 1;
+  const endItem = Math.min(currentPage * ITEMS_PER_PAGE, totalCount);
 
   return (
-    <div className="px-6 pt-6 pb-8 w-full">
+    <div className="p-6 space-y-6">
       {/* Page Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight mb-2">Sourcer Applications</h1>
-        <p className="text-muted-foreground">
-          Review and approve or reject sourcer applications
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold mb-2">Sourcer Applications</h1>
+          <p className="text-muted-foreground">
+            Review and approve or reject sourcer applications ({totalCount} {totalCount === 1 ? 'application' : 'applications'})
+          </p>
+        </div>
+      </div>
+
+      {/* Search and Filters */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Search by name or email..."
+            value={searchQuery}
+            onChange={(e) => {
+              const value = e.target.value;
+              setSearchQuery(value);
+              setCurrentPage(1);
+
+              // Debounce the actual search
+              debouncedSearchRef.current(value);
+
+              // Update URL immediately for UX
+              const params = new URLSearchParams(searchParams);
+              params.set('search', value);
+              params.set('page', '1');
+              setSearchParams(params);
+            }}
+            className="pl-9 rounded-lg"
+          />
+        </div>
+        <Select
+          value={statusFilter}
+          onValueChange={(value) => {
+            setStatusFilter(value);
+            setCurrentPage(1);
+
+            // Update URL
+            const params = new URLSearchParams(searchParams);
+            params.set('status', value);
+            params.set('page', '1');
+            setSearchParams(params);
+          }}
+        >
+          <SelectTrigger className="w-full sm:w-[180px] cursor-pointer rounded-lg">
+            <SelectValue placeholder="Filter by status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all" className="cursor-pointer">
+              <div className="flex items-center">
+                <FileText className="h-3.5 w-3.5 mr-2 text-muted-foreground" />
+                All Statuses
+              </div>
+            </SelectItem>
+            <SelectItem value="PENDING" className="cursor-pointer">
+              <div className="flex items-center">
+                <Clock className="h-3.5 w-3.5 mr-2 text-yellow-600" />
+                Pending
+              </div>
+            </SelectItem>
+            <SelectItem value="VERIFIED" className="cursor-pointer">
+              <div className="flex items-center">
+                <Check className="h-3.5 w-3.5 mr-2 text-green-600" />
+                Approved
+              </div>
+            </SelectItem>
+            <SelectItem value="REJECTED" className="cursor-pointer">
+              <div className="flex items-center">
+                <X className="h-3.5 w-3.5 mr-2 text-red-600" />
+                Rejected
+              </div>
+            </SelectItem>
+            <SelectItem value="CANCELLED" className="cursor-pointer">
+              <div className="flex items-center">
+                <Ban className="h-3.5 w-3.5 mr-2 text-gray-600" />
+                Cancelled
+              </div>
+            </SelectItem>
+          </SelectContent>
+        </Select>
+        {(searchQuery || statusFilter !== 'PENDING') && (
+          <Button
+            variant="outline"
+            onClick={() => {
+              setSearchQuery('');
+              setDebouncedSearch('');
+              setStatusFilter('PENDING');
+              setCurrentPage(1);
+
+              // Reset URL params to defaults
+              const params = new URLSearchParams();
+              params.set('status', 'PENDING');
+              params.set('search', '');
+              params.set('page', '1');
+              setSearchParams(params);
+            }}
+            className="cursor-pointer whitespace-nowrap rounded-lg"
+          >
+            Clear filters
+          </Button>
+        )}
       </div>
 
       {/* Applications Table */}
-      {applications.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 border border-border rounded-md">
-          <FileText className="h-12 w-12 text-muted-foreground mb-4" />
-          <p className="text-lg font-medium mb-1">No pending applications</p>
-          <p className="text-sm text-muted-foreground">
-            All sourcer applications have been reviewed
-          </p>
-        </div>
-      ) : (
-        <div className="rounded-md border border-border">
+      <div className="border border-border rounded-lg overflow-hidden">
+        {loading ? (
+          <div className="min-h-[60vh] flex items-center justify-center">
+            <LoadingSpinner message="Loading applications..." />
+          </div>
+        ) : applications.length === 0 ? (
+          <div className="min-h-[60vh] flex flex-col items-center justify-center">
+            <FileText className="h-12 w-12 text-muted-foreground mb-4" />
+            <p className="text-lg font-medium mb-1">
+              {searchQuery || statusFilter !== 'PENDING' ? 'No applications found' : 'No pending applications'}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              {searchQuery || statusFilter !== 'PENDING'
+                ? 'Try adjusting your filters to find what you\'re looking for.'
+                : 'All sourcer applications have been reviewed'}
+            </p>
+          </div>
+        ) : (
           <Table>
             <TableHeader>
               <TableRow>
@@ -186,23 +433,17 @@ export default function ApplicationsPage() {
               {applications.map((app) => (
                 <TableRow
                   key={app.id}
-                  className="cursor-pointer"
-                  onClick={(e) => {
-                    // Don't navigate if clicking on buttons
-                    if ((e.target as HTMLElement).closest('button')) {
-                      return;
-                    }
-                    window.open(`/dashboard/admin/applications/${app.id}`, '_blank');
-                  }}
+                  className="cursor-pointer hover:bg-muted/30"
+                  onClick={() => navigate(`/dashboard/admin/applications/${app.id}`)}
                 >
                   <TableCell>
                     <div>
                       <p className="font-medium">
                         {app.first_name} {app.last_name}
                       </p>
-                      <Badge className="mt-1.5 bg-yellow-500/10 text-yellow-700 border-yellow-200 hover:bg-yellow-500/20">
-                        Pending Review
-                      </Badge>
+                      <div className="mt-1.5">
+                        {getStatusBadge(app.verification_status)}
+                      </div>
                     </div>
                   </TableCell>
                   <TableCell>
@@ -222,47 +463,99 @@ export default function ApplicationsPage() {
                     {formatDateTime(app.created_at)}
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex gap-2 justify-end">
-                      <Button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleAction(app, 'approve');
-                        }}
-                        disabled={processingId === app.id}
-                        size="sm"
-                        className="cursor-pointer bg-green-600 hover:bg-green-700"
-                      >
-                        {processingId === app.id ? (
-                          <>
-                            <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                            Processing
-                          </>
-                        ) : (
-                          <>
-                            <CheckCircle2 className="h-3 w-3 mr-1" />
-                            Approve
-                          </>
-                        )}
-                      </Button>
-                      <Button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleAction(app, 'reject');
-                        }}
-                        disabled={processingId === app.id}
-                        size="sm"
-                        variant="destructive"
-                        className="cursor-pointer"
-                      >
-                        <XCircle className="h-3 w-3 mr-1" />
-                        Reject
-                      </Button>
-                    </div>
+                    {app.verification_status === 'PENDING' ? (
+                      <div className="flex gap-2 justify-end">
+                        <Button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAction(app, 'approve');
+                          }}
+                          disabled={processingId === app.id}
+                          size="sm"
+                          className="cursor-pointer bg-green-600 hover:bg-green-700 rounded-lg"
+                        >
+                          {processingId === app.id ? (
+                            <>
+                              <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                              Processing
+                            </>
+                          ) : (
+                            <>
+                              <CheckCircle2 className="h-3 w-3 mr-1" />
+                              Approve
+                            </>
+                          )}
+                        </Button>
+                        <Button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAction(app, 'reject');
+                          }}
+                          disabled={processingId === app.id}
+                          size="sm"
+                          variant="destructive"
+                          className="cursor-pointer rounded-lg"
+                        >
+                          <XCircle className="h-3 w-3 mr-1" />
+                          Reject
+                        </Button>
+                      </div>
+                    ) : (
+                      <span className="text-sm text-muted-foreground">—</span>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
+        )}
+      </div>
+
+      {/* Pagination */}
+      {!loading && totalCount > ITEMS_PER_PAGE && (
+        <div className="flex items-center justify-between pt-6">
+          <p className="text-sm text-muted-foreground">
+            Showing {startItem}-{endItem} of {totalCount} applications
+          </p>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const newPage = Math.max(1, currentPage - 1);
+                setCurrentPage(newPage);
+
+                // Update URL
+                const params = new URLSearchParams(searchParams);
+                params.set('page', newPage.toString());
+                setSearchParams(params);
+              }}
+              disabled={currentPage === 1}
+              className="cursor-pointer rounded-lg"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <span className="text-sm text-muted-foreground">
+              Page {currentPage} of {totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const newPage = Math.min(totalPages, currentPage + 1);
+                setCurrentPage(newPage);
+
+                // Update URL
+                const params = new URLSearchParams(searchParams);
+                params.set('page', newPage.toString());
+                setSearchParams(params);
+              }}
+              disabled={currentPage === totalPages}
+              className="cursor-pointer rounded-lg"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       )}
 
@@ -315,15 +608,15 @@ export default function ApplicationsPage() {
           )}
 
           <AlertDialogFooter>
-            <AlertDialogCancel className="cursor-pointer" onClick={() => setRejectionReason('')}>
+            <AlertDialogCancel className="cursor-pointer rounded-lg" onClick={() => setRejectionReason('')}>
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmAction}
               className={
                 dialogAction === 'approve'
-                  ? 'bg-green-600 hover:bg-green-700 cursor-pointer'
-                  : 'bg-destructive hover:bg-destructive/90 cursor-pointer'
+                  ? 'bg-green-600 hover:bg-green-700 cursor-pointer rounded-lg'
+                  : 'bg-destructive hover:bg-destructive/90 cursor-pointer rounded-lg'
               }
             >
               {dialogAction === 'approve' ? 'Approve' : 'Reject'}
