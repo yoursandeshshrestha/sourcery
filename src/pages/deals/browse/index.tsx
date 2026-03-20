@@ -117,9 +117,9 @@ export default function BrowseDealsPage() {
 
   if (loading) {
     return (
-      <div className="flex flex-col h-full bg-[#F5F5F5]">
+      <div className="flex flex-col h-full bg-[#F5F5F5] dark:bg-background">
         {/* Top Search Bar Skeleton */}
-        <div className="bg-white border-b border-[#E9E6DF] px-6 py-4">
+        <div className="bg-white dark:bg-card border-b border-[#E9E6DF] dark:border-border px-6 py-4">
           <div className="max-w-[1920px] mx-auto flex items-center justify-between gap-4">
             <Skeleton className="h-10 w-32" />
             <Skeleton className="flex-1 max-w-2xl h-10 rounded-full" />
@@ -128,7 +128,7 @@ export default function BrowseDealsPage() {
         </div>
 
         {/* Title Skeleton */}
-        <div className="bg-white border-b border-[#E9E6DF] px-6 py-4">
+        <div className="bg-white dark:bg-card border-b border-[#E9E6DF] dark:border-border px-6 py-4">
           <div className="max-w-[1920px] mx-auto">
             <Skeleton className="h-7 w-64 mb-2" />
             <Skeleton className="h-5 w-48" />
@@ -147,7 +147,7 @@ export default function BrowseDealsPage() {
             {/* Deals Grid Skeleton */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
               {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-                <div key={i} className="bg-white rounded-2xl border border-[#E9E6DF] overflow-hidden">
+                <div key={i} className="bg-white dark:bg-card rounded-2xl border border-[#E9E6DF] dark:border-border overflow-hidden">
                   <Skeleton className="aspect-video w-full" />
                   <div className="p-4 space-y-3">
                     <Skeleton className="h-5 w-full" />
@@ -170,9 +170,9 @@ export default function BrowseDealsPage() {
   }
 
   return (
-    <div className="flex flex-col h-full bg-[#F5F5F5]">
+    <div className="flex flex-col h-full bg-[#F5F5F5] dark:bg-background">
       {/* Top Search Bar */}
-      <div className="bg-white border-b border-[#E9E6DF] px-6 py-4">
+      <div className="bg-white dark:bg-card border-b border-[#E9E6DF] dark:border-border px-6 py-4">
         <div className="max-w-[1920px] mx-auto flex items-center justify-between gap-4">
           {/* Logo/Home */}
           <Link
@@ -185,13 +185,13 @@ export default function BrowseDealsPage() {
 
           {/* Search Input */}
           <div className="flex-1 max-w-2xl mx-6 relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[#6B6B6B] z-10" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[#6B6B6B] dark:text-gray-400 z-10" />
             <input
               type="text"
               placeholder="Search location..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-11 pr-24 py-2.5 text-sm border border-[#E9E6DF] rounded-full focus:outline-none focus:border-[#1287ff] transition-colors bg-white"
+              className="w-full pl-11 pr-24 py-2.5 text-sm border border-[#E9E6DF] dark:border-border rounded-full focus:outline-none focus:border-[#1287ff] transition-colors bg-white dark:bg-card"
             />
             <button className="absolute right-1 top-1/2 -translate-y-1/2 px-6 py-1.5 bg-[#1287ff] hover:bg-[#0A6FE6] text-white text-sm font-medium rounded-full cursor-pointer transition-colors">
               Search
@@ -201,21 +201,21 @@ export default function BrowseDealsPage() {
           {/* Filter Button */}
           <button
             onClick={() => setIsFilterOpen(true)}
-            className="flex items-center gap-2 px-4 py-2.5 border border-[#E9E6DF] bg-white rounded-full hover:border-[#1287ff] transition-colors cursor-pointer shrink-0"
+            className="flex items-center gap-2 px-4 py-2.5 border border-[#E9E6DF] dark:border-border bg-white dark:bg-card rounded-full hover:border-[#1287ff] transition-colors cursor-pointer shrink-0"
           >
-            <span className="text-sm font-medium text-[#5C5C49]">Filter</span>
+            <span className="text-sm font-medium text-[#5C5C49] dark:text-gray-400">Filter</span>
           </button>
         </div>
       </div>
 
       {/* Title and Filter Pills */}
-      <div className="bg-white border-b border-[#E9E6DF] px-6 py-4">
+      <div className="bg-white dark:bg-card border-b border-[#E9E6DF] dark:border-border px-6 py-4">
         <div className="max-w-[1920px] mx-auto flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-semibold text-[#1A1A1A] mb-1">
+            <h1 className="text-xl font-semibold text-[#1A1A1A] dark:text-gray-100 mb-1">
               Investment Opportunities
             </h1>
-            <p className="text-sm text-[#6B6B6B]">
+            <p className="text-sm text-[#6B6B6B] dark:text-gray-400">
               {searchQuery ? `in ${searchQuery}` : 'all around the world'}
             </p>
           </div>
@@ -223,18 +223,18 @@ export default function BrowseDealsPage() {
           {(strategyFilter.length > 0 || sortBy !== 'newest') && (
             <div className="flex items-center gap-2 flex-wrap">
               {strategyFilter.map((strategy) => (
-                <span key={strategy} className="inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-[#E9E6DF] rounded-full text-sm">
+                <span key={strategy} className="inline-flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-card border border-[#E9E6DF] dark:border-border rounded-full text-sm">
                   {STRATEGY_LABELS[strategy as StrategyType]}
                   <button
                     onClick={() => setStrategyFilter(strategyFilter.filter(s => s !== strategy))}
-                    className="hover:bg-[#F5F5F5] rounded-full p-0.5 cursor-pointer text-lg leading-none"
+                    className="hover:bg-[#F5F5F5] dark:hover:bg-gray-700 dark:bg-background rounded-full p-0.5 cursor-pointer text-lg leading-none"
                   >
                     ×
                   </button>
                 </span>
               ))}
               {sortBy !== 'newest' && (
-                <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-[#E9E6DF] rounded-full text-sm">
+                <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-card border border-[#E9E6DF] dark:border-border rounded-full text-sm">
                   {sortBy === 'oldest' && 'Oldest First'}
                   {sortBy === 'capital_low' && 'Capital: Low to High'}
                   {sortBy === 'capital_high' && 'Capital: High to Low'}
@@ -242,7 +242,7 @@ export default function BrowseDealsPage() {
                   {sortBy === 'roi_low' && 'ROI: Low to High'}
                   <button
                     onClick={() => setSortBy('newest')}
-                    className="hover:bg-[#F5F5F5] rounded-full p-0.5 cursor-pointer text-lg leading-none"
+                    className="hover:bg-[#F5F5F5] dark:hover:bg-gray-700 dark:bg-background rounded-full p-0.5 cursor-pointer text-lg leading-none"
                   >
                     ×
                   </button>
@@ -258,15 +258,15 @@ export default function BrowseDealsPage() {
         <div className="max-w-[1920px] mx-auto px-6 py-6">
           {/* Result Count and Sort */}
           <div className="flex items-center justify-between mb-5">
-            <p className="text-sm text-[#6B6B6B]">
-              Result <span className="font-semibold text-[#1A1A1A]">{filteredDeals.length}</span> {filteredDeals.length === 1 ? 'home' : 'homes'}
+            <p className="text-sm text-[#6B6B6B] dark:text-gray-400">
+              Result <span className="font-semibold text-[#1A1A1A] dark:text-gray-100">{filteredDeals.length}</span> {filteredDeals.length === 1 ? 'home' : 'homes'}
             </p>
             <div className="flex items-center gap-2">
-              <span className="text-sm text-[#6B6B6B]">Sort by :</span>
+              <span className="text-sm text-[#6B6B6B] dark:text-gray-400">Sort by :</span>
               <div className="relative" ref={sortDropdownRef}>
                 <button
                   onClick={() => setIsSortDropdownOpen(!isSortDropdownOpen)}
-                  className="flex items-center gap-2 px-4 py-2 text-sm border border-[#E9E6DF] rounded-lg hover:border-[#1287ff] transition-colors cursor-pointer bg-white text-[#1A1A1A] min-w-[180px] justify-between"
+                  className="flex items-center gap-2 px-4 py-2 text-sm border border-[#E9E6DF] dark:border-border rounded-lg hover:border-[#1287ff] transition-colors cursor-pointer bg-white dark:bg-card text-[#1A1A1A] dark:text-gray-100 min-w-[180px] justify-between"
                 >
                   <span>
                     {sortBy === 'newest' && 'Newest First'}
@@ -280,7 +280,7 @@ export default function BrowseDealsPage() {
                 </button>
 
                 {isSortDropdownOpen && (
-                  <div className="absolute top-full right-0 mt-2 w-full bg-white border border-[#E9E6DF] rounded-lg shadow-lg z-10 overflow-hidden">
+                  <div className="absolute top-full right-0 mt-2 w-full bg-white dark:bg-card border border-[#E9E6DF] dark:border-border rounded-lg shadow-lg z-10 overflow-hidden">
                     {[
                       { value: 'newest', label: 'Newest First' },
                       { value: 'oldest', label: 'Oldest First' },
@@ -298,7 +298,7 @@ export default function BrowseDealsPage() {
                         className={`w-full px-4 py-2.5 text-left text-sm transition-colors cursor-pointer ${
                           sortBy === option.value
                             ? 'bg-[#1287ff]/10 text-[#1287ff] font-medium'
-                            : 'text-[#1A1A1A] hover:bg-[#F9F7F4]'
+                            : 'text-[#1A1A1A] dark:text-gray-100 hover:bg-[#F9F7F4] dark:hover:bg-gray-800'
                         }`}
                       >
                         {option.label}
@@ -312,10 +312,10 @@ export default function BrowseDealsPage() {
 
           {/* Deals Grid */}
           {filteredDeals.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 border border-[#E9E6DF] rounded-2xl bg-white">
-              <Building2 className="h-16 w-16 text-[#C5C0B8] mb-4" />
-              <p className="text-xl font-semibold mb-2 text-[#1A1A1A]">No deals found</p>
-              <p className="text-[#6B6B6B]">
+            <div className="flex flex-col items-center justify-center py-20 border border-[#E9E6DF] dark:border-border rounded-2xl bg-white dark:bg-card">
+              <Building2 className="h-16 w-16 text-[#C5C0B8] dark:text-gray-500 mb-4" />
+              <p className="text-xl font-semibold mb-2 text-[#1A1A1A] dark:text-gray-100">No deals found</p>
+              <p className="text-[#6B6B6B] dark:text-gray-400">
                 {searchQuery || strategyFilter.length > 0
                   ? 'Try adjusting your filters'
                   : 'Check back soon for new opportunities'}
@@ -341,14 +341,14 @@ export default function BrowseDealsPage() {
           ></div>
 
           {/* Sidebar */}
-          <div className="fixed top-0 right-0 h-full w-96 bg-white shadow-2xl z-50 flex flex-col">
+          <div className="fixed top-0 right-0 h-full w-96 bg-white dark:bg-card shadow-2xl z-50 flex flex-col">
             {/* Header - Fixed */}
-            <div className="p-6 pb-4 border-b border-[#E9E6DF] shrink-0">
+            <div className="p-6 pb-4 border-b border-[#E9E6DF] dark:border-border shrink-0">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-[#1A1A1A]">Filters</h2>
+                <h2 className="text-xl font-semibold text-[#1A1A1A] dark:text-gray-100">Filters</h2>
                 <button
                   onClick={() => setIsFilterOpen(false)}
-                  className="p-2 hover:bg-[#F5F5F5] rounded-full transition-colors cursor-pointer"
+                  className="p-2 hover:bg-[#F5F5F5] dark:hover:bg-gray-700 dark:bg-background rounded-full transition-colors cursor-pointer"
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -359,8 +359,8 @@ export default function BrowseDealsPage() {
             <div className="flex-1 overflow-y-auto p-6">
               <div className="space-y-6">
                 {/* Strategy Type */}
-                <div className="pb-6 border-b border-[#E9E6DF]">
-                  <label className="block text-base font-semibold mb-4 text-[#1A1A1A]">Strategy Type</label>
+                <div className="pb-6 border-b border-[#E9E6DF] dark:border-border">
+                  <label className="block text-base font-semibold mb-4 text-[#1A1A1A] dark:text-gray-100">Strategy Type</label>
                   <div className="flex flex-wrap gap-2">
                     {Object.entries(STRATEGY_LABELS).map(([value, label]) => {
                       const isSelected = strategyFilter.includes(value);
@@ -377,7 +377,7 @@ export default function BrowseDealsPage() {
                           className={`px-4 py-2 rounded-full text-sm font-medium transition-colors cursor-pointer ${
                             isSelected
                               ? 'bg-[#1287ff] text-white'
-                              : 'bg-white border border-[#E9E6DF] text-[#1A1A1A] hover:border-[#1287ff]'
+                              : 'bg-white dark:bg-card border border-[#E9E6DF] dark:border-border text-[#1A1A1A] dark:text-gray-100 hover:border-[#1287ff]'
                           }`}
                         >
                           {label}
@@ -388,8 +388,8 @@ export default function BrowseDealsPage() {
                 </div>
 
                 {/* Sort By */}
-                <div className="pb-6 border-b border-[#E9E6DF]">
-                  <label className="block text-base font-semibold mb-4 text-[#1A1A1A]">Sort By</label>
+                <div className="pb-6 border-b border-[#E9E6DF] dark:border-border">
+                  <label className="block text-base font-semibold mb-4 text-[#1A1A1A] dark:text-gray-100">Sort By</label>
                   <div className="flex flex-wrap gap-2">
                     {[
                       { value: 'newest', label: 'Newest' },
@@ -407,7 +407,7 @@ export default function BrowseDealsPage() {
                           className={`px-4 py-2 rounded-full text-sm font-medium transition-colors cursor-pointer ${
                             isSelected
                               ? 'bg-[#1287ff] text-white'
-                              : 'bg-white border border-[#E9E6DF] text-[#1A1A1A] hover:border-[#1287ff]'
+                              : 'bg-white dark:bg-card border border-[#E9E6DF] dark:border-border text-[#1A1A1A] dark:text-gray-100 hover:border-[#1287ff]'
                           }`}
                         >
                           {option.label}
@@ -420,14 +420,14 @@ export default function BrowseDealsPage() {
             </div>
 
             {/* Footer Buttons - Fixed */}
-            <div className="p-6 pt-4 border-t border-[#E9E6DF] shrink-0">
+            <div className="p-6 pt-4 border-t border-[#E9E6DF] dark:border-border shrink-0">
               <div className="flex gap-3">
                 <button
                   onClick={() => {
                     setStrategyFilter([]);
                     setSortBy('newest');
                   }}
-                  className="flex-1 px-4 py-3 border border-[#E9E6DF] rounded-lg text-[15px] font-medium hover:bg-[#F5F5F5] transition-colors cursor-pointer"
+                  className="flex-1 px-4 py-3 border border-[#E9E6DF] dark:border-border rounded-lg text-[15px] font-medium hover:bg-[#F5F5F5] dark:hover:bg-gray-700 dark:bg-background transition-colors cursor-pointer"
                 >
                   Clear all
                 </button>

@@ -23,7 +23,6 @@ import {
   Phone,
   X,
 } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -35,6 +34,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { formatDateTime } from '@/lib/date';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 export default function DealDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -199,90 +199,8 @@ export default function DealDetailPage() {
 
   if (loading) {
     return (
-      <div className="w-full bg-[#F9F7F4] min-h-screen">
-        <div className="max-w-7xl mx-auto px-6 pt-6 pb-8">
-          <Skeleton className="h-10 w-32 mb-6" />
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Main Content */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Hero Image Skeleton */}
-              <Skeleton className="aspect-video w-full rounded-2xl" />
-
-              {/* Header Skeleton */}
-              <div className="space-y-3">
-                <Skeleton className="h-6 w-32" />
-                <Skeleton className="h-9 w-3/4" />
-                <Skeleton className="h-5 w-1/2" />
-              </div>
-
-              {/* Key Metrics Skeleton */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="rounded-2xl border border-[#E9E6DF] bg-white p-4">
-                    <Skeleton className="h-4 w-20 mb-2" />
-                    <Skeleton className="h-6 w-24" />
-                  </div>
-                ))}
-              </div>
-
-              {/* Description Skeleton */}
-              <div className="rounded-2xl border border-[#E9E6DF] bg-white p-6 space-y-3">
-                <Skeleton className="h-6 w-32" />
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-3/4" />
-              </div>
-
-              {/* Strategy Info Skeleton */}
-              <div className="rounded-2xl border border-[#E9E6DF] bg-white p-6 space-y-3">
-                <Skeleton className="h-6 w-48" />
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-full" />
-              </div>
-            </div>
-
-            {/* Sidebar */}
-            <div className="space-y-6">
-              {/* Sourcer Info Skeleton */}
-              <div className="rounded-2xl border border-[#E9E6DF] bg-white p-6">
-                <Skeleton className="h-4 w-24 mb-4" />
-                <div className="flex items-center gap-3 mb-4">
-                  <Skeleton className="h-12 w-12 rounded-full" />
-                  <div className="space-y-2 flex-1">
-                    <Skeleton className="h-5 w-32" />
-                    <Skeleton className="h-4 w-24" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Fees Skeleton */}
-              <div className="rounded-2xl border border-[#E9E6DF] bg-white p-6 space-y-3">
-                <Skeleton className="h-4 w-16 mb-4" />
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <Skeleton className="h-4 w-28" />
-                    <Skeleton className="h-4 w-20" />
-                  </div>
-                  <div className="flex justify-between">
-                    <Skeleton className="h-4 w-24" />
-                    <Skeleton className="h-4 w-20" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Metadata Skeleton */}
-              <div className="rounded-2xl border border-[#E9E6DF] bg-white p-6 space-y-3">
-                <Skeleton className="h-4 w-32 mb-4" />
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-3/4" />
-              </div>
-
-              {/* Action Button Skeleton */}
-              <Skeleton className="h-12 w-full rounded-xl" />
-            </div>
-          </div>
-        </div>
+      <div className="w-full bg-[#F9F7F4] dark:bg-background min-h-screen flex items-center justify-center">
+        <LoadingSpinner message="Loading deal..." />
       </div>
     );
   }
@@ -296,7 +214,7 @@ export default function DealDetailPage() {
   const isSourcerView = profile?.role === 'SOURCER' || profile?.role === 'ADMIN';
 
   return (
-    <div className="w-full bg-[#F9F7F4] min-h-screen">
+    <div className="w-full bg-[#F9F7F4] dark:bg-background min-h-screen">
       <div className={`${isSourcerView ? 'w-full px-6' : 'max-w-7xl mx-auto px-6'} py-8`}>
       {/* Back Button */}
       <button
@@ -312,7 +230,7 @@ export default function DealDetailPage() {
         <div className="lg:col-span-2 space-y-6">
           {/* Hero Image - Only show if thumbnail exists */}
           {deal.thumbnail_url && (
-            <div className="aspect-video rounded-2xl overflow-hidden border border-[#E9E6DF] bg-white">
+            <div className="aspect-video rounded-2xl overflow-hidden border border-[#E9E6DF] dark:border-border bg-white dark:bg-card">
               <img
                 src={deal.thumbnail_url}
                 alt={deal.headline}
@@ -325,11 +243,11 @@ export default function DealDetailPage() {
           <div>
             <div className="flex items-start justify-between mb-4">
               <div className="flex-1">
-                <span className="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-white text-[#1A1A1A] border border-[#E9E6DF] mb-3">
+                <span className="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-white dark:bg-card text-[#1A1A1A] dark:text-gray-100 border border-[#E9E6DF] dark:border-border mb-3">
                   {STRATEGY_LABELS[deal.strategy_type]}
                 </span>
-                <h1 className="text-3xl font-bold mb-2 text-[#1A1A1A]">{deal.headline}</h1>
-                <div className="flex items-center gap-4 text-[#6B6B6B]">
+                <h1 className="text-3xl font-bold mb-2 text-[#1A1A1A] dark:text-gray-100">{deal.headline}</h1>
+                <div className="flex items-center gap-4 text-[#6B6B6B] dark:text-gray-400">
                   <div className="flex items-center gap-1.5">
                     <MapPin className="h-4 w-4" />
                     <span className="text-sm">{deal.approximate_location}</span>
@@ -345,12 +263,12 @@ export default function DealDetailPage() {
 
           {/* Key Metrics */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="rounded-2xl border border-[#E9E6DF] bg-white p-4">
-              <p className="text-sm text-[#6B6B6B] mb-1">Capital Required</p>
-              <p className="text-xl font-bold text-[#1A1A1A]">{formatCurrency(deal.capital_required)}</p>
+            <div className="rounded-2xl border border-[#E9E6DF] dark:border-border bg-white dark:bg-card p-4">
+              <p className="text-sm text-[#6B6B6B] dark:text-gray-400 mb-1">Capital Required</p>
+              <p className="text-xl font-bold text-[#1A1A1A] dark:text-gray-100">{formatCurrency(deal.capital_required)}</p>
             </div>
-            <div className="rounded-2xl border border-[#E9E6DF] bg-white p-4">
-              <p className="text-sm text-[#6B6B6B] mb-1">ROI</p>
+            <div className="rounded-2xl border border-[#E9E6DF] dark:border-border bg-white dark:bg-card p-4">
+              <p className="text-sm text-[#6B6B6B] dark:text-gray-400 mb-1">ROI</p>
               <div className="flex items-center gap-1">
                 <TrendingUp className="h-4 w-4 text-emerald-600" />
                 <p className="text-xl font-bold text-emerald-600">
@@ -358,37 +276,37 @@ export default function DealDetailPage() {
                 </p>
               </div>
             </div>
-            <div className="rounded-2xl border border-[#E9E6DF] bg-white p-4">
-              <p className="text-sm text-[#6B6B6B] mb-1">Yield</p>
-              <p className="text-xl font-bold text-[#1A1A1A]">{formatPercentage(deal.calculated_yield)}</p>
+            <div className="rounded-2xl border border-[#E9E6DF] dark:border-border bg-white dark:bg-card p-4">
+              <p className="text-sm text-[#6B6B6B] dark:text-gray-400 mb-1">Yield</p>
+              <p className="text-xl font-bold text-[#1A1A1A] dark:text-gray-100">{formatPercentage(deal.calculated_yield)}</p>
             </div>
-            <div className="rounded-2xl border border-[#E9E6DF] bg-white p-4">
-              <p className="text-sm text-[#6B6B6B] mb-1">ROCE</p>
-              <p className="text-xl font-bold text-[#1A1A1A]">{formatPercentage(deal.calculated_roce)}</p>
+            <div className="rounded-2xl border border-[#E9E6DF] dark:border-border bg-white dark:bg-card p-4">
+              <p className="text-sm text-[#6B6B6B] dark:text-gray-400 mb-1">ROCE</p>
+              <p className="text-xl font-bold text-[#1A1A1A] dark:text-gray-100">{formatPercentage(deal.calculated_roce)}</p>
             </div>
           </div>
 
           {/* Description */}
           {deal.description && (
-            <div className="rounded-2xl border border-[#E9E6DF] bg-white p-6">
-              <h2 className="text-lg font-semibold mb-4 text-[#1A1A1A]">Description</h2>
-              <p className="text-[#6B6B6B] whitespace-pre-wrap leading-relaxed">{deal.description}</p>
+            <div className="rounded-2xl border border-[#E9E6DF] dark:border-border bg-white dark:bg-card p-6">
+              <h2 className="text-lg font-semibold mb-4 text-[#1A1A1A] dark:text-gray-100">Description</h2>
+              <p className="text-[#6B6B6B] dark:text-gray-400 whitespace-pre-wrap leading-relaxed">{deal.description}</p>
             </div>
           )}
 
           {/* Strategy Info */}
-          <div className="rounded-2xl border border-[#E9E6DF] bg-white p-6">
-            <h2 className="text-lg font-semibold mb-4 text-[#1A1A1A]">Investment Strategy</h2>
-            <p className="text-[#6B6B6B] leading-relaxed">
+          <div className="rounded-2xl border border-[#E9E6DF] dark:border-border bg-white dark:bg-card p-6">
+            <h2 className="text-lg font-semibold mb-4 text-[#1A1A1A] dark:text-gray-100">Investment Strategy</h2>
+            <p className="text-[#6B6B6B] dark:text-gray-400 leading-relaxed">
               {STRATEGY_DESCRIPTIONS[deal.strategy_type]}
             </p>
           </div>
 
           {/* Full Address - Only visible if reserved or own deal */}
           {(reservation || isOwnDeal) && (
-            <div className="rounded-2xl border border-[#E9E6DF] bg-white p-6">
+            <div className="rounded-2xl border border-[#E9E6DF] dark:border-border bg-white dark:bg-card p-6">
               <div className="flex items-start justify-between mb-4">
-                <h2 className="text-lg font-semibold text-[#1A1A1A]">Full Address</h2>
+                <h2 className="text-lg font-semibold text-[#1A1A1A] dark:text-gray-100">Full Address</h2>
                 {reservation && (
                   <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">
                     <CheckCircle2 className="h-3 w-3" />
@@ -396,12 +314,12 @@ export default function DealDetailPage() {
                   </span>
                 )}
               </div>
-              <div className="flex items-start gap-2 text-[#6B6B6B]">
+              <div className="flex items-start gap-2 text-[#6B6B6B] dark:text-gray-400">
                 <MapPin className="h-5 w-5 mt-0.5 shrink-0" />
                 <p className="font-medium">{deal.full_address}</p>
               </div>
               {reservation && (
-                <p className="text-sm text-[#6B6B6B] mt-3">
+                <p className="text-sm text-[#6B6B6B] dark:text-gray-400 mt-3">
                   This address is visible because you have reserved this deal.
                 </p>
               )}
@@ -409,48 +327,48 @@ export default function DealDetailPage() {
           )}
 
           {/* Financial Breakdown */}
-          <div className="rounded-2xl border border-[#E9E6DF] bg-white p-6">
-            <h2 className="text-lg font-semibold mb-4 text-[#1A1A1A]">Financial Breakdown</h2>
+          <div className="rounded-2xl border border-[#E9E6DF] dark:border-border bg-white dark:bg-card p-6">
+            <h2 className="text-lg font-semibold mb-4 text-[#1A1A1A] dark:text-gray-100">Financial Breakdown</h2>
             <div className="space-y-3">
-              <div className="flex justify-between py-2 border-b border-[#E9E6DF]">
-                <span className="text-[#6B6B6B]">Purchase Price</span>
-                <span className="font-semibold text-[#1A1A1A]">
+              <div className="flex justify-between py-2 border-b border-[#E9E6DF] dark:border-border">
+                <span className="text-[#6B6B6B] dark:text-gray-400">Purchase Price</span>
+                <span className="font-semibold text-[#1A1A1A] dark:text-gray-100">
                   {formatCurrency(deal.financial_metrics.purchase_price)}
                 </span>
               </div>
               {deal.financial_metrics.refurb_costs && (
-                <div className="flex justify-between py-2 border-b border-[#E9E6DF]">
-                  <span className="text-[#6B6B6B]">Refurb Costs</span>
-                  <span className="font-semibold text-[#1A1A1A]">
+                <div className="flex justify-between py-2 border-b border-[#E9E6DF] dark:border-border">
+                  <span className="text-[#6B6B6B] dark:text-gray-400">Refurb Costs</span>
+                  <span className="font-semibold text-[#1A1A1A] dark:text-gray-100">
                     {formatCurrency(deal.financial_metrics.refurb_costs)}
                   </span>
                 </div>
               )}
-              <div className="flex justify-between py-2 border-b border-[#E9E6DF]">
-                <span className="text-[#6B6B6B]">Total Investment</span>
-                <span className="font-semibold text-[#1A1A1A]">
+              <div className="flex justify-between py-2 border-b border-[#E9E6DF] dark:border-border">
+                <span className="text-[#6B6B6B] dark:text-gray-400">Total Investment</span>
+                <span className="font-semibold text-[#1A1A1A] dark:text-gray-100">
                   {formatCurrency(deal.financial_metrics.total_investment)}
                 </span>
               </div>
               {deal.financial_metrics.estimated_gdv && (
-                <div className="flex justify-between py-2 border-b border-[#E9E6DF]">
-                  <span className="text-[#6B6B6B]">Estimated GDV</span>
-                  <span className="font-semibold text-[#1A1A1A]">
+                <div className="flex justify-between py-2 border-b border-[#E9E6DF] dark:border-border">
+                  <span className="text-[#6B6B6B] dark:text-gray-400">Estimated GDV</span>
+                  <span className="font-semibold text-[#1A1A1A] dark:text-gray-100">
                     {formatCurrency(deal.financial_metrics.estimated_gdv)}
                   </span>
                 </div>
               )}
               {deal.financial_metrics.estimated_rental_income && (
-                <div className="flex justify-between py-2 border-b border-[#E9E6DF]">
-                  <span className="text-[#6B6B6B]">Estimated Rental Income</span>
-                  <span className="font-semibold text-[#1A1A1A]">
+                <div className="flex justify-between py-2 border-b border-[#E9E6DF] dark:border-border">
+                  <span className="text-[#6B6B6B] dark:text-gray-400">Estimated Rental Income</span>
+                  <span className="font-semibold text-[#1A1A1A] dark:text-gray-100">
                     {formatCurrency(deal.financial_metrics.estimated_rental_income)}/mo
                   </span>
                 </div>
               )}
               {deal.financial_metrics.estimated_profit && (
                 <div className="flex justify-between py-2">
-                  <span className="text-[#6B6B6B]">Estimated Profit</span>
+                  <span className="text-[#6B6B6B] dark:text-gray-400">Estimated Profit</span>
                   <span className="font-semibold text-emerald-600">
                     {formatCurrency(deal.financial_metrics.estimated_profit)}
                   </span>
@@ -464,26 +382,26 @@ export default function DealDetailPage() {
         <div className="space-y-6">
           {/* Sourcer Info */}
           {deal.sourcer && (
-            <div className="rounded-2xl border border-[#E9E6DF] bg-white p-6">
-              <h3 className="text-sm font-medium text-[#6B6B6B] mb-4">Sourced By</h3>
+            <div className="rounded-2xl border border-[#E9E6DF] dark:border-border bg-white dark:bg-card p-6">
+              <h3 className="text-sm font-medium text-[#6B6B6B] dark:text-gray-400 mb-4">Sourced By</h3>
               <div className="flex items-center gap-3 mb-4">
                 <div className="h-12 w-12 rounded-full bg-[#1287ff] flex items-center justify-center text-white font-semibold">
                   {getInitials(deal.sourcer.first_name, deal.sourcer.last_name)}
                 </div>
                 <div>
-                  <p className="font-semibold text-[#1A1A1A]">
+                  <p className="font-semibold text-[#1A1A1A] dark:text-gray-100">
                     {deal.sourcer.first_name} {deal.sourcer.last_name}
                   </p>
                   {deal.sourcer.company_name && (
-                    <p className="text-sm text-[#6B6B6B]">{deal.sourcer.company_name}</p>
+                    <p className="text-sm text-[#6B6B6B] dark:text-gray-400">{deal.sourcer.company_name}</p>
                   )}
                 </div>
               </div>
 
               {/* Contact Details - Only show if user has reserved */}
               {reservation && (
-                <div className="pt-4 border-t border-[#E9E6DF] space-y-2">
-                  <p className="text-xs font-semibold text-[#6B6B6B] mb-2 uppercase tracking-wide">Contact Details</p>
+                <div className="pt-4 border-t border-[#E9E6DF] dark:border-border space-y-2">
+                  <p className="text-xs font-semibold text-[#6B6B6B] dark:text-gray-400 mb-2 uppercase tracking-wide">Contact Details</p>
                   <a
                     href={`mailto:${(deal.sourcer as any).email}`}
                     className="flex items-center gap-2 text-sm text-[#1287ff] hover:text-[#0A6FE6] hover:underline cursor-pointer"
@@ -506,29 +424,29 @@ export default function DealDetailPage() {
           )}
 
           {/* Fees */}
-          <div className="rounded-2xl border border-[#E9E6DF] bg-white p-6">
-            <h3 className="text-sm font-medium text-[#6B6B6B] mb-4">Fees</h3>
+          <div className="rounded-2xl border border-[#E9E6DF] dark:border-border bg-white dark:bg-card p-6">
+            <h3 className="text-sm font-medium text-[#6B6B6B] dark:text-gray-400 mb-4">Fees</h3>
             <div className="space-y-3">
               <div className="flex justify-between">
-                <span className="text-sm text-[#6B6B6B]">Reservation Fee</span>
-                <span className="font-semibold text-[#1A1A1A]">{formatCurrency(deal.reservation_fee)}</span>
+                <span className="text-sm text-[#6B6B6B] dark:text-gray-400">Reservation Fee</span>
+                <span className="font-semibold text-[#1A1A1A] dark:text-gray-100">{formatCurrency(deal.reservation_fee)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm text-[#6B6B6B]">Sourcing Fee</span>
-                <span className="font-semibold text-[#1A1A1A]">{formatCurrency(deal.sourcing_fee)}</span>
+                <span className="text-sm text-[#6B6B6B] dark:text-gray-400">Sourcing Fee</span>
+                <span className="font-semibold text-[#1A1A1A] dark:text-gray-100">{formatCurrency(deal.sourcing_fee)}</span>
               </div>
             </div>
           </div>
 
           {/* Metadata */}
-          <div className="rounded-2xl border border-[#E9E6DF] bg-white p-6">
-            <h3 className="text-sm font-medium text-[#6B6B6B] mb-4">Deal Information</h3>
+          <div className="rounded-2xl border border-[#E9E6DF] dark:border-border bg-white dark:bg-card p-6">
+            <h3 className="text-sm font-medium text-[#6B6B6B] dark:text-gray-400 mb-4">Deal Information</h3>
             <div className="space-y-3 text-sm">
-              <div className="flex items-center gap-2 text-[#6B6B6B]">
+              <div className="flex items-center gap-2 text-[#6B6B6B] dark:text-gray-400">
                 <Calendar className="h-4 w-4" />
                 <span>Listed {formatDateTime(deal.created_at)}</span>
               </div>
-              <div className="flex items-center gap-2 text-[#6B6B6B]">
+              <div className="flex items-center gap-2 text-[#6B6B6B] dark:text-gray-400">
                 <Eye className="h-4 w-4" />
                 <span>{deal.view_count} total views</span>
               </div>
@@ -554,7 +472,7 @@ export default function DealDetailPage() {
               </div>
               <button
                 onClick={() => setCancelDialogOpen(true)}
-                className="w-full flex items-center justify-center gap-2 py-3 border border-red-200 hover:border-red-400 text-red-600 hover:text-red-700 text-sm font-semibold rounded-xl transition-colors cursor-pointer bg-white"
+                className="w-full flex items-center justify-center gap-2 py-3 border border-red-200 hover:border-red-400 text-red-600 hover:text-red-700 text-sm font-semibold rounded-xl transition-colors cursor-pointer bg-white dark:bg-card"
               >
                 <X className="h-4 w-4" />
                 Cancel Reservation
@@ -565,7 +483,7 @@ export default function DealDetailPage() {
           {!isOwnDeal && reservation && reservation.status === 'CANCELLED' && (
             <button
               disabled
-              className="w-full flex items-center justify-center gap-2 py-3 border border-[#E9E6DF] text-[#6B6B6B] text-sm font-semibold rounded-xl bg-white cursor-not-allowed opacity-60"
+              className="w-full flex items-center justify-center gap-2 py-3 border border-[#E9E6DF] dark:border-border text-[#6B6B6B] dark:text-gray-400 text-sm font-semibold rounded-xl bg-white dark:bg-card cursor-not-allowed opacity-60"
             >
               Reservation Cancelled
             </button>
@@ -574,7 +492,7 @@ export default function DealDetailPage() {
           {!isOwnDeal && deal.status === 'RESERVED' && !reservation && (
             <button
               disabled
-              className="w-full py-3 border border-[#E9E6DF] text-[#6B6B6B] text-sm font-semibold rounded-xl bg-white cursor-not-allowed opacity-60"
+              className="w-full py-3 border border-[#E9E6DF] dark:border-border text-[#6B6B6B] dark:text-gray-400 text-sm font-semibold rounded-xl bg-white dark:bg-card cursor-not-allowed opacity-60"
             >
               Deal Reserved by Another Investor
             </button>
@@ -583,7 +501,7 @@ export default function DealDetailPage() {
           {isOwnDeal && (
             <button
               onClick={() => navigate(`/dashboard/my-deals/${deal.id}/edit`)}
-              className="w-full flex items-center justify-center gap-2 py-3 border border-[#E9E6DF] hover:border-[#1287ff] text-[#1A1A1A] hover:text-[#1287ff] text-sm font-semibold rounded-xl transition-colors cursor-pointer bg-white"
+              className="w-full flex items-center justify-center gap-2 py-3 border border-[#E9E6DF] dark:border-border hover:border-[#1287ff] text-[#1A1A1A] dark:text-gray-100 hover:text-[#1287ff] text-sm font-semibold rounded-xl transition-colors cursor-pointer bg-white dark:bg-card"
             >
               <FileText className="h-4 w-4" />
               Edit Deal
