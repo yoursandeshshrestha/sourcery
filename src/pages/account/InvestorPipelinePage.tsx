@@ -78,7 +78,7 @@ function DraggableDealCard({ deal }: { deal: DealInPipeline }) {
       style={style}
       {...attributes}
       {...listeners}
-      className="bg-white border-2 border-[#E9E6DF] rounded-2xl overflow-hidden shadow-sm"
+      className="bg-white dark:bg-card border-2 border-[#E9E6DF] dark:border-border rounded-2xl overflow-hidden shadow-sm"
     >
       {/* Deal Thumbnail */}
       {deal.deal.thumbnail_url ? (
@@ -92,7 +92,7 @@ function DraggableDealCard({ deal }: { deal: DealInPipeline }) {
           {/* Strategy Badge on Image */}
           {deal.deal.strategy_type && (
             <div className="absolute top-3 right-3">
-              <span className="px-3 py-1 rounded-full text-xs font-semibold bg-white/95 backdrop-blur-sm text-[#1A1A1A] shadow-lg">
+              <span className="px-3 py-1 rounded-full text-xs font-semibold bg-white dark:bg-card/95 backdrop-blur-sm text-[#1A1A1A] dark:text-gray-100 shadow-lg">
                 {STRATEGY_LABELS[deal.deal.strategy_type] || deal.deal.strategy_type}
               </span>
             </div>
@@ -100,34 +100,34 @@ function DraggableDealCard({ deal }: { deal: DealInPipeline }) {
         </div>
       ) : (
         <div className="w-full h-40 bg-gradient-to-br from-[#F9F7F4] to-[#E9E6DF] flex items-center justify-center">
-          <Building2 className="h-16 w-16 text-[#C5C0B8]" />
+          <Building2 className="h-16 w-16 text-[#C5C0B8] dark:text-gray-500" />
         </div>
       )}
 
       {/* Card Content */}
       <div className="p-4">
         {/* Deal Title */}
-        <h4 className="font-bold text-base text-[#1A1A1A] mb-3 line-clamp-2 leading-tight min-h-[3rem]">
+        <h4 className="font-bold text-base text-[#1A1A1A] dark:text-gray-100 mb-3 line-clamp-2 leading-tight min-h-[3rem]">
           {deal.deal.headline}
         </h4>
 
         {/* Location */}
-        <div className="flex items-start gap-2 mb-3 pb-3 border-b border-[#E9E6DF]">
+        <div className="flex items-start gap-2 mb-3 pb-3 border-b border-[#E9E6DF] dark:border-border">
           <MapPin className="h-4 w-4 text-[#1287ff] shrink-0 mt-0.5" />
-          <span className="text-sm text-[#6B6B6B] line-clamp-2 leading-snug">
+          <span className="text-sm text-[#6B6B6B] dark:text-gray-400 line-clamp-2 leading-snug">
             {deal.deal.approximate_location}
           </span>
         </div>
 
         {/* Sourcer Info */}
-        <div className="bg-[#F9F7F4] rounded-lg p-3 mb-3">
+        <div className="bg-[#F9F7F4] dark:bg-gray-800 rounded-lg p-3 mb-3">
           <div className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-full bg-[#1287ff] flex items-center justify-center shrink-0">
               <User className="h-4 w-4 text-white" />
             </div>
             <div className="min-w-0">
-              <p className="text-xs text-[#6B6B6B] mb-0.5">Sourcer</p>
-              <p className="font-semibold text-sm text-[#1A1A1A] truncate">
+              <p className="text-xs text-[#6B6B6B] dark:text-gray-400 mb-0.5">Sourcer</p>
+              <p className="font-semibold text-sm text-[#1A1A1A] dark:text-gray-100 truncate">
                 {deal.sourcer.first_name} {deal.sourcer.last_name}
               </p>
             </div>
@@ -162,7 +162,7 @@ function DroppableStageColumn({ stage, deals }: { stage: PipelineStage; deals: D
         >
           {stage.label}
         </div>
-        <span className="ml-2 text-sm font-medium text-[#6B6B6B]">
+        <span className="ml-2 text-sm font-medium text-[#6B6B6B] dark:text-gray-400">
           {deals.length}
         </span>
       </div>
@@ -173,11 +173,11 @@ function DroppableStageColumn({ stage, deals }: { stage: PipelineStage; deals: D
         className={`space-y-3 min-h-[200px] p-3 rounded-xl border-2 border-dashed transition-colors ${
           isOver
             ? 'border-[#1287ff] bg-[#1287ff]/5'
-            : 'border-[#E9E6DF]'
+            : 'border-[#E9E6DF] dark:border-border'
         }`}
       >
         {deals.length === 0 ? (
-          <div className="flex items-center justify-center h-32 text-sm text-[#C5C0B8]">
+          <div className="flex items-center justify-center h-32 text-sm text-[#C5C0B8] dark:text-gray-500">
             Drop deals here
           </div>
         ) : (
@@ -377,17 +377,17 @@ export default function InvestorPipelinePage() {
   return (
     <div className="p-8">
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-[#1A1A1A]">Investment Pipeline</h1>
-        <p className="text-sm text-[#6B6B6B] mt-1">
+        <h1 className="text-2xl font-semibold text-[#1A1A1A] dark:text-gray-100">Investment Pipeline</h1>
+        <p className="text-sm text-[#6B6B6B] dark:text-gray-400 mt-1">
           Track the progress of your property investments through each stage
         </p>
       </div>
 
       {deals.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 border border-[#E9E6DF] rounded-2xl bg-white">
-          <Building2 className="h-16 w-16 text-[#C5C0B8] mb-4" />
-          <p className="text-xl font-semibold mb-2 text-[#1A1A1A]">No deals in pipeline</p>
-          <p className="text-[#6B6B6B] mb-6">
+        <div className="flex flex-col items-center justify-center py-20 border border-[#E9E6DF] dark:border-border rounded-2xl bg-white dark:bg-card">
+          <Building2 className="h-16 w-16 text-[#C5C0B8] dark:text-gray-500 mb-4" />
+          <p className="text-xl font-semibold mb-2 text-[#1A1A1A] dark:text-gray-100">No deals in pipeline</p>
+          <p className="text-[#6B6B6B] dark:text-gray-400 mb-6">
             Your confirmed reservations will appear here to track their progress
           </p>
           <button
@@ -401,18 +401,18 @@ export default function InvestorPipelinePage() {
         <>
           {/* Stats */}
           <div className="grid grid-cols-3 gap-4 mb-6">
-            <div className="bg-white border border-[#E9E6DF] rounded-2xl p-5">
-              <p className="text-sm text-[#6B6B6B] mb-1">Active Investments</p>
-              <p className="text-3xl font-bold text-[#1A1A1A]">{deals.length}</p>
+            <div className="bg-white dark:bg-card border border-[#E9E6DF] dark:border-border rounded-2xl p-5">
+              <p className="text-sm text-[#6B6B6B] dark:text-gray-400 mb-1">Active Investments</p>
+              <p className="text-3xl font-bold text-[#1A1A1A] dark:text-gray-100">{deals.length}</p>
             </div>
-            <div className="bg-white border border-[#E9E6DF] rounded-2xl p-5">
-              <p className="text-sm text-[#6B6B6B] mb-1">Total Invested</p>
+            <div className="bg-white dark:bg-card border border-[#E9E6DF] dark:border-border rounded-2xl p-5">
+              <p className="text-sm text-[#6B6B6B] dark:text-gray-400 mb-1">Total Invested</p>
               <p className="text-3xl font-bold text-[#1287ff]">
                 {formatCurrency(deals.reduce((sum, d) => sum + d.reservation.reservation_fee_amount, 0))}
               </p>
             </div>
-            <div className="bg-white border border-[#E9E6DF] rounded-2xl p-5">
-              <p className="text-sm text-[#6B6B6B] mb-1">Completed</p>
+            <div className="bg-white dark:bg-card border border-[#E9E6DF] dark:border-border rounded-2xl p-5">
+              <p className="text-sm text-[#6B6B6B] dark:text-gray-400 mb-1">Completed</p>
               <p className="text-3xl font-bold text-[#059669]">
                 {getDealsByStage('COMPLETION').length}
               </p>
@@ -420,7 +420,7 @@ export default function InvestorPipelinePage() {
           </div>
 
           {/* Pipeline Stages with Drag & Drop */}
-          <div className="bg-white border border-[#E9E6DF] rounded-2xl p-6">
+          <div className="bg-white dark:bg-card border border-[#E9E6DF] dark:border-border rounded-2xl p-6">
             <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
               <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide">
                 {PIPELINE_STAGES.map((stage) => {

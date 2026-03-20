@@ -170,15 +170,15 @@ export default function MyReservationsPage() {
     <>
       <div className="p-8">
         <div className="mb-6">
-          <h1 className="text-2xl font-semibold text-[#1A1A1A]">My Reservations</h1>
-          <p className="text-sm text-[#6B6B6B] mt-1">Manage your deal reservations</p>
+          <h1 className="text-2xl font-semibold text-[#1A1A1A] dark:text-gray-100">My Reservations</h1>
+          <p className="text-sm text-[#6B6B6B] dark:text-gray-400 mt-1">Manage your deal reservations</p>
         </div>
       {/* Reservations */}
       {reservations.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 border border-[#E9E6DF] rounded-2xl bg-white">
+        <div className="flex flex-col items-center justify-center py-20 border border-[#E9E6DF] dark:border-border rounded-2xl bg-white dark:bg-card">
           <Receipt className="h-16 w-16 text-[#C5C0B8] mb-4" />
-          <p className="text-xl font-semibold mb-2 text-[#1A1A1A]">No reservations yet</p>
-          <p className="text-[#6B6B6B] mb-6">
+          <p className="text-xl font-semibold mb-2 text-[#1A1A1A] dark:text-gray-100">No reservations yet</p>
+          <p className="text-[#6B6B6B] dark:text-gray-400 mb-6">
             Browse deals and reserve one to get started
           </p>
           <button
@@ -191,10 +191,10 @@ export default function MyReservationsPage() {
       ) : (
         <div className="grid gap-6">
           {reservations.map((reservation) => (
-            <div key={reservation.id} className="bg-white border-2 border-[#E9E6DF] rounded-2xl overflow-hidden shadow-sm">
+            <div key={reservation.id} className="bg-white dark:bg-card border-2 border-[#E9E6DF] dark:border-border rounded-2xl overflow-hidden shadow-sm">
               <div className="flex">
                 {/* Thumbnail */}
-                <div className="w-64 h-48 bg-[#F9F7F4] shrink-0 relative">
+                <div className="w-64 h-48 bg-[#F9F7F4] dark:bg-gray-800 shrink-0 relative">
                   {reservation.deal?.thumbnail_url ? (
                     <>
                       <img
@@ -212,7 +212,7 @@ export default function MyReservationsPage() {
                   {/* Strategy Badge */}
                   {reservation.deal?.strategy_type && (
                     <div className="absolute top-3 left-3">
-                      <span className="px-3 py-1.5 rounded-full text-xs font-semibold bg-white/95 backdrop-blur-sm text-[#1A1A1A] shadow-sm">
+                      <span className="px-3 py-1.5 rounded-full text-xs font-semibold bg-white dark:bg-card/95 backdrop-blur-sm text-[#1A1A1A] dark:text-gray-100 shadow-sm">
                         {STRATEGY_LABELS[reservation.deal.strategy_type as keyof typeof STRATEGY_LABELS]}
                       </span>
                     </div>
@@ -224,10 +224,10 @@ export default function MyReservationsPage() {
                   {/* Header */}
                   <div className="flex items-start justify-between gap-4 mb-4">
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-xl text-[#1A1A1A] mb-2 line-clamp-2">
+                      <h3 className="font-semibold text-xl text-[#1A1A1A] dark:text-gray-100 mb-2 line-clamp-2">
                         {reservation.deal?.headline || 'Deal Unavailable'}
                       </h3>
-                      <div className="flex items-center gap-2 text-sm text-[#6B6B6B]">
+                      <div className="flex items-center gap-2 text-sm text-[#6B6B6B] dark:text-gray-400">
                         <MapPin className="h-4 w-4 shrink-0" />
                         <span>{reservation.deal?.approximate_location || 'N/A'}</span>
                       </div>
@@ -238,31 +238,31 @@ export default function MyReservationsPage() {
                   </div>
 
                   {/* Details Grid */}
-                  <div className="grid grid-cols-2 gap-6 pb-5 border-b border-[#E9E6DF]">
+                  <div className="grid grid-cols-2 gap-6 pb-5 border-b border-[#E9E6DF] dark:border-border">
                     <div>
-                      <p className="text-xs font-medium text-[#6B6B6B] mb-1 uppercase tracking-wide">Reservation Fee</p>
+                      <p className="text-xs font-medium text-[#6B6B6B] dark:text-gray-400 mb-1 uppercase tracking-wide">Reservation Fee</p>
                       <p className="font-bold text-lg text-[#1287ff]">{formatCurrency(reservation.reservation_fee_amount)}</p>
                     </div>
                     <div>
-                      <p className="text-xs font-medium text-[#6B6B6B] mb-1 uppercase tracking-wide">Reserved On</p>
-                      <p className="text-sm font-medium text-[#1A1A1A]">{formatDateTime(reservation.reserved_at)}</p>
+                      <p className="text-xs font-medium text-[#6B6B6B] dark:text-gray-400 mb-1 uppercase tracking-wide">Reserved On</p>
+                      <p className="text-sm font-medium text-[#1A1A1A] dark:text-gray-100">{formatDateTime(reservation.reserved_at)}</p>
                     </div>
                   </div>
 
                   {/* Sourcer Contact Info - Only show for confirmed reservations */}
                   {reservation.status === 'CONFIRMED' && reservation.sourcer && (
-                    <div className="mt-5 pb-5 border-b border-[#E9E6DF]">
-                      <p className="text-xs font-semibold text-[#6B6B6B] mb-3 uppercase tracking-wide">Sourcer Contact</p>
+                    <div className="mt-5 pb-5 border-b border-[#E9E6DF] dark:border-border">
+                      <p className="text-xs font-semibold text-[#6B6B6B] dark:text-gray-400 mb-3 uppercase tracking-wide">Sourcer Contact</p>
                       <div className="space-y-2.5">
                         <div className="flex items-center gap-2.5 text-sm">
                           <User className="h-4 w-4 text-[#1287ff] shrink-0" />
-                          <span className="font-semibold text-[#1A1A1A]">
+                          <span className="font-semibold text-[#1A1A1A] dark:text-gray-100">
                             {reservation.sourcer.first_name} {reservation.sourcer.last_name}
                           </span>
                           {reservation.sourcer.company_name && (
                             <>
                               <span className="text-[#C5C0B8]">•</span>
-                              <span className="text-[#6B6B6B]">{reservation.sourcer.company_name}</span>
+                              <span className="text-[#6B6B6B] dark:text-gray-400">{reservation.sourcer.company_name}</span>
                             </>
                           )}
                         </div>
@@ -325,18 +325,18 @@ export default function MyReservationsPage() {
             onClick={() => !cancelling && setCancelDialogOpen(false)}
           />
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
-              <h2 className="text-xl font-semibold text-[#1A1A1A] mb-2">Cancel Reservation</h2>
-              <p className="text-[#6B6B6B] mb-6">
+            <div className="bg-white dark:bg-card rounded-2xl shadow-2xl max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
+              <h2 className="text-xl font-semibold text-[#1A1A1A] dark:text-gray-100 mb-2">Cancel Reservation</h2>
+              <p className="text-[#6B6B6B] dark:text-gray-400 mb-6">
                 Are you sure you want to cancel your reservation for{' '}
-                <span className="font-medium text-[#1A1A1A]">"{reservationToCancel?.deal?.headline}"</span>? This
+                <span className="font-medium text-[#1A1A1A] dark:text-gray-100">"{reservationToCancel?.deal?.headline}"</span>? This
                 action cannot be undone and the deal will become available to other investors.
               </p>
               <div className="flex gap-3">
                 <button
                   onClick={() => setCancelDialogOpen(false)}
                   disabled={cancelling}
-                  className="flex-1 px-4 py-2.5 border border-[#E9E6DF] hover:bg-[#F9F7F4] text-[#1A1A1A] rounded-xl text-sm font-medium transition-colors cursor-pointer disabled:opacity-50"
+                  className="flex-1 px-4 py-2.5 border border-[#E9E6DF] dark:border-border hover:bg-[#F9F7F4] dark:bg-gray-800 text-[#1A1A1A] dark:text-gray-100 rounded-xl text-sm font-medium transition-colors cursor-pointer disabled:opacity-50"
                 >
                   Keep Reservation
                 </button>

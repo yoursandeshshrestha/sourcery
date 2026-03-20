@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState, useRef } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -8,7 +8,6 @@ import { RESERVATION_STATUS_LABELS } from '@/types/reservation';
 import { STRATEGY_LABELS } from '@/types/deal';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Table,
   TableBody,
@@ -17,32 +16,138 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Loader2, Eye, Receipt, User, Mail, Building2, Clock, CheckCircle2, XCircle, BadgeCheck } from 'lucide-react';
+import { Receipt, Building2, Clock, CheckCircle2, XCircle, BadgeCheck, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { formatDateTime } from '@/lib/date';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { debounce } from '@/lib/utils';
 
 export default function DealReservationsPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(true);
-  const [detailDialogOpen, setDetailDialogOpen] = useState(false);
-  const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
+  const [currentPage, setCurrentPage] = useState(() => {
+    const pageParam = searchParams.get('page');
+    return pageParam ? parseInt(pageParam, 10) : 1;
+  });
+  const [totalCount, setTotalCount] = useState(0);
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>(() => {
+    return (searchParams.get('sort') as 'newest' | 'oldest') || 'newest';
+  });
+  const [searchQuery, setSearchQuery] = useState(() => {
+    return searchParams.get('search') || '';
+  });
+  const [debouncedSearch, setDebouncedSearch] = useState(() => {
+    return searchParams.get('search') || '';
+  });
+  const [statusFilter, setStatusFilter] = useState<string>(() => {
+    return searchParams.get('status') || 'all';
+  });
+  const ITEMS_PER_PAGE = 20;
+
+  // Debounced search function
+  const debouncedSearchRef = useRef(
+    debounce((value: string) => {
+      setDebouncedSearch(value);
+    }, 500)
+  );
+
+  useEffect(() => {
+    debouncedSearchRef.current = debounce((value: string) => {
+      setDebouncedSearch(value);
+    }, 500);
+  }, []);
+
+  // Sync all filters from URL params
+  useEffect(() => {
+    const statusParam = searchParams.get('status');
+    const searchParam = searchParams.get('search');
+    const sortParam = searchParams.get('sort');
+    const pageParam = searchParams.get('page');
+
+    setStatusFilter(statusParam || 'all');
+    setSearchQuery(searchParam || '');
+    setDebouncedSearch(searchParam || '');
+    setSortOrder((sortParam as 'newest' | 'oldest') || 'newest');
+    setCurrentPage(pageParam ? parseInt(pageParam, 10) : 1);
+  }, [searchParams]);
+
+  // Set initial URL params if not present
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams);
+    let updated = false;
+
+    if (!searchParams.has('status')) {
+      params.set('status', 'all');
+      updated = true;
+    }
+    if (!searchParams.has('search')) {
+      params.set('search', '');
+      updated = true;
+    }
+    if (!searchParams.has('sort')) {
+      params.set('sort', 'newest');
+      updated = true;
+    }
+    if (!searchParams.has('page')) {
+      params.set('page', '1');
+      updated = true;
+    }
+
+    if (updated) {
+      setSearchParams(params, { replace: true });
+    }
+  }, []);
 
   useEffect(() => {
     fetchDealReservations();
-  }, []);
+    fetchStats();
+  }, [currentPage, sortOrder, debouncedSearch, statusFilter]);
+
+  const fetchStats = async () => {
+    try {
+      let query = supabase
+        .from('reservations')
+        .select('*', { count: 'exact', head: true })
+        .eq('sourcer_id', user?.id);
+
+      // Apply filters
+      if (statusFilter !== 'all') {
+        query = query.eq('status', statusFilter);
+      }
+
+      if (debouncedSearch) {
+        query = query.or(`deal.headline.ilike.%${debouncedSearch}%,investor.first_name.ilike.%${debouncedSearch}%,investor.last_name.ilike.%${debouncedSearch}%`);
+      }
+
+      const { count, error } = await query;
+
+      if (error) throw error;
+      setTotalCount(count || 0);
+    } catch (error) {
+      if (import.meta.env.DEV) {
+        console.error('Error fetching stats:', error);
+      }
+    }
+  };
 
   const fetchDealReservations = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+
+      const from = (currentPage - 1) * ITEMS_PER_PAGE;
+      const to = from + ITEMS_PER_PAGE - 1;
+
+      let query = supabase
         .from('reservations')
         .select(
           `
@@ -63,8 +168,22 @@ export default function DealReservationsPage() {
           )
         `
         )
-        .eq('sourcer_id', user?.id)
-        .order('reserved_at', { ascending: false });
+        .eq('sourcer_id', user?.id);
+
+      // Apply filters
+      if (statusFilter !== 'all') {
+        query = query.eq('status', statusFilter);
+      }
+
+      if (debouncedSearch) {
+        query = query.or(`deal.headline.ilike.%${debouncedSearch}%,investor.first_name.ilike.%${debouncedSearch}%,investor.last_name.ilike.%${debouncedSearch}%`);
+      }
+
+      query = query
+        .order('reserved_at', { ascending: sortOrder === 'oldest' })
+        .range(from, to);
+
+      const { data, error } = await query;
 
       if (error) throw error;
 
@@ -80,8 +199,7 @@ export default function DealReservationsPage() {
   };
 
   const handleViewDetails = (reservation: Reservation) => {
-    setSelectedReservation(reservation);
-    setDetailDialogOpen(true);
+    navigate(`/dashboard/reservations/${reservation.id}`);
   };
 
   const formatCurrency = (amount: number) => {
@@ -138,43 +256,41 @@ export default function DealReservationsPage() {
     return classes[strategy] || 'bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-950 dark:text-slate-400 dark:border-slate-800';
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
-
   return (
-    <div className="px-6 pt-6 pb-8 w-full">
+    <div className="p-6 space-y-6">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight mb-2">Deal Reservations</h1>
+      <div>
+        <h1 className="text-2xl font-semibold mb-2">Deal Reservations</h1>
         <p className="text-muted-foreground">
-          View and manage reservations for your property deals
+          View and manage reservations for your property deals ({totalCount})
         </p>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <div className="rounded-lg border border-border bg-card p-5 hover:shadow-sm transition-shadow">
-          <p className="text-sm font-medium text-muted-foreground mb-2">Total Reservations</p>
-          <p className="text-3xl font-bold">{reservations.length}</p>
+      {loading ? (
+        <div className="min-h-[60vh] flex items-center justify-center">
+          <LoadingSpinner message="Loading reservations..." />
         </div>
-        <div className="rounded-lg border border-emerald-200 bg-emerald-50 dark:bg-emerald-950 dark:border-emerald-800 p-5 hover:shadow-sm transition-shadow">
+      ) : (
+        <>
+          {/* Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="rounded-xl border border-border bg-card p-5">
+          <p className="text-sm font-medium text-muted-foreground mb-2">Total Reservations</p>
+          <p className="text-3xl font-bold">{totalCount}</p>
+        </div>
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50 dark:bg-emerald-950 dark:border-emerald-800 p-5">
           <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400 mb-2">Confirmed</p>
           <p className="text-3xl font-bold text-emerald-700 dark:text-emerald-400">
             {reservations.filter((r) => r.status === 'CONFIRMED').length}
           </p>
         </div>
-        <div className="rounded-lg border border-violet-200 bg-violet-50 dark:bg-violet-950 dark:border-violet-800 p-5 hover:shadow-sm transition-shadow">
+        <div className="rounded-xl border border-violet-200 bg-violet-50 dark:bg-violet-950 dark:border-violet-800 p-5">
           <p className="text-sm font-medium text-violet-700 dark:text-violet-400 mb-2">Completed</p>
           <p className="text-3xl font-bold text-violet-700 dark:text-violet-400">
             {reservations.filter((r) => r.status === 'COMPLETED').length}
           </p>
         </div>
-        <div className="rounded-lg border border-border bg-card p-5 hover:shadow-sm transition-shadow">
+        <div className="rounded-xl border border-border bg-card p-5">
           <p className="text-sm font-medium text-muted-foreground mb-2">Total Revenue</p>
           <p className="text-3xl font-bold text-primary">
             {formatCurrency(
@@ -186,17 +302,103 @@ export default function DealReservationsPage() {
         </div>
       </div>
 
+      {/* Search and Filters */}
+      <div className="flex items-center gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search by investor or deal..."
+            value={searchQuery}
+            onChange={(e) => {
+              const value = e.target.value;
+              setSearchQuery(value);
+              setCurrentPage(1);
+              debouncedSearchRef.current(value);
+              const params = new URLSearchParams(searchParams);
+              params.set('search', value);
+              params.set('page', '1');
+              setSearchParams(params);
+            }}
+            className="pl-9 rounded-lg"
+          />
+        </div>
+        <Select
+          value={statusFilter}
+          onValueChange={(value) => {
+            setStatusFilter(value);
+            setCurrentPage(1);
+            const params = new URLSearchParams(searchParams);
+            params.set('status', value);
+            params.set('page', '1');
+            setSearchParams(params);
+          }}
+        >
+          <SelectTrigger className="w-[160px] cursor-pointer rounded-lg">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="PENDING">Pending</SelectItem>
+            <SelectItem value="CONFIRMED">Confirmed</SelectItem>
+            <SelectItem value="CANCELLED">Cancelled</SelectItem>
+            <SelectItem value="COMPLETED">Completed</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select
+          value={sortOrder}
+          onValueChange={(value) => {
+            setSortOrder(value as 'newest' | 'oldest');
+            setCurrentPage(1);
+            const params = new URLSearchParams(searchParams);
+            params.set('sort', value);
+            params.set('page', '1');
+            setSearchParams(params);
+          }}
+        >
+          <SelectTrigger className="w-[140px] cursor-pointer rounded-lg">
+            <SelectValue placeholder="Sort by" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="newest">Newest</SelectItem>
+            <SelectItem value="oldest">Oldest</SelectItem>
+          </SelectContent>
+        </Select>
+        {(searchQuery || statusFilter !== 'all') && (
+          <Button
+            variant="outline"
+            onClick={() => {
+              setSearchQuery('');
+              setDebouncedSearch('');
+              setStatusFilter('all');
+              setCurrentPage(1);
+              const params = new URLSearchParams(searchParams);
+              params.set('search', '');
+              params.set('status', 'all');
+              params.set('page', '1');
+              setSearchParams(params);
+            }}
+            className="cursor-pointer rounded-lg"
+          >
+            Clear filters
+          </Button>
+        )}
+      </div>
+
       {/* Reservations Table */}
       {reservations.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 border border-border rounded-md">
-          <Receipt className="h-16 w-16 text-muted-foreground/30 mb-4" />
-          <p className="text-lg font-medium mb-1">No reservations yet</p>
-          <p className="text-sm text-muted-foreground mb-4">
-            Reservations for your deals will appear here
-          </p>
-          <Button onClick={() => navigate('/dashboard/my-deals')} className="cursor-pointer">
-            View My Deals
-          </Button>
+        <div className="min-h-[40vh] flex items-center justify-center">
+          <div className="text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-4">
+              <Receipt className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <h3 className="text-lg font-semibold mb-2">No reservations yet</h3>
+            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+              Reservations for your deals will appear here
+            </p>
+            <Button onClick={() => navigate('/dashboard/my-deals')} className="cursor-pointer rounded-lg">
+              View My Deals
+            </Button>
+          </div>
         </div>
       ) : (
         <div className="rounded-lg border border-border overflow-hidden bg-card">
@@ -209,25 +411,27 @@ export default function DealReservationsPage() {
                 <TableHead className="font-semibold">Reservation Fee</TableHead>
                 <TableHead className="font-semibold">Status</TableHead>
                 <TableHead className="font-semibold">Reserved On</TableHead>
-                <TableHead className="text-right font-semibold">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {reservations.map((reservation) => (
-                <TableRow key={reservation.id} className="hover:bg-muted/30">
+                <TableRow
+                  key={reservation.id}
+                  className="hover:bg-muted/30 cursor-pointer"
+                  onClick={() => handleViewDetails(reservation)}
+                >
                   <TableCell className="py-4">
                     <div className="flex items-center gap-3">
-                      <Avatar className="h-10 w-10 border-2 border-border">
-                        <AvatarImage src={reservation.investor?.avatar_url || undefined} />
-                        <AvatarFallback className="text-xs font-semibold bg-primary/10 text-primary">
+                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center border-2 border-border">
+                        <span className="text-xs font-semibold text-primary">
                           {reservation.investor
                             ? getInitials(
                                 reservation.investor.first_name,
                                 reservation.investor.last_name
                               )
                             : 'IN'}
-                        </AvatarFallback>
-                      </Avatar>
+                        </span>
+                      </div>
                       <div className="min-w-0">
                         <p className="font-medium text-sm truncate">
                           {reservation.investor
@@ -277,151 +481,57 @@ export default function DealReservationsPage() {
                   <TableCell className="py-4 text-sm text-muted-foreground">
                     {formatDateTime(reservation.reserved_at)}
                   </TableCell>
-                  <TableCell className="text-right py-4">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleViewDetails(reservation)}
-                      className="cursor-pointer hover:bg-primary/10 hover:text-primary"
-                    >
-                      <Eye className="h-4 w-4 mr-1.5" />
-                      <span className="text-xs font-medium">View</span>
-                    </Button>
-                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
+
+          {/* Pagination */}
+          {totalCount > ITEMS_PER_PAGE && (
+            <div className="flex items-center justify-between px-6 py-4 border-t border-border">
+              <p className="text-sm text-muted-foreground">
+                Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1}-{Math.min(currentPage * ITEMS_PER_PAGE, totalCount)} of {totalCount} reservations
+              </p>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    const newPage = currentPage - 1;
+                    setCurrentPage(newPage);
+                    const params = new URLSearchParams(searchParams);
+                    params.set('page', newPage.toString());
+                    setSearchParams(params);
+                  }}
+                  disabled={currentPage === 1}
+                  className="cursor-pointer rounded-lg"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <span className="text-sm text-muted-foreground">
+                  Page {currentPage} of {Math.ceil(totalCount / ITEMS_PER_PAGE)}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    const newPage = currentPage + 1;
+                    setCurrentPage(newPage);
+                    const params = new URLSearchParams(searchParams);
+                    params.set('page', newPage.toString());
+                    setSearchParams(params);
+                  }}
+                  disabled={currentPage >= Math.ceil(totalCount / ITEMS_PER_PAGE)}
+                  className="cursor-pointer rounded-lg"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       )}
-
-      {/* Reservation Detail Dialog */}
-      {selectedReservation && (
-        <Dialog open={detailDialogOpen} onOpenChange={setDetailDialogOpen}>
-          <DialogContent className="sm:max-w-[500px]">
-            <DialogHeader>
-              <DialogTitle>Reservation Details</DialogTitle>
-              <DialogDescription>
-                Full information about this reservation
-              </DialogDescription>
-            </DialogHeader>
-
-            <div className="space-y-5">
-              {/* Investor Info */}
-              <div className="rounded-lg border border-border bg-card p-5">
-                <h3 className="font-semibold text-base mb-4 flex items-center gap-2">
-                  <User className="h-4 w-4 text-primary" />
-                  Investor Information
-                </h3>
-                <div className="flex items-center gap-4 mb-4">
-                  <Avatar className="h-14 w-14 border-2 border-border">
-                    <AvatarImage src={selectedReservation.investor?.avatar_url || undefined} />
-                    <AvatarFallback className="text-sm font-semibold bg-primary/10 text-primary">
-                      {selectedReservation.investor
-                        ? getInitials(
-                            selectedReservation.investor.first_name,
-                            selectedReservation.investor.last_name
-                          )
-                        : 'IN'}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="font-semibold text-base">
-                      {selectedReservation.investor
-                        ? `${selectedReservation.investor.first_name} ${selectedReservation.investor.last_name}`
-                        : 'N/A'}
-                    </p>
-                    {selectedReservation.investor?.company_name && (
-                      <p className="text-sm text-muted-foreground mt-0.5">
-                        {selectedReservation.investor.company_name}
-                      </p>
-                    )}
-                  </div>
-                </div>
-                <div className="space-y-2 text-sm">
-                  <div className="flex items-center gap-2 text-muted-foreground px-3 py-2 bg-muted/50 rounded-md">
-                    <Mail className="h-4 w-4 shrink-0" />
-                    <span className="break-all">{selectedReservation.investor?.email || 'N/A'}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Deal Info */}
-              <div className="rounded-lg border border-border bg-card p-5">
-                <h3 className="font-semibold text-base mb-4 flex items-center gap-2">
-                  <Building2 className="h-4 w-4 text-primary" />
-                  Deal Information
-                </h3>
-                <div className="space-y-3 text-sm">
-                  <div className="flex justify-between items-start gap-4">
-                    <span className="text-muted-foreground font-medium">Property</span>
-                    <span className="font-semibold text-right">{selectedReservation.deal?.headline}</span>
-                  </div>
-                  <div className="flex justify-between items-start gap-4">
-                    <span className="text-muted-foreground font-medium">Location</span>
-                    <span className="font-medium text-right">
-                      {selectedReservation.deal?.approximate_location}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center gap-4">
-                    <span className="text-muted-foreground font-medium">Strategy</span>
-                    <Badge
-                      variant="outline"
-                      className={`font-medium ${
-                        selectedReservation.deal?.strategy_type
-                          ? getStrategyBadgeClass(selectedReservation.deal.strategy_type)
-                          : ''
-                      }`}
-                    >
-                      {selectedReservation.deal?.strategy_type
-                        ? STRATEGY_LABELS[
-                            selectedReservation.deal
-                              .strategy_type as keyof typeof STRATEGY_LABELS
-                          ]
-                        : 'N/A'}
-                    </Badge>
-                  </div>
-                </div>
-              </div>
-
-              {/* Reservation Info */}
-              <div className="rounded-lg border border-border bg-card p-5">
-                <h3 className="font-semibold text-base mb-4 flex items-center gap-2">
-                  <Receipt className="h-4 w-4 text-primary" />
-                  Reservation Details
-                </h3>
-                <div className="space-y-3 text-sm">
-                  <div className="flex justify-between items-center gap-4">
-                    <span className="text-muted-foreground font-medium">Status</span>
-                    {getStatusBadge(selectedReservation.status)}
-                  </div>
-                  <div className="flex justify-between items-center gap-4">
-                    <span className="text-muted-foreground font-medium">Reservation Fee</span>
-                    <span className="font-bold text-base text-primary">
-                      {formatCurrency(selectedReservation.reservation_fee_amount)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-start gap-4">
-                    <span className="text-muted-foreground font-medium">Reserved On</span>
-                    <span className="font-medium text-right">
-                      {formatDateTime(selectedReservation.reserved_at)}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Investor Notes */}
-              {selectedReservation.investor_notes && (
-                <div className="rounded-lg border border-border bg-card p-5">
-                  <h3 className="font-semibold text-base mb-3">Investor Notes</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
-                    {selectedReservation.investor_notes}
-                  </p>
-                </div>
-              )}
-            </div>
-          </DialogContent>
-        </Dialog>
+        </>
       )}
     </div>
   );

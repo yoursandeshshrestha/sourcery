@@ -5,7 +5,16 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { formatDate } from '@/lib/date';
 import { StripeConnectOnboarding } from '@/components/stripe/StripeConnectOnboarding';
-import { Loader2, X } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
 
 export default function SettingsPage() {
   const { user, profile, signOut, refreshProfile } = useAuth();
@@ -217,83 +226,46 @@ export default function SettingsPage() {
       </div>
 
       {/* Delete Account Confirmation Dialog */}
-      {showDeleteDialog && (
-        <>
-          {/* Backdrop */}
-          <div
-            className="fixed inset-0 bg-black/50 z-50 animate-in fade-in"
-            onClick={() => !deleting && setShowDeleteDialog(false)}
-          />
-
-          {/* Modal */}
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div
-              className="bg-card rounded-lg shadow-xl max-w-md w-full animate-in zoom-in-95 border"
-              onClick={(e) => e.stopPropagation()}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent className="max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Account?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. All of your data will be permanently deleted, including:
+              <ul className="list-disc list-inside mt-3 space-y-1 text-sm">
+                <li>Your profile information</li>
+                <li>All investment history and deals</li>
+                <li>Messages and communications</li>
+                <li>Account settings and preferences</li>
+              </ul>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteDialog(false)}
+              disabled={deleting}
+              className="cursor-pointer rounded-lg"
             >
-              {/* Header */}
-              <div className="flex items-start justify-between p-6 pb-4 border-b">
-                <div>
-                  <h2 className="text-xl font-semibold mb-1">Delete Account</h2>
-                  <p className="text-sm text-muted-foreground">
-                    This action cannot be undone
-                  </p>
-                </div>
-                <button
-                  onClick={() => !deleting && setShowDeleteDialog(false)}
-                  disabled={deleting}
-                  className="p-2 hover:bg-accent rounded-lg transition-colors cursor-pointer shrink-0 ml-4 disabled:opacity-50"
-                >
-                  <X className="h-5 w-5 text-muted-foreground" />
-                </button>
-              </div>
-
-              {/* Content */}
-              <div className="p-6 space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Are you sure you want to delete your account? This action cannot be undone.
-                </p>
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                  <p className="font-medium text-red-900 text-sm mb-2">
-                    All of your data will be permanently deleted, including:
-                  </p>
-                  <ul className="list-disc list-inside text-sm space-y-1 text-red-800 ml-2">
-                    <li>Your profile information</li>
-                    <li>All investment history and deals</li>
-                    <li>Messages and communications</li>
-                    <li>Account settings and preferences</li>
-                  </ul>
-                </div>
-              </div>
-
-              {/* Footer */}
-              <div className="flex gap-3 p-6 pt-4 border-t">
-                <button
-                  onClick={() => setShowDeleteDialog(false)}
-                  disabled={deleting}
-                  className="flex-1 px-4 py-2.5 border bg-background hover:bg-accent text-sm font-medium rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleDeleteAccount}
-                  disabled={deleting}
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {deleting ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Deleting...
-                    </>
-                  ) : (
-                    'Delete My Account'
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
+              Cancel
+            </Button>
+            <Button
+              onClick={handleDeleteAccount}
+              disabled={deleting}
+              className="bg-red-600 hover:bg-red-700 cursor-pointer rounded-lg"
+            >
+              {deleting ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                'Delete My Account'
+              )}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
