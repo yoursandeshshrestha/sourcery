@@ -15,7 +15,7 @@ export default function Text({
 }: TextProps) {
   const colorClasses = {
     primary: 'text-[#1287ff]',
-    secondary: 'text-[#5C5C49]'
+    secondary: 'text-[#5C5C49] dark:text-gray-400'
   };
 
   const variantClasses = {

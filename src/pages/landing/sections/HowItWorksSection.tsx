@@ -49,7 +49,7 @@ export default function HowItWorksSection() {
   return (
     <Section background="white">
       <Container>
-        <div className="bg-[#F9F7F4] rounded-3xl p-12 sm:p-16">
+        <div className="bg-[#F9F7F4] dark:bg-card rounded-3xl p-12 sm:p-16">
           <div className="mb-12">
             <Text variant="small" color="secondary" className="mb-4">
               Your Investment Journey
@@ -59,7 +59,8 @@ export default function HowItWorksSection() {
               <svg className="w-12 h-8" viewBox="0 0 48 32" fill="none">
                 <path
                   d="M2 15C8 8 12 2 20 8C28 14 32 20 42 12C45 9 46 6 47 4"
-                  stroke="#000000"
+                  stroke="currentColor"
+                  className="text-[#000000] dark:text-gray-100"
                   strokeWidth="3"
                   strokeLinecap="round"
                   fill="none"
@@ -81,8 +82,8 @@ export default function HowItWorksSection() {
                   description={step.description}
                   icon={step.icon}
                   className={`
-                    ${index < 5 ? 'border-b border-[#E9E6DF]' : ''}
-                    ${!isRightColumnMd ? 'md:border-r border-[#E9E6DF]' : ''}
+                    ${index < 5 ? 'border-b border-[#E9E6DF] dark:border-border' : ''}
+                    ${!isRightColumnMd ? 'md:border-r border-[#E9E6DF] dark:border-border' : ''}
                     ${!isRightColumnLg ? 'lg:border-r' : 'lg:border-r-0'}
                     ${isLastRow ? 'lg:border-b-0' : ''}
                   `}

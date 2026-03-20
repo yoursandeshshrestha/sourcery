@@ -8,7 +8,7 @@ export default function AIAssistSection() {
   return (
     <Section background="white">
       <Container>
-        <div className="bg-[#F9F7F4] border border-[#E9E6DF] rounded-3xl p-12 sm:p-16 relative overflow-hidden">
+        <div className="bg-[#F9F7F4] dark:bg-card border border-[#E9E6DF] dark:border-border rounded-3xl p-12 sm:p-16 relative overflow-hidden">
           <DotsPattern />
 
           <div className="max-w-3xl mx-auto text-center relative z-10">

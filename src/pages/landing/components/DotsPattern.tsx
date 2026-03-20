@@ -4,7 +4,7 @@ interface DotsPatternProps {
 }
 
 export default function DotsPattern({ opacity = 20, className = '' }: DotsPatternProps) {
-  const opacityClass = `opacity-${opacity}`;
+  const opacityClass = `opacity-${opacity} dark:opacity-5`;
 
   return (
     <div

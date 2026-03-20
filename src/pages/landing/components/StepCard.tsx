@@ -22,7 +22,7 @@ export default function StepCard({
 }: StepCardProps) {
   return (
     <div className={`p-8 ${className}`}>
-      <div className="w-12 h-12 bg-white border border-[#E9E6DF] rounded-xl flex items-center justify-center text-[#1287ff] mb-6">
+      <div className="w-12 h-12 bg-white dark:bg-background border border-[#E9E6DF] dark:border-border rounded-xl flex items-center justify-center text-[#1287ff] mb-6">
         {icon}
       </div>
       <Heading level={3} className="mb-3">

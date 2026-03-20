@@ -52,14 +52,14 @@ export default function FAQSection() {
             {faqs.map((faq, index) => (
               <div
                 key={index}
-                className="border-b border-[#E9E6DF] cursor-pointer"
+                className="border-b border-[#E9E6DF] dark:border-border cursor-pointer"
                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
               >
                 <div className="flex items-center justify-between py-5">
                   <h3 className="text-base font-medium text-[#1287ff] pr-8">
                     {faq.question}
                   </h3>
-                  <div className={`text-[#5C5C49] transition-transform shrink-0 ${openIndex === index ? 'rotate-90' : ''}`}>
+                  <div className={`text-[#5C5C49] dark:text-gray-400 transition-transform shrink-0 ${openIndex === index ? 'rotate-90' : ''}`}>
                     <ChevronRightIcon className="w-5 h-5" />
                   </div>
                 </div>

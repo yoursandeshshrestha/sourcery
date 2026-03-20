@@ -14,8 +14,8 @@ export default function Section({
   className = ''
 }: SectionProps) {
   const bgClasses = {
-    primary: 'bg-[#F9F7F4]',
-    white: 'bg-white'
+    primary: 'bg-[#F9F7F4] dark:bg-background',
+    white: 'bg-white dark:bg-background'
   };
 
   const paddingClasses = {
